@@ -6,6 +6,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { Store } from "../src/store.mjs";
 import { createQuoteService } from "../src/quotes.mjs";
+import { createChain } from "../src/markets/chain.mjs";
 import { createRoutes } from "../src/routes.mjs";
 import { createTrustGuard } from "../src/access.mjs";
 
@@ -22,7 +23,7 @@ async function startServer({ trust, logger, diag } = {}) {
   const store = new Store({}, { info() {}, warn() {} });
   await store.init();
   await store.addSymbol(SYM);
-  const quotes = createQuoteService({});
+  const quotes = createQuoteService({ chain: createChain({}) });
   const routes = createRoutes({ store, quotes, logger: logger ?? { info() {}, warn() {} }, trust, diag });
   const server = http.createServer((req, res) => {
     const route = routes.find((r) => r.path === (req.url ?? "").split("?")[0]);

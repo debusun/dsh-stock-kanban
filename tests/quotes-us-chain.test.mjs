@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { createQuoteService } from "../src/quotes.mjs";
+import { createChain } from "../src/markets/chain.mjs";
 
 /* 美股链顺序（2026-11-13）：东方财富 → 腾讯美股 → Yahoo。东方财富失败时腾讯美股应先于 Yahoo 补位，
    使 Yahoo 的 429 不再成为美股的唯一兜底。 */
@@ -18,7 +19,7 @@ test("美股：东方财富失败 → 腾讯美股补位；Yahoo 不被调用", 
     throw new Error("unexpected " + u);
   };
   try {
-    const svc = createQuoteService({ ttlMs: 0 });
+    const svc = createQuoteService({ chain: createChain({ ttlMs: 0 }) });
     const rows = await svc.getQuotes([{ id: "us:AAPL", market: "us", code: "AAPL", quoteCurrency: "USD" }]);
     const row = rows.get("us:AAPL");
     assert.equal(row.status, "ok");

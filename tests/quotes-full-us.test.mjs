@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { createQuoteService } from "../src/quotes.mjs";
+import { createChain } from "../src/markets/chain.mjs";
 
 /* 详情路径美股链（2026-11-13，修复详情头报「获取失败 / no-data」）：
    1) 详情路径与卡片批量路径同一条美股链：东方财富失败后由腾讯美股补位，不得落到 Yahoo；
@@ -32,7 +33,7 @@ test("详情路径：东方财富失败 → 腾讯美股补位，不落到 Yahoo
   const orig = globalThis.fetch;
   try {
     const calls = routeFetch([["eastmoney", emDown], ["gtimg", () => ok(US_ROW)], ["yahoo", () => fail(429)]]);
-    const out = await createQuoteService({ ttlMs: 0 }).getQuoteFull(US);
+    const out = await createQuoteService({ chain: createChain({ ttlMs: 0 }) }).getQuoteFull(US);
     const row = out.get("us:NVDA");
     assert.equal(row.status, "ok");
     assert.equal(row.quote.price, 166.19);
@@ -47,7 +48,7 @@ test("详情路径退避：Yahoo 429 后，退避期内详情轮询不再打上�
   const orig = globalThis.fetch;
   try {
     const calls = routeFetch([["eastmoney", emDown], ["gtimg", () => fail(500)], ["yahoo", () => fail(429)]]);
-    const svc = createQuoteService({ ttlMs: 0 });
+    const svc = createQuoteService({ chain: createChain({ ttlMs: 0 }) });
     const first = await svc.getQuoteFull(US);
     assert.equal(first.get("us:NVDA").status, "error");
     const before = calls.length;
@@ -63,7 +64,7 @@ test("详情路径成功结果短缓存：TTL 内轮询不重复打上游", asyn
   const orig = globalThis.fetch;
   try {
     const calls = routeFetch([["eastmoney", emDown], ["gtimg", () => ok(US_ROW)]]);
-    const svc = createQuoteService({ ttlMs: 10000 });
+    const svc = createQuoteService({ chain: createChain({ ttlMs: 10000 }) });
     const a = await svc.getQuoteFull(US);
     assert.equal(a.get("us:NVDA").status, "ok");
     const n = calls.length;
@@ -79,7 +80,7 @@ test("东方财富传输失败进入退避：退避期内详情路径不再探�
   const orig = globalThis.fetch;
   try {
     const calls = routeFetch([["eastmoney", emDown], ["gtimg", () => ok(US_ROW)]]);
-    const svc = createQuoteService({ ttlMs: 0 });
+    const svc = createQuoteService({ chain: createChain({ ttlMs: 0 }) });
     await svc.getQuoteFull(US);
     const emFirst = calls.filter((u) => u.includes("eastmoney")).length;
     assert.ok(emFirst > 0, "首次应探测东方财富");

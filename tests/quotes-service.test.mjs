@@ -1,6 +1,11 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { createQuoteService } from "../src/quotes.mjs";
+import { createChain } from "../src/markets/chain.mjs";
+
+test("createQuoteService：chain 必填（ADR-0007）", () => {
+  assert.throws(() => createQuoteService({}), /chain/);
+});
 
 /* mock 上游：按 host 前缀分流，统计调用次数（12.3 合并请求/退避行为验证） */
 
@@ -72,7 +77,7 @@ const IDS = [
 test("行情服务：三提供方并行取数 + 每标的独立判错", async () => {
   const world = mockFetchWorld();
   try {
-    const svc = createQuoteService({});
+    const svc = createQuoteService({ chain: createChain({}) });
     const rows = await svc.getQuotes(IDS);
     assert.equal(rows.get("cn:sh600519").status, "ok");
     assert.equal(rows.get("us:AAPL").status, "ok");
@@ -87,7 +92,7 @@ test("行情服务：三提供方并行取数 + 每标的独立判错", async ()
 test("行情服务：TTL 内合并请求（同一批 codes 只打一次上游）（12.3）", async () => {
   const world = mockFetchWorld();
   try {
-    const svc = createQuoteService({ ttlMs: 60000 });
+    const svc = createQuoteService({ chain: createChain({ ttlMs: 60000 }) });
     await svc.getQuotes(IDS);
     const callsAfterFirst = world.calls.length;
     await svc.getQuotes(IDS); // 立即再次
@@ -101,7 +106,7 @@ test("行情服务：TTL 内合并请求（同一批 codes 只打一次上游）
 test("行情服务：整链失败进入退避，退避期内不打上游且标的标 error（12.3 + P0-1 链级口径）", async () => {
   const world = mockFetchWorld();
   try {
-    const svc = createQuoteService({ ttlMs: 0 }); // TTL=0 强制每次可打上游
+    const svc = createQuoteService({ chain: createChain({ ttlMs: 0 }) }); // TTL=0 强制每次可打上游
     world.setTencentFail(true);
     world.setEMFail(true);
     world.setSinaFail(true); // cn 链三源全挂（2026-11-14 §12.44 链扩展：原「两源全挂即整链失败」语义随第三源到齐修正）
@@ -124,7 +129,7 @@ test("行情服务：整链失败进入退避，退避期内不打上游且标�
 test("行情服务：退避期内有陈旧缓存则回退陈旧缓存", async () => {
   const world = mockFetchWorld();
   try {
-    const svc = createQuoteService({ ttlMs: 60000 });
+    const svc = createQuoteService({ chain: createChain({ ttlMs: 60000 }) });
     const ok = await svc.getQuotes(IDS.filter((i) => i.market === "cn"));
     assert.equal(ok.get("cn:sh600519").status, "ok");
     world.setTencentFail(true);
@@ -141,7 +146,7 @@ test("行情服务：退避期内有陈旧缓存则回退陈旧缓存", async ()
 test("行情服务：腾讯失败 → EM 备源补位（cn 链，主源退避不拖累备源）", async () => {
   const world = mockFetchWorld();
   try {
-    const svc = createQuoteService({ ttlMs: 0 });
+    const svc = createQuoteService({ chain: createChain({ ttlMs: 0 }) });
     world.setTencentFail(true);
     const rows = await svc.getQuotes(IDS.filter((i) => i.market === "cn"));
     const row = rows.get("cn:sh600519");
@@ -168,7 +173,7 @@ test("行情服务：EM 失败 → Yahoo 备源补位 + 美股行情时间（us 
     throw new Error("unexpected " + u);
   };
   try {
-    const svc = createQuoteService({ ttlMs: 0 });
+    const svc = createQuoteService({ chain: createChain({ ttlMs: 0 }) });
     const rows = await svc.getQuotes([{ id: "us:AAPL", market: "us", code: "AAPL", quoteCurrency: "USD" }]);
     const row = rows.get("us:AAPL");
     assert.equal(row.status, "ok");
@@ -183,7 +188,7 @@ test("行情服务：provider.fail 诊断事件随真实上游失败发出（含
   const world = mockFetchWorld();
   const events = [];
   try {
-    const svc = createQuoteService({ ttlMs: 0, diag: (r) => events.push(r) });
+    const svc = createQuoteService({ chain: createChain({ ttlMs: 0, diag: (r) => events.push(r) }) });
     world.setTencentFail(true);
     await svc.getQuotes(IDS.filter((i) => i.market === "cn"));
     const fail = events.filter((e) => e.ev === "provider.fail" && e.provider === "tencent");
@@ -199,7 +204,7 @@ test("行情服务：provider.fail 诊断事件随真实上游失败发出（含
 test("行情服务：腾讯+EM 全挂 → 新浪第三腿兜住（cn 链）", async () => {
   const world = mockFetchWorld();
   try {
-    const svc = createQuoteService({ ttlMs: 0 });
+    const svc = createQuoteService({ chain: createChain({ ttlMs: 0 }) });
     world.setTencentFail(true);
     world.setEMFail(true);
     const rows = await svc.getQuotes([{ id: "cn:sz000001", market: "cn", code: "sz000001", quoteCurrency: "CNY" }]);
@@ -215,7 +220,7 @@ test("行情服务：腾讯+EM 全挂 → 新浪第三腿兜住（cn 链）", as
 test("行情服务：cn 链三源全挂 → 标的标 error", async () => {
   const world = mockFetchWorld();
   try {
-    const svc = createQuoteService({ ttlMs: 0 });
+    const svc = createQuoteService({ chain: createChain({ ttlMs: 0 }) });
     world.setTencentFail(true);
     world.setEMFail(true);
     world.setSinaFail(true);
@@ -229,7 +234,7 @@ test("行情服务：cn 链三源全挂 → 标的标 error", async () => {
 test("行情服务：详情路径第三腿（getQuoteFull，tencent/em 无数据时 sina 供数）", async () => {
   const world = mockFetchWorld();
   try {
-    const svc = createQuoteService({ ttlMs: 0 });
+    const svc = createQuoteService({ chain: createChain({ ttlMs: 0 }) });
     world.setTencentSparse(true); // 腾讯只回 sh600519 → sz000001 缺席
     const rows = await svc.getQuoteFull([{ id: "cn:sz000001", market: "cn", code: "sz000001", quoteCurrency: "CNY" }]);
     const row = rows.get("cn:sz000001");
@@ -246,7 +251,7 @@ test("行情服务：详情路径第三腿（getQuoteFull，tencent/em 无数据
 test("行情服务：退避按 (提供方,市场) 记账——cn 失败不冻结 hk 同源", async () => {
   const world = mockFetchWorld();
   try {
-    const svc = createQuoteService({ ttlMs: 0 });
+    const svc = createQuoteService({ chain: createChain({ ttlMs: 0 }) });
     world.setTencentFail(true);
     const r1 = await svc.getQuotes([{ id: "cn:sh600519", market: "cn", code: "sh600519", quoteCurrency: "CNY" }]);
     assert.equal(r1.get("cn:sh600519").status, "ok"); // EM 兜住，tencent|cn 入退避
@@ -267,7 +272,7 @@ test("行情服务：健康载荷记录 lastOkAt/lastErrorAt/lastError", async (
   const world = mockFetchWorld();
   try {
     let clock = Date.now();
-    const svc = createQuoteService({ ttlMs: 0, now: () => clock });
+    const svc = createQuoteService({ chain: createChain({ ttlMs: 0, now: () => clock }) });
     world.setTencentFail(true);
     await svc.getQuotes([{ id: "cn:sh600519", market: "cn", code: "sh600519", quoteCurrency: "CNY" }]);
     let h = svc.health();
@@ -289,7 +294,7 @@ test("行情服务：源有响应但无该标的 ≠ 失败（inconclusive 不�
   const world = mockFetchWorld();
   const events = [];
   try {
-    const svc = createQuoteService({ ttlMs: 0, diag: (r) => events.push(r) });
+    const svc = createQuoteService({ chain: createChain({ ttlMs: 0, diag: (r) => events.push(r) }) });
     world.setTencentFail(true);
     world.setEMSparse(true); // EM 返回成功但空 diff
     world.setSinaFail(true); // 封新浪（夹具含 sh600519 行，不封则全链不再是「无该标的」——§12.46 夹具扩展修正）
@@ -308,7 +313,7 @@ test("行情服务：源有响应但无该标的 ≠ 失败（inconclusive 不�
 test("行情服务：链首直接供数 → source=链首、fallbackFrom=null", async () => {
   const world = mockFetchWorld();
   try {
-    const svc = createQuoteService({ ttlMs: 0 });
+    const svc = createQuoteService({ chain: createChain({ ttlMs: 0 }) });
     const rows = await svc.getQuotes([{ id: "cn:sh600519", market: "cn", code: "sh600519", quoteCurrency: "CNY" }]);
     const row = rows.get("cn:sh600519");
     assert.equal(row.source, "tencent");
@@ -321,7 +326,7 @@ test("行情服务：链首直接供数 → source=链首、fallbackFrom=null", 
 test("行情服务：整源失败降级 → source=实际供数方、fallbackFrom=首个失败源", async () => {
   const world = mockFetchWorld();
   try {
-    const svc = createQuoteService({ ttlMs: 0 });
+    const svc = createQuoteService({ chain: createChain({ ttlMs: 0 }) });
     world.setTencentFail(true);
     const rows = await svc.getQuotes([{ id: "cn:sh600519", market: "cn", code: "sh600519", quoteCurrency: "CNY" }]);
     const row = rows.get("cn:sh600519");
@@ -335,7 +340,7 @@ test("行情服务：整源失败降级 → source=实际供数方、fallbackFro
 test("行情服务：稀疏丢码 → fallbackFrom 记首个失败源（腾讯丢码而非顺位 EM）", async () => {
   const world = mockFetchWorld();
   try {
-    const svc = createQuoteService({ ttlMs: 0 });
+    const svc = createQuoteService({ chain: createChain({ ttlMs: 0 }) });
     world.setTencentSparse(true);
     const rows = await svc.getQuotes([{ id: "cn:sz000001", market: "cn", code: "sz000001", quoteCurrency: "CNY" }]);
     const row = rows.get("cn:sz000001");
@@ -351,7 +356,7 @@ test("行情服务：error 行 source/fallbackFrom 均 null；详情路径行携
   const world = mockFetchWorld();
   try {
     let clock = Date.now();
-    const svc = createQuoteService({ ttlMs: 0, now: () => clock });
+    const svc = createQuoteService({ chain: createChain({ ttlMs: 0, now: () => clock }) });
     world.setTencentFail(true);
     world.setEMFail(true);
     world.setSinaFail(true);
