@@ -1,10 +1,10 @@
 {
-  "at": "2026-11-14T13:39:44.253Z",
+  "at": "2026-11-14T23:49:38.681Z",
   "results": [
     {
       "name": "tencent-batch-snapshot",
       "ok": true,
-      "ms": 261,
+      "ms": 231,
       "detail": {
         "bytes": 2460,
         "rows": 5,
@@ -56,7 +56,7 @@
     {
       "name": "tencent-minute https://proxy.finance.qq.com/ifzqgtimg",
       "ok": true,
-      "ms": 200,
+      "ms": 143,
       "detail": {
         "code": 0,
         "hasData": true,
@@ -68,7 +68,7 @@
     {
       "name": "tencent-minute https://web.ifzq.gtimg.cn",
       "ok": true,
-      "ms": 195,
+      "ms": 183,
       "detail": {
         "code": 0,
         "hasData": true,
@@ -80,7 +80,7 @@
     {
       "name": "tencent-fqkline-day",
       "ok": true,
-      "ms": 196,
+      "ms": 58,
       "detail": {
         "code": 0,
         "rows": 20,
@@ -108,7 +108,7 @@
     {
       "name": "tencent-fqkline-week",
       "ok": true,
-      "ms": 192,
+      "ms": 56,
       "detail": {
         "code": 0,
         "rows": 20,
@@ -136,7 +136,7 @@
     {
       "name": "tencent-fqkline-month",
       "ok": true,
-      "ms": 93,
+      "ms": 58,
       "detail": {
         "code": 0,
         "rows": 20,
@@ -164,7 +164,7 @@
     {
       "name": "tencent-fqkline-hk",
       "ok": true,
-      "ms": 92,
+      "ms": 61,
       "detail": {
         "code": 0,
         "rows": 20,
@@ -180,7 +180,7 @@
     {
       "name": "em-us-snapshot",
       "ok": true,
-      "ms": 102,
+      "ms": 1153,
       "detail": {
         "name": "苹果",
         "price": 356.27,
@@ -189,83 +189,26 @@
     },
     {
       "name": "em-us-kline-day",
-      "ok": true,
-      "ms": 242,
-      "detail": {
-        "name": "苹果",
-        "rows": 20,
-        "first": [
-          "2026-10-19",
-          "340.505",
-          "342.670",
-          "345.730",
-          "339.845",
-          "34573181"
-        ],
-        "last": [
-          "2026-11-13",
-          "357.960",
-          "356.270",
-          "360.830",
-          "355.750",
-          "40027467"
-        ]
-      }
+      "ok": false,
+      "ms": 235,
+      "error": "fetch failed"
     },
     {
       "name": "em-us-kline-week",
-      "ok": true,
-      "ms": 54,
-      "detail": {
-        "name": "苹果",
-        "rows": 20,
-        "first": [
-          "2026-07-02",
-          "286.190",
-          "308.090",
-          "308.880",
-          "279.310",
-          "257092015"
-        ],
-        "last": [
-          "2026-11-13",
-          "344.725",
-          "356.270",
-          "360.830",
-          "344.510",
-          "184865034"
-        ]
-      }
+      "ok": false,
+      "ms": 228,
+      "error": "fetch failed"
     },
     {
       "name": "em-us-kline-month",
-      "ok": true,
-      "ms": 51,
-      "detail": {
-        "name": "苹果",
-        "rows": 20,
-        "first": [
-          "2025-04-30",
-          "217.955",
-          "210.650",
-          "223.340",
-          "167.360",
-          "1607318483"
-        ],
-        "last": [
-          "2026-11-13",
-          "342.400",
-          "356.270",
-          "360.830",
-          "325.060",
-          "522803251"
-        ]
-      }
+      "ok": false,
+      "ms": 229,
+      "error": "fetch failed"
     },
     {
       "name": "em-us-trends2",
       "ok": true,
-      "ms": 106,
+      "ms": 223,
       "detail": {
         "points": 391,
         "first": "2026-11-13 22:30,358.155",
@@ -274,44 +217,73 @@
     },
     {
       "name": "okx-ticker",
-      "ok": false,
-      "ms": 10009,
-      "error": "The operation was aborted due to timeout"
+      "ok": true,
+      "ms": 57,
+      "detail": {
+        "code": "0",
+        "last": "64029.9",
+        "open24h": "68208.6",
+        "ts": "1794700181360"
+      }
     },
     {
       "name": "okx-candles-day",
-      "ok": false,
-      "ms": 10016,
-      "error": "The operation was aborted due to timeout"
+      "ok": true,
+      "ms": 55,
+      "detail": {
+        "code": "0",
+        "rows": 20,
+        "firstTs": "1794672000000",
+        "firstClose": "64042.6"
+      }
     },
     {
       "name": "okx-candles-week",
-      "ok": false,
-      "ms": 10012,
-      "error": "The operation was aborted due to timeout"
+      "ok": true,
+      "ms": 49,
+      "detail": {
+        "code": "0",
+        "rows": 20,
+        "firstTs": "1794153600000",
+        "firstClose": "64027.8"
+      }
     },
     {
       "name": "okx-candles-month",
-      "ok": false,
-      "ms": 10004,
-      "error": "The operation was aborted due to timeout"
+      "ok": true,
+      "ms": 54,
+      "detail": {
+        "code": "0",
+        "rows": 20,
+        "firstTs": "1793462400000",
+        "firstClose": "64027.8"
+      }
     },
     {
       "name": "okx-candles-minute",
-      "ok": false,
-      "ms": 10003,
-      "error": "The operation was aborted due to timeout"
+      "ok": true,
+      "ms": 51,
+      "detail": {
+        "code": "0",
+        "rows": 20,
+        "firstTs": "1794699900000",
+        "firstClose": "64042.6"
+      }
     },
     {
       "name": "okx-instruments",
-      "ok": false,
-      "ms": 10210,
-      "error": "fetch failed"
+      "ok": true,
+      "ms": 146,
+      "detail": {
+        "code": "0",
+        "total": 1232,
+        "usdtPairs": 483
+      }
     },
     {
       "name": "smartbox \"茅台\"",
       "ok": true,
-      "ms": 350,
+      "ms": 129,
       "detail": {
         "hits": 1,
         "sample": [
@@ -322,7 +294,7 @@
     {
       "name": "smartbox \"00700\"",
       "ok": true,
-      "ms": 100,
+      "ms": 50,
       "detail": {
         "hits": 10,
         "sample": [
@@ -338,7 +310,7 @@
     {
       "name": "smartbox \"aapl\"",
       "ok": true,
-      "ms": 95,
+      "ms": 47,
       "detail": {
         "hits": 1,
         "sample": [
@@ -349,7 +321,7 @@
     {
       "name": "smartbox \"沪深300ETF\"",
       "ok": true,
-      "ms": 91,
+      "ms": 48,
       "detail": {
         "hits": 10,
         "sample": [
@@ -365,7 +337,7 @@
     {
       "name": "em-cn-snapshot",
       "ok": true,
-      "ms": 154,
+      "ms": 368,
       "detail": {
         "name": "贵州茅台",
         "price": 1435.26,
@@ -374,109 +346,97 @@
     },
     {
       "name": "sina-cn-snapshot",
-      "ok": true,
-      "ms": 183,
-      "detail": {
-        "bytes": 1019,
-        "rows": 4,
-        "raw0": "var hq_str_sh600519=\"贵州茅台,1404.000,1410.270,1435.260,1437.690,1394.000,1435.000,1435.260,4177984,5954834070.000,100,1435",
-        "fields0": [
-          "贵州茅台",
-          "1404.000",
-          "1410.270",
-          "1435.260",
-          "1437.690",
-          "1394.000",
-          "1435.000",
-          "1435.260",
-          "4177984",
-          "5954834070.000",
-          "100",
-          "1435.000",
-          "100",
-          "1434.800",
-          "100",
-          "1434.680",
-          "100",
-          "1434.600",
-          "100",
-          "1434.550",
-          "175",
-          "1435.260",
-          "300",
-          "1435.270",
-          "600",
-          "1435.380",
-          "900",
-          "1435.490",
-          "900",
-          "1435.500",
-          "2026-11-13",
-          "15:34:59",
-          "00",
-          "D|1400|2009364.0"
-        ]
-      }
+      "ok": false,
+      "ms": 5135,
+      "error": "HTTP 403"
     },
     {
       "name": "volume-cn-kline-compare",
       "ok": true,
-      "ms": 1034,
+      "ms": 16444,
       "detail": {
         "samples": [
           {
             "code": "sh600519",
             "klineAdjust": "qfq",
-            "klineLast": 41780,
+            "klineLast": 4178000,
             "snapVol": 41780,
-            "sinaName": "贵州茅台",
-            "sinaF8": "4177984",
-            "sinaDateF30": "2026-11-13",
-            "sinaTimeF31": "15:34:59",
-            "klineOverSina": "0.01"
+            "sinaName": null,
+            "sinaF8": null,
+            "sinaDateF30": null,
+            "sinaTimeF31": null,
+            "klineOverSina": null
           },
           {
             "code": "sh688111",
             "klineAdjust": "qfq",
             "klineLast": 3558749,
             "snapVol": 3558749,
-            "sinaName": "金山办公",
-            "sinaF8": "3558749",
-            "sinaDateF30": "2026-11-13",
-            "sinaTimeF31": "15:34:59",
-            "klineOverSina": "1.00"
+            "sinaName": null,
+            "sinaF8": null,
+            "sinaDateF30": null,
+            "sinaTimeF31": null,
+            "klineOverSina": null
           },
           {
             "code": "bj920000",
             "klineAdjust": "none",
-            "klineLast": 2662,
+            "klineLast": 266200,
             "snapVol": 2662,
-            "sinaName": "安徽凤凰",
-            "sinaF8": "266207",
-            "sinaDateF30": "2026-11-13",
-            "sinaTimeF31": "15:30:01",
-            "klineOverSina": "0.01"
+            "sinaName": null,
+            "sinaF8": null,
+            "sinaDateF30": null,
+            "sinaTimeF31": null,
+            "klineOverSina": null
           }
         ]
       }
     },
     {
       "name": "sina-parse-recheck",
+      "ok": false,
+      "ms": 5128,
+      "error": "HTTP 403"
+    },
+    {
+      "name": "em-cn-kline sh600519 day qfq（+腾讯同日对照，volume 单位裁决）",
+      "ok": false,
+      "ms": 127,
+      "error": "em-kline: fetch-failed/fetch failed"
+    },
+    {
+      "name": "em-hk-kline-none hk00700 day fqt=0（+腾讯对照）",
+      "ok": false,
+      "ms": 123,
+      "error": "em-kline: fetch-failed"
+    },
+    {
+      "name": "em-cn-minute sh600519 trends2",
       "ok": true,
-      "ms": 96,
+      "ms": 77,
       "detail": {
-        "rows": 5,
-        "codes": [
-          "sh600519",
-          "sh510300",
-          "sh000001",
-          "sz000001",
-          "bj920000"
-        ],
-        "price600519": 1435.26,
-        "volume": 4177984,
-        "quoteTimeMs": 1794555299000
+        "date": "2026-11-13",
+        "prevClose": 1410.27,
+        "points": 241,
+        "error": null
       }
+    },
+    {
+      "name": "em-hk-minute hk00700 trends2",
+      "ok": true,
+      "ms": 29,
+      "detail": {
+        "date": "2026-11-13",
+        "prevClose": 398.8,
+        "points": 331,
+        "error": null
+      }
+    },
+    {
+      "name": "em-us-kline-regression NVDA day 缺省 qfq",
+      "ok": false,
+      "ms": 1215,
+      "error": "em-kline: fetch-failed"
     }
   ]
 }

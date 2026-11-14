@@ -3,6 +3,7 @@
 // 仅作调研取证用，不进入生产路径（生产行情适配在 src/markets/）。
 import { writeFileSync } from "node:fs";
 import { parseBatchSnapshot, fetchKline } from "../src/markets/tencent.mjs";
+import { fetchKline as emFetchKline, fetchMinuteDetail as emFetchMinuteDetail } from "../src/markets/eastmoney.mjs";
 import { fetchBatchSnapshots as sinaFetch } from "../src/markets/sina.mjs";
 
 const out = { at: new Date().toISOString(), results: [] };
@@ -157,6 +158,50 @@ await probe("sina-parse-recheck", async () => {
   const rows = await sinaFetch(["sh600519", "sh510300", "sh000001", "sz000001", "bj920000"]);
   const q = rows.get("sh600519");
   return { rows: rows.size, codes: [...rows.keys()], price600519: q?.price ?? null, volume: q?.volume ?? null, quoteTimeMs: q?.quoteTimeMs ?? null };
+});
+
+// ---- ADR-0007 Task 7：EM cn/hk K线/分时五项口径（volume 单位裁决、qfq 有效性、adjust=none、trends2 覆盖、us 回归）----
+await probe("em-cn-kline sh600519 day qfq（+腾讯同日对照，volume 单位裁决）", async () => {
+  const em = await emFetchKline("sh600519", "day");
+  if (em.error) throw new Error("em-kline: " + em.error + (em.errorDetail ? "/" + em.errorDetail : "")); // error 必须进 ✗ 分支——probe ✓ 不得恒真
+  const tx = await fetchKline("sh600519", "day");
+  const emLast = em.candles[em.candles.length - 1] ?? null;
+  const txByDate = new Map(tx.candles.map((c) => [c.time, c]));
+  const txSame = emLast ? txByDate.get(emLast.time) ?? null : null;
+  return {
+    emCandles: em.candles.length, emAdjust: em.adjust, emError: em.error,
+    emLastTime: emLast?.time ?? null, emLastClose: emLast?.close ?? null, emLastVolume: emLast?.volume ?? null,
+    txSameTime: txSame?.time ?? null, txSameClose: txSame?.close ?? null, txSameVolume: txSame?.volume ?? null,
+    volumeRatioEmOverTx: emLast && txSame && txSame.volume ? Number((emLast.volume / txSame.volume).toFixed(3)) : null,
+    closeDelta: emLast && txSame ? Number(Math.abs(emLast.close - txSame.close).toFixed(2)) : null,
+  };
+});
+
+await probe("em-hk-kline-none hk00700 day fqt=0（+腾讯对照）", async () => {
+  const em = await emFetchKline("hk00700", "day", { adjust: "none" });
+  if (em.error) throw new Error("em-kline: " + em.error);
+  const tx = await fetchKline("hk00700", "day");
+  const emLast = em.candles[em.candles.length - 1] ?? null;
+  const txByDate = new Map(tx.candles.map((c) => [c.time, c]));
+  const txSame = emLast ? txByDate.get(emLast.time) ?? null : null;
+  return { emCandles: em.candles.length, emAdjust: em.adjust, emError: em.error, emLastTime: emLast?.time ?? null, emLastClose: emLast?.close ?? null, txSameTime: txSame?.time ?? null, txSameClose: txSame?.close ?? null };
+});
+
+await probe("em-cn-minute sh600519 trends2", async () => {
+  const r = await emFetchMinuteDetail("sh600519");
+  return { date: r.date, prevClose: r.prevClose, points: r.points?.length ?? 0, error: r.error };
+});
+
+await probe("em-hk-minute hk00700 trends2", async () => {
+  const r = await emFetchMinuteDetail("hk00700");
+  return { date: r.date, prevClose: r.prevClose, points: r.points?.length ?? 0, error: r.error };
+});
+
+await probe("em-us-kline-regression NVDA day 缺省 qfq", async () => {
+  const r = await emFetchKline("NVDA", "day");
+  if (r.error) throw new Error("em-kline: " + r.error);
+  const last = r.candles[r.candles.length - 1] ?? null;
+  return { candles: r.candles.length, adjust: r.adjust, error: r.error, lastTime: last?.time ?? null, lastClose: last?.close ?? null };
 });
 
 writeFileSync(new URL("./probe-result.json", import.meta.url), JSON.stringify(out, null, 2));

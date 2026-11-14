@@ -844,6 +844,18 @@ P6（退避期含陈旧缓存时主源缓存优先于备源新鲜度）维持既
 - **测试**：全量 `npm test` **426/426 通过**（routes 18 含升级后 /health 强断言）。
 - **运行时影响**：零——两项均为测试/仓库基建，不进 npm 包（0.3.5 与 0.3.4 运行时产物一致，如实告知主人）。
 
+## 12.52 行情链单一权威（ADR-0007）：chain.mjs 落地 + resolveDirect/K线并链 + cn/hk 备源腿
+
+- **决议与实现面**：ADR-0007（grill-with-docs 两轮 12 项共识 + 独立评审 14 项闭环，台账 `.dsh-research/plan-review-quotes-chain-scratch/ledger.md`）。新建 `src/markets/chain.mjs`：数据化链表 `CHAINS` + 六提供方注册 + per-(provider, market) 记账三件套（TTL 缓存/在途合并/指数退避，`ns|codes` 缓存键）+ `runChain` attempt 注入 runner（cell 三态值语义钉死：ok/末源原值 no-data/transport）。四消费者并链：批量快照（quotes.getQuotes）、详情单码（getQuoteFull——旧 fullCache/guardedFull/fullAdapter 删除）、直连添加校验（resolveDirect）、K线/分时备源（routes chartResult：cn/hk/crypto）；us 自管链维持。quotes.mjs 瘦身为行情域语义层（行整形/price>0/health 薄转发，两层契约不变）。host.mjs 单点装配（chain 一次创建，quotes/routes 共用同一实例与账本）。
+- **行为增量（唯二，其余对外形状逐字段不变、client 零改动）**：①cn/hk（含中/港指数、ETF）K线与分时获 EM 备源腿（hk K线腿 fqt=0 对齐腾讯实际输出、cn 腿 fqt=1 同口径；腾讯 K线端点不再单点）；②添加校验两态统一——cn 三源全灭由 symbol-not-found 改报 quote-unavailable（supersede 旧 R1-3 pin，评审 #6；GLOSSARY「报价校验」两态语义落进代码）。
+- **测试面**：全量 `npm test` **438/438 通过**（基线 426 → +7 chain 编排套件 +1 构造器契约 +1 routes 备源用例 +3 EM directSecid/adjust 用例）。新增编排用例全部 fake providers 直测（离线不变量保持）；既有 fetch 桩套件逐条保留护 URL 拓扑；routes 18+1；`lib/client.js` 零 diff（构建指纹 page==local==`cbb6f384a6ce` match）。
+- **探针面**（`scripts/probe-markets.mjs` 五项新增，两轮实测，log `/tmp/probe-run2-adr0007.log`）：分时双域 ✓——em-cn-minute（sh600519 trends2，241 点，prevClose 1410.27）、em-hk-minute（hk00700 trends2，331 点，prevClose 398.80）；**EM K线三口径（cn qfq / hk fqt=0 / us qfq 回归）本窗口未验证**——push2his kline 端点自本网络间歇不可达（两轮 fetch-failed；同窗口腾讯 fqkline 全 ✓、EM trends2/snapshot ✓、上版已提交探针同型条目 em-us-kline-* 曾全 ✓——判为端点/网络间歇窗口，非改动回归：失败发生在 emJson 传输层，先于 directSecid/adjust 新逻辑）。**volume 单位裁决**：本窗口未复测；历史成功窗口证据（上版 probe-result `volume-cn-kline-compare`：EM kline 量 41780 == 快照 f5 41780 == 股，比值 1.0）支持口径一致；探针已固化五项 + ok 语义修正（detail.error 必须抛入 ✗ 分支——首轮曾出恒真 ✓，按「恒真信号不作数」自纠），可达窗口随手复跑补验。
+- **实拍面（证据等级：渲染回归）**：cdp-shot 五图（panel-desktop/sheet/detail/settings/capsule-closeup），指纹 match `cbb6f384a6ce`、console 0 错、双层叠哨兵 ✓、hk 指数详情「数据源：腾讯」脚注与休市安静提示渲染正常。实拍宿主为 **v0.3.4 旧代码**（未向活宿主装载新构建——`dsh plugin add` 清 node_modules 副作用，风险大于收益）；EM 备源新行为的生效判据由 routes 桩测试 + probe 承担，不在实拍面主张；发版后可选实拍闭环（计划 Task 10 Step 5，版本探针 = 设置页页尾 0.3.5）。
+- **未验证与降级（如实）**：①EM kline 真实上游三口径（volume 单位/qfq 有效性/hk fqt=0 价位）本窗口未复测——备源腿端到端真上游行为待可达窗口探针补测；②既有探针 sina-cn-snapshot / sina-parse-recheck 本轮 HTTP 403（既有现象，与本战役无关，随录）。
+- **执行期偏差清单（对计划的微修，语义不变）**：①Task 2 退避用例补时钟推进 `t += 300`（原测试缺步，第二退避窗口未越过）；②校验链尝试改走批量 `fetchBatchSnapshots`（原 fetchQuote 单码形状）——统一 attempt 形态的必然结果，search-index push2 夹具对齐 ulist diff 形状；③图表形态 `cache: false`（计划隐含入链即缓存，执行发现与 §12.35「退化答案不得冻住下一拍轮询」冲突，图表旧行为零缓存——冻结面优先，快照缓存不变）；④链终态裁定加「有源应答过压制 transport」规则（§12.35：单点分时 + 后源挂 → no-data 而非 fetch-failed，评审 #11 保真映射的语义补全）；⑤探针 ok 语义修正（见探针面）。计划任务序 Task 5→6 之间 routes add 流程短暂 500（resolveDirect 已收链必填、chain 接线属 Task 6）——单机串行执行无实际影响。
+- **提交边界**：d55b361（Task 1–3：chain 落地 + quotes 迁移）、aeb10a1（Task 4–6：resolveDirect 并链 + K线/分时入链）、本记（Task 7–9：探针 + README + §12.52）。**发版（Task 10，v0.3.5）停待人工评审——主人指令，不按计划惯性走完（§12.50 教训①复用）。**
+- **GUI 复验清单（留主人，装机后）**：cn/hk 详情页 K线在腾讯挂时由 EM 补出（脚注/响应 errorDetail 可辨）；cn 三源全灭时直连添加报「行情暂不可用，稍后再试」；EM kline 可达窗口跑 `node scripts/probe-markets.mjs` 复核五项读数（尤其 volume 比值 1.0）。
+
 
 
 
