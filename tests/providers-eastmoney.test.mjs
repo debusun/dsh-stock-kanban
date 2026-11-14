@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { directSecid, fetchBatchSnapshots, fetchQuote, resolveUSSecid } from "../src/markets/eastmoney.mjs";
+import { directSecid, fetchBatchSnapshots, fetchKline, fetchQuote, resolveUSSecid } from "../src/markets/eastmoney.mjs";
 
 /* EM 多市场化（P0-1/P0-3，2026-11-13）：cn/hk 目录式 secid、美股指数预置、f124 时间戳。 */
 
@@ -57,4 +57,41 @@ test("fetchQuote：完整快照含 f124 时间戳（cn/hk 备源与 us 主源同
   } finally {
     globalThis.fetch = originalFetch;
   }
+});
+
+/* ---- K线/分时 directSecid 分支 + adjust 参数（ADR-0007 Task 4）---- */
+
+test("fetchKline：cn 代码走 directSecid（secid=1.600519，fqt=1），不触发美股探测", async () => {
+  const urls = [];
+  const orig = globalThis.fetch;
+  globalThis.fetch = async (u) => { urls.push(String(u)); throw new Error("stop"); };
+  try {
+    await fetchKline("sh600519", "day");
+  } catch { /* 网络桩截停即可，断言 URL 形状 */ }
+  finally { globalThis.fetch = orig; }
+  assert.ok(urls.some((u) => u.includes("secid=1.600519") && u.includes("fqt=1")), urls.join("|"));
+  assert.ok(!urls.some((u) => u.includes("fields=f57")), "不得走美股 secid 探测端点");
+});
+
+test("fetchKline：hk + adjust none → fqt=0；hkHSI 别名 → not-found 零网络", async () => {
+  const urls = [];
+  const orig = globalThis.fetch;
+  globalThis.fetch = async (u) => { urls.push(String(u)); throw new Error("stop"); };
+  try {
+    await fetchKline("hk00700", "day", { adjust: "none" }); // 红相：走美股探测（URL 形状错）；绿相：directSecid 直映 116.00700 + fqt=0（URL 已记）
+    const r = await fetchKline("hkHSI", "day", { adjust: "none" }); // 必须在 stub 区内：绿相 directSecid undefined → 零网络 not-found；红相探测被桩截停 → fetch-failed（断言红且离线）
+    assert.ok(urls.some((u) => u.includes("secid=116.00700") && u.includes("fqt=0")), urls.join("|"));
+    assert.equal(r.error, "not-found");
+  } finally { globalThis.fetch = orig; }
+});
+
+test("fetchKline：美股 secid 探测传输失败 → fetch-failed 形态，不抛穿（§12.32 契约，回归守卫）", async () => {
+  const orig = globalThis.fetch;
+  globalThis.fetch = async () => { throw new Error("HTTP 502"); };
+  try {
+    const r = await fetchKline("NVDA", "day"); // directSecid=null → 走严格探测
+    assert.equal(r.candles.length, 0);
+    assert.equal(r.error, "fetch-failed");
+    assert.match(r.errorDetail ?? "", /secid-transport/);
+  } finally { globalThis.fetch = orig; }
 });

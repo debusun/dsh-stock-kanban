@@ -59,11 +59,11 @@ export function createChain({ now = () => Date.now(), diag, ttlMs = 10 * 1000, b
    * 退避窗口内：有缓存回陈旧行（行内 quoteTime 保持旧值，消费方按其判 stale），无缓存抛 backoff-<name>——
    * 快速失败不计 failures、不发 diag（与旧 fetchProvider 语义逐字对齐，2026-11-13 P0-1）。
    */
-  async function gate(provider, market, ns, codes, attempt) {
+  async function gate(provider, market, ns, codes, attempt, useCache = true) {
     const s = stateOf(provider.name, market);
     const key = ns + "|" + [...codes].sort().join(",");
     const t = now();
-    const cached = s.cache.get(key);
+    const cached = useCache ? s.cache.get(key) : null;
     if (cached && t - cached.at < ttlMs) return cached.rows;
     if (t < s.backoffUntil) {
       if (cached) return cached.rows;
@@ -77,7 +77,7 @@ export function createChain({ now = () => Date.now(), diag, ttlMs = 10 * 1000, b
         s.failures = 0;
         s.backoffUntil = 0;
         s.lastOkAt = now();
-        s.cache.set(key, { at: now(), rows });
+        if (useCache) s.cache.set(key, { at: now(), rows }); // 图表形态 cache=false：旧行为零缓存，退化答案不冻住后续轮询
         return rows;
       } catch (e) {
         s.failures += 1;
@@ -99,7 +99,7 @@ export function createChain({ now = () => Date.now(), diag, ttlMs = 10 * 1000, b
     return p;
   }
 
-  async function runChain(market, ns, codes, attempt, { validate, supports } = {}) {
+  async function runChain(market, ns, codes, attempt, { validate, supports, cache = true } = {}) {
     if (typeof validate !== "function") throw new Error("validate-required");
     const sup = supports ?? ((p) => p.handles(market));
     const order = (providers === BUILT_IN_PROVIDERS
@@ -109,6 +109,7 @@ export function createChain({ now = () => Date.now(), diag, ttlMs = 10 * 1000, b
     const out = new Map();
     const firstFail = new Map(); // code → 首个失败/丢弃源（ADR-0007 §fallbackFrom，镜像旧 §12.46 口径）
     const lastDisposition = new Map(); // code → 'transport' | 'no-data'（末源处置）
+    const answered = new Map(); // code → 有源应答过（返回该码但 validate 不过，如单点分时）——终态压 transport 为 no-data（§12.35 口径：退化答案不是传输故障）
     const lastValue = new Map(); // code → 末源返回原值（no-data cell 携带）
     const lastErr = new Map(); // code → 末次传输错误消息
     let pending = [...codes];
@@ -119,7 +120,7 @@ export function createChain({ now = () => Date.now(), diag, ttlMs = 10 * 1000, b
       if (pending.length === 0) break;
       let rows = null;
       try {
-        rows = await gate(provider, market, ns, pending, attempt);
+        rows = await gate(provider, market, ns, pending, attempt, cache);
       } catch (e) {
         const msg = String(e?.message ?? e);
         for (const code of pending) {
@@ -146,6 +147,7 @@ export function createChain({ now = () => Date.now(), diag, ttlMs = 10 * 1000, b
         } else {
           if (!firstFail.has(code)) firstFail.set(code, provider.name);
           lastDisposition.set(code, "no-data");
+          if (v) answered.set(code, true);
           lastValue.set(code, v ?? null);
           still.push(code);
         }
@@ -154,7 +156,7 @@ export function createChain({ now = () => Date.now(), diag, ttlMs = 10 * 1000, b
     }
 
     for (const code of pending) {
-      const kind = lastDisposition.get(code) ?? "no-data";
+      const kind = answered.get(code) ? "no-data" : (lastDisposition.get(code) === "transport" ? "transport" : "no-data");
       out.set(code, {
         ok: false,
         value: kind === "transport" ? null : (lastValue.get(code) ?? null),

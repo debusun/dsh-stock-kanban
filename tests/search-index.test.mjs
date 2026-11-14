@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { search, resolveDirect, parseSmartbox } from "../src/markets/search.mjs";
+import { createChain } from "../src/markets/chain.mjs";
 
 /* 指数目录（P0-2，2026-11-13）：catalog 匹配零网络；直连主备源切换。 */
 
@@ -134,6 +135,7 @@ test("搜索：OKX 清单不可用 → 本地币种仍返回并标记 okx-unavai
 
 test("直连：指数经腾讯主源校验（hkHSI → kind index）；腾讯挂 → EM 备源补位（cn 股票）", async () => {
   const originalFetch = globalThis.fetch;
+  const chain = createChain();
   let tencentDown = false;
   globalThis.fetch = async (url) => {
     const u = String(url);
@@ -143,19 +145,22 @@ test("直连：指数经腾讯主源校验（hkHSI → kind index）；腾讯挂
       return { ok: true, arrayBuffer: async () => Buffer.from(text, "utf8") };
     }
     if (u.includes("push2")) {
-      return { ok: true, json: async () => ({ data: { f43: 1453, f57: "600519", f58: "贵州茅台", f124: 1762416840 } }) };
+      // ADR-0007 后校验链走批量 ulist（fetchBatchSnapshots）——夹具对齐 ulist diff 形状（同 quotes-service 口径）
+      return { ok: true, json: async () => ({ data: { diff: [
+        { f2: 1453, f3: 0.07, f4: 1, f12: "600519", f13: 1, f14: "贵州茅台", f15: 1457.72, f16: 1436, f17: 1450, f18: 1452, f124: 1762416840 },
+      ] } }) };
     }
     throw new Error("unexpected " + u);
   };
   try {
-    const hsi = await resolveDirect("hk", "hkHSI");
+    const hsi = await resolveDirect("hk", "hkHSI", { chain });
     assert.equal(hsi.ok, true);
     assert.equal(hsi.kind, "index");
     assert.equal(hsi.identity.code, "hkHSI");
     assert.ok(hsi.identity.id === "hk:hkHSI");
 
     tencentDown = true;
-    const mt = await resolveDirect("cn", "600519");
+    const mt = await resolveDirect("cn", "600519", { chain });
     assert.equal(mt.ok, true);
     assert.equal(mt.kind, "stock");
   } finally {
@@ -165,6 +170,7 @@ test("直连：指数经腾讯主源校验（hkHSI → kind index）；腾讯挂
 
 test("直连：cn 腾讯+EM 全挂 → 新浪第三腿顶上（§12.44）", async () => {
   const originalFetch = globalThis.fetch;
+  const chain = createChain();
   globalThis.fetch = async (url) => {
     const u = String(url);
     if (u.includes("qt.gtimg.cn")) throw new Error("waf-blocked");
@@ -177,7 +183,7 @@ test("直连：cn 腾讯+EM 全挂 → 新浪第三腿顶上（§12.44）", asyn
     throw new Error("unexpected " + u);
   };
   try {
-    const pb = await resolveDirect("cn", "000001");
+    const pb = await resolveDirect("cn", "000001", { chain });
     assert.equal(pb.ok, true);
     assert.equal(pb.identity.code, "sz000001");
     assert.equal(pb.kind, "stock");
@@ -186,8 +192,9 @@ test("直连：cn 腾讯+EM 全挂 → 新浪第三腿顶上（§12.44）", asyn
   }
 });
 
-test("直连：cn 腾讯+EM+新浪三源全灭 → 维持现状 symbol-not-found（评审 R1-3 补钉两态之「全灭」）", async () => {
+test("直连：cn 腾讯+EM+新浪三源全灭 → quote-unavailable（ADR-0007 supersede 旧 R1-3 pin：全链传输失败不再伪装标的不存在）", async () => {
   const originalFetch = globalThis.fetch;
+  const chain = createChain();
   globalThis.fetch = async (url) => {
     const u = String(url);
     if (u.includes("qt.gtimg.cn")) throw new Error("waf-blocked");
@@ -196,9 +203,9 @@ test("直连：cn 腾讯+EM+新浪三源全灭 → 维持现状 symbol-not-found
     throw new Error("unexpected " + u);
   };
   try {
-    const dead = await resolveDirect("cn", "000001");
+    const dead = await resolveDirect("cn", "000001", { chain });
     assert.equal(dead.ok, false);
-    assert.equal(dead.error, "symbol-not-found"); // cn 分支无 transportFailed 聚合（us 独有），现状语义
+    assert.equal(dead.error, "quote-unavailable"); // 统一 errorKind 映射：全链传输失败 ≠ 标的不存在（GLOSSARY「报价校验」两态语义）
   } finally {
     globalThis.fetch = originalFetch;
   }
@@ -206,6 +213,7 @@ test("直连：cn 腾讯+EM+新浪三源全灭 → 维持现状 symbol-not-found
 
 test("直连：美股添加校验链 EM 502 → 腾讯美股顶上（2026-11-13 补腿回归：IXIC 指数）", async () => {
   const originalFetch = globalThis.fetch;
+  const chain = createChain();
   globalThis.fetch = async (url) => {
     const u = String(url);
     if (u.includes("push2")) throw new Error("HTTP 502"); // EM 主源（本机 2026-11-13 实测 https/http 均 502）
@@ -218,7 +226,7 @@ test("直连：美股添加校验链 EM 502 → 腾讯美股顶上（2026-11-13 
     throw new Error("unexpected " + u);
   };
   try {
-    const ixic = await resolveDirect("us", "IXIC");
+    const ixic = await resolveDirect("us", "IXIC", { chain });
     assert.equal(ixic.ok, true);
     assert.equal(ixic.kind, "index");
     assert.equal(ixic.identity.id, "us:IXIC");
@@ -230,6 +238,7 @@ test("直连：美股添加校验链 EM 502 → 腾讯美股顶上（2026-11-13 
 
 test("直连：美股全链传输失败报 quote-unavailable，不误报 symbol-not-found", async () => {
   const originalFetch = globalThis.fetch;
+  const chain = createChain();
   globalThis.fetch = async (url) => {
     const u = String(url);
     if (u.includes("push2")) throw new Error("HTTP 502");
@@ -238,7 +247,7 @@ test("直连：美股全链传输失败报 quote-unavailable，不误报 symbol-
     throw new Error("unexpected " + u);
   };
   try {
-    const dead = await resolveDirect("us", "IXIC");
+    const dead = await resolveDirect("us", "IXIC", { chain });
     assert.equal(dead.ok, false);
     assert.equal(dead.error, "quote-unavailable");
   } finally {

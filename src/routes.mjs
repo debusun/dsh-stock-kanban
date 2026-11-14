@@ -95,8 +95,9 @@ function note(row) {
   }
 }
 
-export function createRoutes({ store, quotes, logger, trust, diag }) {
-  deps = { store, quotes, logger: logger ?? console, diag: diag ?? null };
+export function createRoutes({ store, quotes, chain, logger, trust, diag }) {
+  if (!chain) throw new Error("chain-required: createRoutes({ ..., chain })——添加校验与 K线/分时备源已收拢 chain.mjs（ADR-0007）");
+  deps = { store, quotes, chain, logger: logger ?? console, diag: diag ?? null };
   /**
    * route.status 日志门（P1-6，2026-11-13）：同 path+status 两分钟内最多一行，重复只计 dropped——
    * 死上游不再刷屏（纪律参考 dsh-market-lens 的 route.status gate，MIT，见 NOTICE）。
@@ -175,7 +176,7 @@ async function addSymbolRoute(body, res) {
   const market = String(body.market ?? "");
   const code = String(body.code ?? "");
   const { resolveDirect } = await import("./markets/search.mjs");
-  const resolved = await resolveDirect(market, code);
+  const resolved = await resolveDirect(market, code, { chain: deps.chain });
   if (!resolved.ok) {
     sendJson(res, 422, { error: resolved.error === "invalid-format" ? "invalid-identity" : resolved.error });
     return;
@@ -342,8 +343,13 @@ async function klineRoute(req, res) {
     sendJson(res, 404, { error: "symbol-not-found" });
     return;
   }
-  const adapter = await adapterFor(symbol.market);
-  const result = await adapter.fetchKline(symbol.code, period);
+  let result;
+  if (symbol.market === "us") {
+    const adapter = await adapterFor(symbol.market);
+    result = await adapter.fetchKline(symbol.code, period); // us 自管链（ADR-0007）
+  } else {
+    result = await chartResult("kline", symbol, period); // cn/hk/crypto 查链表（ADR-0007）
+  }
   sendJson(res, 200, {
     id: symbol.id,
     period,
@@ -361,8 +367,13 @@ async function minuteRoute(req, res) {
     sendJson(res, 404, { error: "symbol-not-found" });
     return;
   }
-  const adapter = await adapterFor(symbol.market);
-  let result = await adapter.fetchMinuteDetail(symbol.code);
+  let result;
+  if (symbol.market === "us") {
+    const adapter = await adapterFor(symbol.market);
+    result = await adapter.fetchMinuteDetail(symbol.code); // us 自管链（ADR-0007）
+  } else {
+    result = await chartResult("minute", symbol); // cn/hk/crypto 查链表（ADR-0007）
+  }
   // 空分时不得伪装成功（§12.35 用户反馈：上证指数间歇性空白）：点位不足 2 个按 no-data 上报，客户端据此走休市/错误提示并可重试
   if (!result.error && (!Array.isArray(result.points) || result.points.length < 2)) result = { ...result, points: Array.isArray(result.points) ? result.points : [], error: "no-data" };
   sendJson(res, 200, {
@@ -376,9 +387,74 @@ async function minuteRoute(req, res) {
   });
 }
 
+/** us 详情自管链（ADR-0007：us-detail 内部 EM→腾讯/Yahoo 维持原样）；cn/hk/crypto 走 chain.runChain（chartResult） */
 async function adapterFor(market) {
-  const mod = market === "us" ? "us-detail" : market === "crypto" ? "okx" : "tencent";
-  return import(`./markets/${mod}.mjs`);
+  return import("./markets/us-detail.mjs");
+}
+
+/* ---- K线/分时入链（ADR-0007 Task 6）：cn/hk/crypto 查链表逐源补位，EM 腿按市场给复权口径 ---- */
+
+/** K线 attempt 表：EM hk 腿 fqt=0（对齐腾讯实际输出 day/none）、cn 腿 fqt=1（与腾讯 qfqday 同口径） */
+async function klineAttemptTable(market) {
+  const tencent = await import("./markets/tencent.mjs");
+  const eastmoney = await import("./markets/eastmoney.mjs");
+  const table = {
+    tencent: async (code, period) => tencent.fetchKline(code, period),
+    eastmoney: async (code, period) => eastmoney.fetchKline(code, period, { adjust: market === "hk" ? "none" : "qfq" }),
+  };
+  if (market === "crypto") {
+    const okx = await import("./markets/okx.mjs");
+    table.okx = async (code, period) => okx.fetchKline(code, period);
+  }
+  return table;
+}
+
+/** 分时 attempt 表（trends2/腾讯 minute/okx 分时） */
+async function minuteAttemptTable(market) {
+  const tencent = await import("./markets/tencent.mjs");
+  const eastmoney = await import("./markets/eastmoney.mjs");
+  const table = {
+    tencent: async (code) => tencent.fetchMinuteDetail(code),
+    eastmoney: async (code) => eastmoney.fetchMinuteDetail(code),
+  };
+  if (market === "crypto") {
+    const okx = await import("./markets/okx.mjs");
+    table.okx = async (code) => okx.fetchMinuteDetail(code);
+  }
+  return table;
+}
+
+/**
+ * cn/hk/crypto 图表经链取数：attempt 抛错=传输失败（fetch-failed 形态抛出，gate 记账/退避/补位），
+ * validate 不过=无数据（交下源）；全链失败按 errorKind 映射回既有响应字段（形状逐字段不变）。
+ */
+async function chartResult(kind, symbol, period = "day") {
+  const table = kind === "kline" ? await klineAttemptTable(symbol.market) : await minuteAttemptTable(symbol.market);
+  const attempt = async (provider, codes) => {
+    const fn = table[provider.name];
+    const out = new Map();
+    for (const code of codes) {
+      const r = await fn(code, period);
+      if (r?.error === "fetch-failed") throw new Error(r.errorDetail ?? "fetch-failed");
+      out.set(code, r);
+    }
+    return out;
+  };
+  const validate = (r) => r && !r.error && (kind === "kline"
+    ? (Array.isArray(r.candles) && r.candles.length > 0)
+    : (Array.isArray(r.points) && r.points.length >= 2));
+  const cells = await deps.chain.runChain(symbol.market, kind === "kline" ? "kline:" + period : "minute", [symbol.code], attempt, {
+    validate,
+    supports: (p) => p.name in table,
+    cache: false, // 图表旧行为零缓存（§12.35：退化答案不得冻住下一拍轮询）；退避/在途合并仍生效
+  });
+  const cell = cells.get(symbol.code);
+  if (cell?.ok) return cell.value;
+  const error = cell?.errorKind === "transport" ? "fetch-failed" : (cell?.value?.error ?? "no-data"); // 保留末源错误码（api-error/invalid-code 不吞）
+  const errorDetail = cell?.errorKind === "transport" ? (cell.error ?? null) : (cell?.value?.errorDetail ?? null);
+  return kind === "kline"
+    ? { candles: [], adjust: cell?.value?.adjust ?? null, error, errorDetail }
+    : { date: cell?.value?.date ?? null, prevClose: cell?.value?.prevClose ?? null, points: [], error, errorDetail };
 }
 
 function exportRoute(_req, res) {

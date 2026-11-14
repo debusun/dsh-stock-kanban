@@ -14,6 +14,7 @@
 
 import { Store } from "./store.mjs";
 import { createQuoteService } from "./quotes.mjs";
+import { createChain } from "./markets/chain.mjs";
 import { createTrustGuard } from "./access.mjs";
 import { createRoutes, PREFIX } from "./routes.mjs";
 import { DIAG_LEVELS, createDiagLogger, defaultDiagDir } from "./diag.mjs";
@@ -54,13 +55,14 @@ export async function apply(ctx, config = {}) {
   logger.info("stock-kanban: store ready (driver=" + store.driverKind + ", rev=" + store.rev + ", symbols=" + store.symbols.length + ")");
   diag.append({ ev: "host.ready", driver: store.driverKind, rev: store.rev, symbols: store.symbols.length, diagLevel: cfg.diagLevel }); // full 档才落盘
 
-  const quotes = createQuoteService({ diag: (row) => diag.append(row) });
+  const chain = createChain({ diag: (row) => diag.append(row) }); // 行情链单一权威（ADR-0007）：记账/退避/缓存 + provider.fail 诊断
+  const quotes = createQuoteService({ chain });
 
   let disposeRoutes = null;
   try {
     const webServer = ctx.webServer;
     const trust = createTrustGuard(ctx, logger); // 全路由官方信任检查（DNS rebinding 免疫）
-    const disposers = createRoutes({ store, quotes, logger, trust, diag }).map((route) =>
+    const disposers = createRoutes({ store, quotes, chain, logger, trust, diag }).map((route) =>
       webServer.register({ kind: "exact", path: route.path, handler: route.handler }));
     disposeRoutes = () => { for (const d of disposers) { try { d(); } catch { /* 幂等 */ } } };
   } catch (e) {

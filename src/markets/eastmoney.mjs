@@ -244,18 +244,23 @@ export async function fetchQuote(code, opts = {}) {
 const KLT_OF_PERIOD = { day: "101", week: "102", month: "103" };
 const LIMIT_OF_PERIOD = { day: 180, week: 150, month: 120 };
 
-/** K线（fqt=1 前复权；美股指数经预置 secid 同路径）。行 CSV：date,open,close,high,low,volume,… */
-export async function fetchKline(code, period = "day") {
-  let secid;
-  try {
-    secid = await resolveUSSecid(code, { strict: true });
-  } catch (e) {
-    return { candles: [], adjust: null, error: "fetch-failed", errorDetail: String(e.message ?? e).slice(0, 80) };
+/** K线（缺省 fqt=1 前复权；{ adjust: "none" } → fqt=0 不复权；美股指数经预置 secid 同路径；cn/hk 经 directSecid 直映）。行 CSV：date,open,close,high,low,volume,… */
+export async function fetchKline(code, period = "day", { adjust = "qfq" } = {}) {
+  const direct = directSecid(code);
+  let secid = typeof direct === "string" ? direct : null;
+  if (direct === null) {
+    try {
+      secid = await resolveUSSecid(code, { strict: true });
+    } catch (e) {
+      return { candles: [], adjust: null, error: "fetch-failed", errorDetail: String(e.message ?? e).slice(0, 80) };
+    }
+  } else if (direct === undefined) {
+    return { candles: [], adjust: null, error: "not-found" }; // hkHSI 等字母别名不经 EM（零网络）
   }
   if (!secid) return { candles: [], adjust: null, error: "not-found" };
   const klt = KLT_OF_PERIOD[period] ?? "101";
   const lmt = LIMIT_OF_PERIOD[period] ?? 180;
-  const url = EM_HIS + "/api/qt/stock/kline/get?secid=" + encodeURIComponent(secid) + "&klt=" + klt + "&fqt=1&lmt=" + lmt + "&end=20500101"
+  const url = EM_HIS + "/api/qt/stock/kline/get?secid=" + encodeURIComponent(secid) + "&klt=" + klt + "&fqt=" + (adjust === "none" ? 0 : 1) + "&lmt=" + lmt + "&end=20500101"
     + "&fields1=f1,f2,f3,f4,f5,f6&fields2=f51,f52,f53,f54,f55,f56,f57";
   let j;
   try {
@@ -276,16 +281,21 @@ export async function fetchKline(code, period = "day") {
     candles.push({ time: String(c[0]).slice(0, 10), open, high, low, close, volume: num(c[5]) ?? 0 });
   }
   if (candles.length === 0) return { candles: [], adjust: null, error: "no-data" };
-  return { candles, adjust: "qfq", error: null };
+  return { candles, adjust: adjust === "none" ? "none" : "qfq", error: null };
 }
 
-/** 分时（当日）。trends 行 "YYYY-MM-DD HH:mm",price,…（北京时间为轴） */
+/** 分时（当日）。trends 行 "YYYY-MM-DD HH:mm",price,…（北京时间为轴）；cn/hk 经 directSecid 直映 */
 export async function fetchMinuteDetail(code) {
-  let secid;
-  try {
-    secid = await resolveUSSecid(code, { strict: true });
-  } catch (e) {
-    return { date: null, prevClose: null, points: [], error: "fetch-failed", errorDetail: String(e.message ?? e).slice(0, 80) };
+  const direct = directSecid(code);
+  let secid = typeof direct === "string" ? direct : null;
+  if (direct === null) {
+    try {
+      secid = await resolveUSSecid(code, { strict: true });
+    } catch (e) {
+      return { date: null, prevClose: null, points: [], error: "fetch-failed", errorDetail: String(e.message ?? e).slice(0, 80) };
+    }
+  } else if (direct === undefined) {
+    return { date: null, prevClose: null, points: [], error: "not-found" }; // hkHSI 等字母别名不经 EM（零网络）
   }
   if (!secid) return { date: null, prevClose: null, points: [], error: "not-found" };
   const url = EM_HIS + "/api/qt/stock/trends2/get?secid=" + encodeURIComponent(secid)

@@ -24,7 +24,7 @@ async function startServer({ trust, logger, diag } = {}) {
   await store.init();
   await store.addSymbol(SYM);
   const quotes = createQuoteService({ chain: createChain({}) });
-  const routes = createRoutes({ store, quotes, logger: logger ?? { info() {}, warn() {} }, trust, diag });
+  const routes = createRoutes({ store, quotes, chain: createChain({}), logger: logger ?? { info() {}, warn() {} }, trust, diag });
   const server = http.createServer((req, res) => {
     const route = routes.find((r) => r.path === (req.url ?? "").split("?")[0]);
     if (!route) { res.writeHead(404); res.end("not found"); return; }
@@ -381,5 +381,30 @@ test("诊断：客户端行 ev 命名空间化——服务端保留事件不可�
   } finally {
     t.close();
     restore();
+  }
+});
+
+/* ---- K线/分时备源入链（ADR-0007 Task 6）---- */
+
+test("K线：cn 腾讯腿挂 → EM 腿补位（fqt=1），响应形状不变（ADR-0007）", async () => {
+  const t = await startServer();
+  const orig = globalThis.fetch;
+  const jsonOk = (body) => ({ ok: true, status: 200, arrayBuffer: async () => Buffer.from(JSON.stringify(body), "utf8"), json: async () => body });
+  globalThis.fetch = async (u, opts) => {
+    const s = String(u);
+    if (s.includes("127.0.0.1")) return orig(u, opts); // 测试服务器回环放行（同 mockUpstream 惯例）
+    if (s.includes("secid=1.600519") && s.includes("kline")) return jsonOk({ data: { klines: ["2026-11-14,10,11,12,9,1000", "2026-11-15,11,12,13,10,2000"] } });
+    throw new Error("down"); // 其余上游一律失败（含腾讯 K线）
+  };
+  try {
+    const res = await t.j("/stock-kanban/kline?id=cn:sh600519&period=day");
+    assert.equal(res.status, 200);
+    assert.equal(res.body.error, null);
+    assert.equal(res.body.candles.length, 2);
+    assert.equal(res.body.adjust, "qfq");
+    assert.equal(res.body.errorDetail, null);
+  } finally {
+    globalThis.fetch = orig;
+    t.close();
   }
 });

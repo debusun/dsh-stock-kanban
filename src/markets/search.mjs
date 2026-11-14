@@ -16,18 +16,15 @@
  *   - 上游异常显式标记：smartbox 响应格式异常、OKX 清单不可用、本地池加载失败均带 error；
  *   - OKX 清单失败进入 60 秒冷却，并发请求合并为一次上游调用，不再每次等满超时。
  *   - cn 混合搜索（ADR-0006）：池优先凑满 30 条不打上游；smartbox 补充 GP-A 正股（拼音缩写、刷新间隙的新上市）。
+ *   - 校验链 = 行情链（ADR-0007）：resolveDirect 以单码形态过 chain.runChain，与快照/详情同 gate
+ *     （共享 TTL 缓存与提供方退避）；errorKind 映射 quote-unavailable（transport）/ symbol-not-found（no-data）。
  */
 
 import { readFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { INDEX_CATALOG, indexOfCode, isValidCode, makeIdentity, normalizeCode, normalizeInputCode } from "../identity.mjs";
-import * as tencent from "./tencent.mjs";
-import * as eastmoney from "./eastmoney.mjs";
-import * as tencentUs from "./tencent-us.mjs";
-import * as yahoo from "./yahoo.mjs";
-import * as okx from "./okx.mjs";
-import * as sina from "./sina.mjs";
+import * as eastmoney from "./eastmoney.mjs"; // 仅 seedUSSecid（搜索结果预置 secid）；校验链已收拢 chain.mjs（ADR-0007）
 
 const MODULE_DIR = dirname(fileURLToPath(import.meta.url));
 const DATA_DIR = join(MODULE_DIR, "..", "..", "data");
@@ -329,82 +326,28 @@ export async function search(market, query) {
 
 /**
  * 直连代码有效性校验：格式 → 行情实测（取到有效价格才通过）。
+ * ADR-0007：校验链 = 行情链——单码形态过 chain.runChain，与批量快照/详情单码共用同一 gate（缓存/退避/记账）；
+ * 任何一条腿成功即清零提供方 failures（一次成功校验 = 上游存活证据）。
+ * errorKind 映射：全链传输失败 → quote-unavailable（「行情暂不可用，稍后再试」）；链耗尽无数据 → symbol-not-found。
+ * @param {{chain: import("./chain.mjs").ReturnType<typeof createChain>}} deps
  * @returns Promise<{ok: true, identity, name, kind} | {ok: false, error}>
  */
-export async function resolveDirect(market, code) {
+export async function resolveDirect(market, code, { chain } = {}) {
+  if (!chain) throw new Error("chain-required: resolveDirect(market, code, { chain })——校验链已收拢 chain.mjs（ADR-0007）");
   const normalized = normalizeInputCode(market, code);
   if (!normalized) return { ok: false, error: "invalid-format" };
   const identity = makeIdentity(market, normalized);
   if (!identity) return { ok: false, error: "invalid-format" };
   const indexEntry = indexOfCode(market, normalized);
-  let quote = null;
   let kind = indexEntry ? "index" : market === "crypto" ? "coin" : "stock";
   // cn ETF 代码段（50/51/52/53/55/56/58/15/16/18）标记 kind，仅用于展示；指数代码不落 ETF 段
   if (market === "cn" && !indexEntry && /^(sh(50|51|52|53|55|56|58)|sz(15|16|18))/.test(identity.code)) kind = "etf";
-  if (market === "cn" || market === "hk") {
-    // 主源腾讯，失败/漏行交 EM 备源（P0-1；腾讯 WAF 前科见 docs/capability-matrix.md）
-    try {
-      const snapshots = await tencent.fetchBatchSnapshots([identity.code]);
-      quote = snapshots.get(identity.code) ?? null;
-    } catch {
-      quote = null;
-    }
-    if (!quote) {
-      try {
-        quote = await eastmoney.fetchQuote(identity.code);
-      } catch {
-        quote = null;
-      }
-    }
-    if (!quote) {
-      // 新浪第三腿（§12.44）：链序与 quotes.mjs CHAINS.cn 一致（腾讯 → 东方财富 → 新浪）
-      try {
-        const rows = await sina.fetchBatchSnapshots([identity.code]);
-        quote = rows.get(identity.code) ?? null;
-      } catch {
-        quote = null;
-      }
-    }
-  } else if (market === "us") {
-    // 主源 EM，push2 不可达网络交腾讯美股/Yahoo 备源（P0-1/P0-3；顺带补行情时间戳）
-    // 链序与 quotes.mjs CHAINS.us 一致：东方财富 → 腾讯美股 → Yahoo。2026-11-13 补腾讯美股腿——
-    // EM push2 502 + Yahoo 429 期间，美股/美股指数直连添加全线误报 symbol-not-found（搜索来自
-    // 零网络目录可见，点加号取价校验两级全灭），而列表刷新链已有腾讯美股可用
-    let transportFailed = false;
-    try {
-      quote = await eastmoney.fetchQuote(identity.code);
-    } catch {
-      transportFailed = true;
-      quote = null;
-    }
-    if (!quote) {
-      try {
-        const rows = await tencentUs.fetchBatchSnapshots([identity.code]);
-        quote = rows.get(identity.code) ?? null;
-      } catch {
-        transportFailed = true;
-        quote = null;
-      }
-    }
-    if (!quote) {
-      try {
-        const rows = await yahoo.fetchBatchSnapshots([identity.code]);
-        quote = rows.get(identity.code) ?? null;
-      } catch {
-        transportFailed = true;
-        quote = null;
-      }
-    }
-    // 提供方传输故障 ≠ 代码不存在：全链传输失败时明确报 quote-unavailable（客户端映射
-    // 「行情暂不可用，稍后再试」），不得落进 symbol-not-found（「未找到该标的」误导排查）
-    if (!quote && transportFailed) return { ok: false, error: "quote-unavailable" };
-  } else if (market === "crypto") {
-    try {
-      quote = await okx.fetchQuote(identity.code);
-    } catch {
-      return { ok: false, error: "quote-unavailable" };
-    }
+  const cells = await chain.runChain(market, "snap", [identity.code], (p, codes) => p.fetch(codes), { validate: (v) => v && v.price > 0 });
+  const cell = cells.get(identity.code);
+  if (!cell?.ok) {
+    // 提供方传输故障 ≠ 代码不存在（GLOSSARY「报价校验」两态语义）：全链传输失败报 quote-unavailable
+    // （客户端映射「行情暂不可用，稍后再试」），不得落进 symbol-not-found（「未找到该标的」误导排查）
+    return { ok: false, error: cell?.errorKind === "transport" ? "quote-unavailable" : "symbol-not-found" };
   }
-  if (!quote || !(quote.price > 0)) return { ok: false, error: "symbol-not-found" };
-  return { ok: true, identity, name: quote.name || identity.code, kind };
+  return { ok: true, identity, name: cell.value.name || identity.code, kind };
 }
