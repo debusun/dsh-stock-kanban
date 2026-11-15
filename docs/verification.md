@@ -958,3 +958,15 @@ P6（退避期含陈旧缓存时主源缓存优先于备源新鲜度）维持既
 - **上架核验**：CI workflow run `43712674440` success；npm `latest=0.3.8`（RELEASE_LIVE=yes）；下载已发布 tarball 核证修复在包内——`lib/client.js` 含 `skc-confirm--page` 类名 2 处、CSS 规则 `.skc-confirm--page{margin:10px 0 0}` 1 处。本机热部署精确 v0.3.8 产物（sha 前缀 65090ede6dbb3c15，deploy-client 双端 sha 校验过）。
 - **未验证降级**：v0.3.8 上架后的实页 cdp 复测未做——本轮 headless Chrome 在默认沙箱内无法起（/dev/shm 权限拒绝，需提权，本次审批策略禁止申请提权）。修复的几何量测（gap 0→10px）与前后实拍基于同一份源码的热部署产物（f6700945）——该构建之后 client/ 源码未再改动，v0.3.8 与之的唯一输入差异是 package.json 版本号（经 `__APP_VERSION__` 注入）及由其派生的指纹。装机后主人在详情页点删除复看即闭环。
 - **安装方式切回 npm 远端**（主人指令，同日）：此前本机是 npm 市场安装（包清单 0.3.7），却用 `deploy-client.sh` 把本地构建的 lib 覆盖进去——包清单与产物错位。改走官方通道 `dshm_upgrade` 0.3.7 → 0.3.8（npm 精确版，纯客户端更新，刷新页面即生效，无需重启）。核对：包清单 0.3.8、profile 依赖 `^0.3.8`、已装 lib sha 与已发布 tarball 一致（`65090ede6dbb3c15`）。此后本插件不再用热部署覆盖产物；发版链仍为 npm publish → 本机 `dshm_upgrade`。
+
+## 12.58 详情图表 resize 重画闸（ADR-0004 遗留收口，未发版攒批）
+
+- **背景**：2026-11-16 架构评审（improve-codebase-architecture，钢人裁决）从十个性能候选中定唯一任务——终结 detail resize 节点构建放大器：`onWinResize` 每事件直调 `paintChartArea()` 整棵图表 SVG 重建（日 K 180 根 ≈ 540+ 节点/次），窗口拖拽 30-60 事件/秒 → 1.6 万-3.2 万节点构建/秒。ADR-0004 已列「已知遗留（另行安排）」，本次兑付。服务端/客户端两路审计与 grill 三轮 13 决策、独立评审两轮 8 项闭合（评审台账 `.dsh-research/resize-gate-review-scratch/ledger.md`）。
+- **闸门形状**：`(chartWidth(), chartHeight(viewportHeight()))` 二元组全等 → 零调度（宽度 [240,400] 钳位量化白赚）；rAF 同帧合并 + 150ms 最小间隔节流（`resizeThrottleMs` 注入，缺省 150；leading 下一帧即绘、窗内静默、trailing 必绘兜底终态）；记账在 `buildChartBox`（含 renderSkeleton 直调）；直调真绘清 pending 尾绘并刷新节流钟；dispose 清句柄/定时器（回调另带 disposed 早退）；无 rAF 环境内联 capsule `scheduleFrame` 同款同步回退。守卫保留每事件一次 `clientWidth` 读（无样式失效时有布局缓存，量级远低于整图重建）。
+- **实现**：`client/detail.mjs` 单 seam（+68 行）；其余文件零改动。
+- **测试**：fit 11→15 测（既有两 resize 测改 rAF flush 断言 + 四钉：同帧 5 事件→1 重建（680/181→520/140）/ 守卫零绘（数据到达后装计数器，视口未变 5 事件→0）/ 节流窗 40ms 内 5 事件→1 绘终态 181、窗后 leading→140（setup 720，断言点 221/181/140 互异，2ms 事件间隔保时序余量）/ dispose 静默回归钉）；全量 **460/460**（456 净增 4）。红绿过程：四钉先红（现状计数 5/5→6，与评审探针预证一致）→ 实现后一次全绿。
+- **构建**：`npm run build` 过；产物判据 `grep -cF "resizeThrottleMs" lib/client.js` = 1（基线 0、exit 1——真判别器；评审预证 minify 无 mangle-props、属性键存活）。
+- **实页基线**（cdp，chrome 后台起跑纪律，探针 `.dsh-research/skc-resize-probe/resize-probe.mjs` + log）：已装 **v0.3.8**（dshm_list 核定）实页开面板→入详情（boxH 230px）→shadowRoot 内挂 MutationObserver→连发 30 次 resize（纯事件，v0.3.8 无守卫每事件必绘）→**30/30 全量重建、盒身份变更、1438ms**——放大器实页实证，与预判精确一致。指纹观察：页面 `__DSH_PLUGIN_BUNDLE_SHA__` = `eb91b12e7f6a`，与 §12.57 tarball sha 前缀 `65090ede6dbb3c15` 不同源（宿主运行时自算口径 vs tarball 文件 sha），版本与行为证据独立核定，不作指纹硬判。
+- **未验证降级**：改造后实页计数（预期 ≤ 节流窗率）**本轮未测**——按 §12.57 主人指令不再热部署覆盖产物，本战役攒批未发版，新产物待下次发版 + `dshm_upgrade` 后补录追记；改造后行为判据以 jsdom 四钉为准。守卫宽度分量在 jsdom 不可测（`clientWidth` 恒 0 → 恒走 280 回退），四钉覆盖高度分量；宽度分量增强（`Object.defineProperty` 造宽度变化）默认不做，实页测守卫语义的入口是 CDP `Emulation.setDeviceMetricsOverride`。
+- **观察项登记**（不入本战役）：panel `placePanel`×2 双触发与 capsule `clampHostToViewport` 为亚毫秒机制性摩擦；capsule/detail 两处 rAF 回退内联，第三个用户出现再抽共享助手。
+- **误引注记**：`detail.mjs:180` 代码注释「§12.58」实指 §12.57 的确认条内容（先于本节存在）；本节落档后该误引新增指向歧义，留待发版后顺手修正（本战役不改该注释）。

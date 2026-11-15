@@ -14,6 +14,8 @@ import { createPanel } from "../client/panel.mjs";
 import { getLang, setLang } from "../client/i18n.mjs";
 
 const sleepMs = (ms) => new Promise((r) => setTimeout(r, ms));
+/** flush 一帧：resize 闸门经 rAF 合并后，断言前须等帧回调跑完 */
+const rafFlush = (h) => new Promise((r) => h.window.requestAnimationFrame(() => r()));
 
 const SYMBOL = {
   id: "cn:sz159206",
@@ -38,7 +40,7 @@ const CANDLES = Array.from({ length: 30 }, (_, i) => ({
   volume: 1000 + i,
 }));
 
-function setupDetail({ height, lang = "zh", injectWin = false }) {
+function setupDetail({ height, lang = "zh", injectWin = false, resizeThrottleMs = 0 }) {
   const h = createDomHarness();
   const prevLang = getLang();
   setLang(lang);
@@ -63,7 +65,7 @@ function setupDetail({ height, lang = "zh", injectWin = false }) {
     setToast() {},
     setMaVisible() {},
   };
-  const detail = createDetail(injectWin ? { store, win: h.window } : { store });
+  const detail = createDetail(injectWin ? { store, win: h.window, resizeThrottleMs } : { store, resizeThrottleMs });
   h.document.body.append(detail.el);
   const snap = {
     business: { rev: 1, settings: { privacyMode: false }, symbols: [SYMBOL], driverKind: null, loaded: true },
@@ -150,7 +152,8 @@ test("窗口高度变化：resize 后图表高度随之重算（680 → 520：18
     assert.equal(s.chartH(), 181);
     s.h.setViewport(s.h.window, 1100, 520);
     s.h.window.dispatchEvent(new s.h.window.Event("resize"));
-    assert.equal(s.chartH(), 140, "resize 后图表按新视口重算");
+    await rafFlush(s.h);
+    assert.equal(s.chartH(), 140, "resize 后图表按新视口重算（rAF 合并后一帧内完成）");
   } finally {
     s.restore();
   }
@@ -165,8 +168,103 @@ test("编辑中 resize：图表随视口重算，输入框身份不变（软键�
     input.focus();
     s.h.setViewport(s.h.window, 1100, 520);
     s.h.window.dispatchEvent(new s.h.window.Event("resize"));
+    await rafFlush(s.h);
     assert.equal(s.detail.el.querySelector('input[data-field="quantity"]'), input, "resize 只重画图表区，输入框身份不变（键盘不跳）");
     assert.equal(s.chartH(), 140, "图表仍随视口重算（520 → 140）");
+  } finally {
+    s.restore();
+  }
+});
+
+/* ---------------- resize 重画闸契约钉（§12.58 计划 Task 2） ---------------- */
+
+/** 盒重建计数：观察 detail.el 子树，只计新增 .skc-chartbox 节点。
+ *  必须用 h.window.MutationObserver（Node 全局无此构造器，裸用必 ReferenceError）；
+ *  收数在 microtask 边界即达，断言前 sleepMs(5) 充分。 */
+function countBoxRebuilds(detail, h) {
+  let count = 0;
+  const mo = new h.window.MutationObserver((muts) => {
+    for (const m of muts) for (const n of m.addedNodes) if (n.classList?.contains("skc-chartbox")) count += 1;
+  });
+  mo.observe(detail.el, { childList: true, subtree: true });
+  return async () => {
+    await sleepMs(5);
+    mo.disconnect();
+    return count;
+  };
+}
+
+test("resize 闸门·同帧合并：同帧 5 事件只重建一次（680/181 → 520/140）", async () => {
+  // 数值钉死：setup 档 181 与变更档 140 必须互异——同档（如 520↔630 双 140）时正确实现的守卫全程零调度，计数 0≠1 钉永红
+  const s = setupDetail({ height: 680 });
+  try {
+    await s.load();
+    assert.equal(s.chartH(), 181, "改前基线：680 视口成图 181");
+    const collect = countBoxRebuilds(s.detail, s.h);
+    s.h.setViewport(s.h.window, 1100, 520);
+    for (let i = 0; i < 5; i++) s.h.window.dispatchEvent(new s.h.window.Event("resize"));
+    await rafFlush(s.h);
+    assert.equal(await collect(), 1, "同帧 5 事件 → rAF 合并后仅 1 次盒重建（现状：每事件同步重建 5 次）");
+    assert.equal(s.chartH(), 140, "终态按新视口重算");
+  } finally {
+    s.restore();
+  }
+});
+
+test("resize 闸门·守卫零绘：视口未变 5 事件零重建", async () => {
+  const s = setupDetail({ height: 680 });
+  try {
+    await s.load();
+    const box = s.detail.el.querySelector(".skc-chartbox");
+    // 计数器在图表数据到达后安装：装在 load 前会把骨架+数据到达共 2 次重建计入（现状 7=2+5），闸门正确实现后恒 2≠0 永红
+    const collect = countBoxRebuilds(s.detail, s.h);
+    for (let i = 0; i < 5; i++) s.h.window.dispatchEvent(new s.h.window.Event("resize"));
+    await rafFlush(s.h);
+    assert.equal(await collect(), 0, "(宽,高)二元组未变 → 零调度零重建（现状：5 次）");
+    assert.equal(s.detail.el.querySelector(".skc-chartbox"), box, "盒节点引用不变");
+  } finally {
+    s.restore();
+  }
+});
+
+test("resize 闸门·节流窗：40ms 窗内 5 事件合并为 1 绘（终态 181），窗后 leading 即绘（140）", async () => {
+  // 数值钉死：setup 720 成图 221（未钳位档）；断言点 221/181/140 互异，任何相邻两步都是真实尺寸变化
+  const s = setupDetail({ height: 720, resizeThrottleMs: 40 });
+  try {
+    await s.load();
+    assert.equal(s.chartH(), 221, "720 视口成图 221");
+    const collect = countBoxRebuilds(s.detail, s.h);
+    s.h.setViewport(s.h.window, 1100, 520); // 140 档
+    // 2ms 间隔：burst ≈10ms，对 40ms 节流窗余量 ~30ms（5ms 间隔 burst ≈24ms、余量仅 ~16ms，慢机定时器拉伸会假红）
+    for (let i = 0; i < 4; i++) {
+      s.h.window.dispatchEvent(new s.h.window.Event("resize"));
+      await sleepMs(2);
+    }
+    s.h.setViewport(s.h.window, 1100, 680); // 181 档
+    s.h.window.dispatchEvent(new s.h.window.Event("resize"));
+    await sleepMs(80);
+    assert.equal(await collect(), 1, "窗口内 5 事件 → 1 次重建（trailing 或后续 rAF 补绘，两路径终态同值）");
+    assert.equal(s.chartH(), 181, "终态 = 最后视口 680 档");
+    const collect2 = countBoxRebuilds(s.detail, s.h);
+    s.h.setViewport(s.h.window, 1100, 600); // 140 档
+    s.h.window.dispatchEvent(new s.h.window.Event("resize"));
+    await sleepMs(40);
+    assert.equal(await collect2(), 1, "距上绘 >40ms → leading 即绘 1 次");
+    assert.equal(s.chartH(), 140, "600 档重算");
+  } finally {
+    s.restore();
+  }
+});
+
+test("resize 闸门·dispose 静默：pending 回调不炸尸（回归钉）", async () => {
+  const s = setupDetail({ height: 680 });
+  try {
+    await s.load();
+    s.h.setViewport(s.h.window, 1100, 520);
+    s.h.window.dispatchEvent(new s.h.window.Event("resize"));
+    s.detail.dispose(); // 立即 dispose：pending rAF/trailing 此后触发须静默
+    await sleepMs(50);
+    assert.equal(s.h.document.querySelector(".skc-chartbox"), null, "dispose 后无残留图表盒且无未捕获异常");
   } finally {
     s.restore();
   }

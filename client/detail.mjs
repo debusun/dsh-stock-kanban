@@ -45,7 +45,7 @@ function textSpan(className, text) {
   return el;
 }
 
-export function createDetail({ store, win }) {
+export function createDetail({ store, win, resizeThrottleMs = 150 }) {
   // 视口来源优先取注入的 win（宿主传入）；DSH 运行时全局 window 可能不存在，此前会回退到 768 导致图表不收缩（第 11 轮）
   const winRef = () => win ?? globalThis.window ?? null;
   const viewportHeight = () => winRef()?.innerHeight ?? 768;
@@ -64,6 +64,15 @@ export function createDetail({ store, win }) {
   let live = null; // 当前渲染的实时节点引用：输入时原位刷新，不重绘
   let skeleton = null; // 骨架节点引用（报价行/周期 Tab/指标行/图表框）；quotes tick 不重建
   let skeletonId = null; // 当前骨架的标的 id（null = 空态）
+
+  /* resize 重画闸（§12.58）：(宽,高)二元组守卫 + rAF 同帧合并 + resizeThrottleMs 节流
+   * （leading 下一帧即绘、窗内静默、trailing 必绘兜底终态）。终结每事件整棵图表 SVG 重建的
+   * 节点构建放大器；守卫自身保留每事件一次 clientWidth 读（无样式失效时有布局缓存，量级远低于重建）。 */
+  let lastBoxDims = { w: 0, h: 0 };
+  let lastPaintAt = 0;
+  let rafPending = false;
+  let rafHandle = null; // rAF 句柄——clearPendingRepaint 撤句柄用（缺变量则撤句柄路径成死代码）
+  let trailingTimer = null;
 
   const el = document.createElement("div");
 
@@ -340,6 +349,52 @@ export function createDetail({ store, win }) {
     return inner > 0 ? Math.min(400, Math.max(240, inner)) : 280;
   };
 
+  /* ---- resize 重画闸内部（capsule.mjs scheduleFrame 同款 rAF 回退：无 rAF 环境立即同步执行，无 resize 风暴无实害） ---- */
+  const dimsOf = () => ({ w: chartWidth(), h: chartHeight(viewportHeight()) });
+
+  const clearPendingRepaint = () => {
+    if (trailingTimer != null) {
+      winRef()?.clearTimeout?.(trailingTimer);
+      trailingTimer = null;
+    }
+    rafPending = false;
+    if (rafHandle != null) {
+      winRef()?.cancelAnimationFrame?.(rafHandle);
+      rafHandle = null;
+    }
+  };
+
+  const repaintIfDimsChanged = () => {
+    if (disposed) return;
+    const d = dimsOf();
+    if (d.w === lastBoxDims.w && d.h === lastBoxDims.h) return; // trailing 触发时守卫复查：回到原值零绘
+    paintChartArea();
+  };
+
+  const scheduleRepaint = () => {
+    if (rafPending) return; // 同帧合并：一帧至多一次回调
+    rafPending = true;
+    const fire = () => {
+      rafHandle = null;
+      rafPending = false;
+      if (disposed) return;
+      if (Date.now() - lastPaintAt >= resizeThrottleMs) {
+        repaintIfDimsChanged();
+        return;
+      }
+      const delay = resizeThrottleMs - (Date.now() - lastPaintAt);
+      winRef()?.clearTimeout?.(trailingTimer); // 先清旧 timer 再武装：同窗内第二次进该分支不得覆盖句柄泄漏旧 timer
+      trailingTimer = winRef()?.setTimeout(() => {
+        trailingTimer = null;
+        if (disposed) return;
+        repaintIfDimsChanged();
+      }, delay) ?? null;
+    };
+    const w = winRef();
+    if (typeof w?.requestAnimationFrame === "function") rafHandle = w.requestAnimationFrame.call(w, fire);
+    else fire(); // 无 rAF 回退：立即同步执行（该环境无 resize 事件风暴）
+  };
+
   const buildChartBox = (symbol, ui) => {
     const box = document.createElement("div");
     box.className = "skc-chartbox";
@@ -380,6 +435,7 @@ export function createDetail({ store, win }) {
     } else {
       box.append(buildCandleChart(chart.data ?? [], { maVisible: ui.maVisible, dark: false, width: chartWidth(), height: chartHeight(viewportHeight()) }));
     }
+    lastBoxDims = dimsOf(); // 守卫记账唯一权威：每次盒构建记录 (宽,高)（含 renderSkeleton 直调路径）
     return box;
   };
 
@@ -684,9 +740,12 @@ export function createDetail({ store, win }) {
     }
   };
 
-  /** 图表区重画：仅数据引用变化（loadChart 完成/失败）、周期切换、resize 时调用；quotes tick 不触 */
+  /** 图表区重画：仅数据引用变化（loadChart 完成/失败）、周期切换、resize 时调用；quotes tick 不触。
+   *  直调真绘后清 pending 尾绘（挂着的 trailing 冗余）并刷新节流钟（否则直调后窗内合法 resize 被误延迟）。 */
   const paintChartArea = () => {
     if (!skeleton || disposed) return;
+    clearPendingRepaint();
+    lastPaintAt = Date.now();
     const symbol = symbolOf();
     if (!symbol) return;
     const fresh = buildChartBox(symbol, snapshot?.ui ?? {});
@@ -934,7 +993,9 @@ export function createDetail({ store, win }) {
      2026-11-11 主人实机复测：竖屏四个输入框必现）。行情与图表数据沿用会话内缓存，不重新拉取。 */
   const onWinResize = () => {
     if (disposed || !snapshot?.ui?.panelOpen || snapshot?.ui?.view !== "detail" || !symbolOf()) return;
-    paintChartArea();
+    const d = dimsOf();
+    if (d.w === lastBoxDims.w && d.h === lastBoxDims.h) return; // 二元组守卫：未变零调度（宽度 [240,400] 钳位量化顺带白赚）
+    scheduleRepaint();
   };
   winRef()?.addEventListener?.("resize", onWinResize);
 
@@ -988,6 +1049,7 @@ export function createDetail({ store, win }) {
 
   const dispose = () => {
     disposed = true;
+    clearPendingRepaint(); // 撤 pending rAF/trailing（回调另自带 disposed 早退）
     winRef()?.removeEventListener?.("resize", onWinResize);
     el.replaceChildren();
     el.remove();
