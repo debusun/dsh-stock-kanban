@@ -934,3 +934,12 @@ P6（退避期含陈旧缓存时主源缓存优先于备源新鲜度）维持既
 - **实现**：fmt.mjs 新增导出 `priceDigits(p)`（fmtPrice 重构共用同一档位函数）；`fmtChange(v, refDigits = 2)`；paintQuoteLine 传 `priceDigits(price)`。
 - **测试**：全量 **458/458**（fmt 单测原位改写 + 新增富国/创业板/指数三案例回归与「无参考价自身档兜底」用例，0 净增——原 2 用例改写为 2 用例+内嵌断言扩容）；render-identity 原位更新不受扰。
 - **判据**：`grep -cF "priceDigits" client/fmt.mjs client/detail.mjs` → 各 ≥1。
+
+## 12.56 删除撤销退役（主人拍板「鸡肋」→ 全删，v0.3.7）
+
+- **背景**：主人看 §12.55 删除确认条截图，判「删除后可短暂撤销」提示与 6s 撤销机制鸡肋，问是否可删并要钢人结论。钢人裁决：**全删、确认条保留**（双向论证与裁决全文见 ui-redesign §8.17.7）。确认条（确认删除/取消）是真防线不动；undo 是纯客户端糖（同 market+code 经 symbols/add 复原同 id），退役不涉服务端协议、不影响 CEP 与 quota-watch 合并胶囊。
+- **改动**：store（`lastRemoved`/`undoRemoveSymbol` 退役；`removeSymbol` 成功回纯文本 `toast.removed`；`setToast` 收单参，固定 3800 守卫/4000 定时；导出面删 `undoRemoveSymbol`）、panel（`patchToast` action 钮分支退役）、styles（`.skc-toast-action` 退役）、i18n（`toast.undo`/`toast.restored` ×2 字典退役；`detail.confirm.remove` zh/en 收短，去「可短暂撤销」半句）、detail（确认条注释同步）。
+- **测试**：全量 **456/456**——`tests/client-undo.test.mjs`（6 例）退役，新 `tests/client-remove-toast.test.mjs`（3 例契约钉）；i18n 用例原位改写（退役键钉「缺键回退键名」惯例 + confirm.remove 新钉值）。账目：声明数 459 −6 +3 = 456，runner 实跑 456 与声明数一致（此前文档记 458 系陈账，本轮起以声明数=实跑数记账）。
+- **渲染验证**：热部署（deploy-client.sh，sha 前缀 aa8c46c27e5e）+ CDP 硬刷新后 cdp-shot 四轮全绿：指纹 page==local==`79030309cda3`、面板挂载/双层叠哨兵/胶囊四件套在位、详情实拍 hero 单行+徽章同行居中不变；console 仅 favicon.ico 404（DSH web 无 favicon 冷加载固有，非本轮引入）。首跑 `--check` 曾 exit 5（页面仍旧 bundle 指纹 ee72a77dd273 ≠ 本地）——下发+硬刷新后消除，属热部署流程内正常态。
+- **未验证降级**：删除→确认→纯文本 toast 的完整 GUI 点击链未真机实操（cdp-shot 不做破坏性点击；该链的 store/panel/i18n 三层由 jsdom 契约钉覆盖）——装机后主人随手删一个标的复核「已删除 X」无撤销钮即闭环。
+- **沙箱实录**：headless chrome 在默认沙箱内 /dev/shm shared memory Permission denied 必崩（landlock partial），宽权限下一把起——与 know-how 037「构建子进程与沙箱」同族；「重活前 chrome 进程清零」纪律再次有效（收尾 --down 后 pgrep=0）。

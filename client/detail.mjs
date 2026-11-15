@@ -726,7 +726,7 @@ export function createDetail({ store, win }) {
     } else if (pending === "overlap") {
       strip = confirmStrip({ text: t("detail.confirm.overlap"), ok: t("detail.confirm.overlap-ok"), danger: false, onOk: () => saveTargets(symbol, { acknowledged: true }) });
     } else if (pending === "remove") {
-      // 第 13 轮：删除确认条插在报价区之前；确认即删（T9 接 undo toast）
+      // 第 13 轮：删除确认条插在报价区之前；确认即删（6s 撤销已退役，§12.56）
       strip = confirmStrip({ text: t("detail.confirm.remove", { name: symbol.name }), ok: t("detail.confirm.remove-ok"), danger: true, onOk: () => { pending = null; performRemove(symbol); } });
     }
     if (!strip) return;

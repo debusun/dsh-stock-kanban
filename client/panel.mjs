@@ -329,9 +329,8 @@ export function createPanel({ doc, win, store, views }) {
 
   /* ---------------- 渲染 ---------------- */
 
-  /** toast 轻路径：引用比对，变化才写节点（structural render 也复用它保持 prevToast 同步）。
-   *  第 13 轮（2026-11-15）：toast 可携 action（可序列化 {kind,label,ms}）——kind=undo-remove 渲染撤销钮，
-   *  点击调 store.undoRemoveSymbol()；无 action 仍是纯文本。 */
+  /** toast 轻路径：引用比对，变化才写节点（structural render 也复用它保持 prevToast 同步）；
+   *  纯文本（§12.56：undo action 钮随撤销退役而移除）。 */
   const patchToast = () => {
     const t = snapshot?.toast ?? null;
     if (t === prevToast) return;
@@ -343,16 +342,6 @@ export function createPanel({ doc, win, store, views }) {
     }
     toast.hidden = false;
     toast.replaceChildren(doc.createTextNode(t.text));
-    if (t.action?.label) {
-      const btn = doc.createElement("button");
-      btn.type = "button";
-      btn.className = "skc-btn skc-btn-text skc-toast-action";
-      btn.textContent = t.action.label;
-      btn.addEventListener("click", () => {
-        if (t.action?.kind === "undo-remove") store.undoRemoveSymbol?.();
-      });
-      toast.append(btn);
-    }
   };
 
   const render = () => {

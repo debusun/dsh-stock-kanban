@@ -334,7 +334,6 @@ export const FLOAT_STYLE_TEXT = `
 .skc-capsule-picker .skc-select{flex:1 1 auto;min-width:0}
 .skc-toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);z-index:10001;background:color-mix(in srgb,var(--skc-base) 90%,transparent);-webkit-backdrop-filter:blur(14px) saturate(1.3);backdrop-filter:blur(14px) saturate(1.3);border:1px solid var(--skc-hairline);border-radius:10px;padding:8px 14px;box-shadow:0 8px 24px rgba(0,0,0,.25);pointer-events:none;max-width:80vw;font-size:12px;line-height:18px;color:var(--skc-text)}
 .skc-toast[hidden]{display:none}
-.skc-toast-action{min-height:24px;margin-left:8px} /* 第 13 轮：删除撤销钮（基类 skc-btn skc-btn-text） */
 
 /* 窄屏（手机）：头部计数让位给列表；表单两列改单列；seg-stack 隐藏段改 display:none
    （第 13 轮 2026-11-15：等高占位在移动端单列下放大成半屏死白，见评审 P0-1；桌面等高语义不变） */
