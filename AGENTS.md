@@ -19,6 +19,7 @@ DSH 插件（盯盘胶囊 + 面板 + 分时/K 线）。运行时零 npm 依赖�
 - 验证记录写 `docs/verification.md`（§12.x 追记式，含未验证项与降级——未验证不冒充已验证）。
 - 产物核证探针用 minify 免疫标记：字符串字面量（版本号等）与 `lib/client.js` 逐字节 diff/cmp；局部标识符会被 minify 混淆（2026-11-12 实录：`pullSequence` 计 0 被误读为代码缺失）。中文字面量在 lib 内是 `\uXXXX` 转义形态（esbuild minify 默认 charset=ascii），产物判据须用 `grep -cF` 转义定串或 ASCII 标记——BRE 单反斜杠 `\u` 会被吞为 `u`，不可用（2026-11-14 实录：中文新文案字面量判据恒 0，双态检出力以 -F 实证）。`grep -c` 计 0 即 exit 1，禁入 `&&` 链。
 - 探针必须 import 生产解析函数（如 `src/markets/search.mjs` 的 `parseSmartbox`），不得复制正则；现成入口 `scripts/probe-markets.mjs`。（2026-11-13 实录：手写正则的反转义错误被误读为上游格式。）
+- 客户端单测勿钉随真实时钟漂移的状态值（badgeKind / isMarketOpen / 休市判定随时钟翻转）——断言容器存在性/位置，或注入可控时钟。（2026-11-15 实录：18:51 跑测时 A股已收市，hero 徽章 hidden 断言假败。）
 - 标的池 `data/*.json` 由 `scripts/refresh-pools.mjs` 生成（`data/manifest.json` 登记来源与哈希，`tests/data-provenance.test.mjs` 校验）：**不得手改**；来源架构与刷新流程见 `data/README.md`。当前为多行规范化格式（2 空格缩进、按代码升序）。
 
 ## 文档索引
