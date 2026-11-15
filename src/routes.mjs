@@ -335,6 +335,34 @@ async function quotesRoute(req, res) {
   sendJson(res, 200, { rev: deps.store.rev, rows: rowsById, providers: deps.quotes.health() });
 }
 
+/**
+ * 快照锚定量纲自适应（§12.53，评审 F2 收口）：腾讯 fqkline 上游在 手↔股 间跨窗口翻转
+ * （§12.52 F2：HEAD 窗口 sh600519/bj920000 原生股、前缀启发式 ×100 过缩放 100×；sh688111 1×），
+ * 前缀启发式（klineVolumeToShares）无法自证。快照量（f36，§12.47 口径=股）为稳定锚：
+ * 日 K 末根量 / 快照量 ≈100 → ÷100 回正；≈0.01 → ×100；其余（≈1/快照缺/量 0）不动。
+ * 仅 cn/hk 的 tencent/eastmoney 腿 + 日 K 生效（us/crypto 量纲另系）；锚定失败静默保持原响应
+ * （前缀启发式兜底），每次纠偏发 diag kline.volume.anchor 供审计。
+ */
+async function anchorKlineVolume(symbol, period, packed) {
+  const { result, source } = packed;
+  if (result?.error || !Array.isArray(result?.candles) || result.candles.length === 0) return result;
+  if (period !== "day" || (symbol.market !== "cn" && symbol.market !== "hk")) return result;
+  if (source !== "tencent" && source !== "eastmoney") return result;
+  try {
+    const rows = await deps.quotes.getQuotes([symbol]);
+    const snapVol = [...rows.values()][0]?.quote?.volume ?? null;
+    const last = result.candles[result.candles.length - 1];
+    if (!snapVol || !last?.volume) return result;
+    const ratio = last.volume / snapVol;
+    const scale = ratio >= 50 && ratio <= 200 ? 0.01 : ratio >= 0.005 && ratio <= 0.02 ? 100 : 1;
+    if (scale === 1) return result;
+    note({ ev: "kline.volume.anchor", market: symbol.market, code: symbol.code, source, ratio: Number(ratio.toFixed(3)), scale });
+    return { ...result, candles: result.candles.map((c) => ({ ...c, volume: Math.round(c.volume * scale) })) };
+  } catch {
+    return result;
+  }
+}
+
 async function klineRoute(req, res) {
   const q = queryOf(req);
   const symbol = deps.store.getSymbol(q.get("id") ?? "");
@@ -343,13 +371,14 @@ async function klineRoute(req, res) {
     sendJson(res, 404, { error: "symbol-not-found" });
     return;
   }
-  let result;
+  let packed;
   if (symbol.market === "us") {
     const adapter = await adapterFor(symbol.market);
-    result = await adapter.fetchKline(symbol.code, period); // us 自管链（ADR-0007）
+    packed = { result: await adapter.fetchKline(symbol.code, period), source: "us-detail" }; // us 自管链（ADR-0007）
   } else {
-    result = await chartResult("kline", symbol, period); // cn/hk/crypto 查链表（ADR-0007）
+    packed = await chartResult("kline", symbol, period); // cn/hk/crypto 查链表（ADR-0007）
   }
+  const result = await anchorKlineVolume(symbol, period, packed); // 快照锚定量纲自适应（§12.53）
   sendJson(res, 200, {
     id: symbol.id,
     period,
@@ -367,13 +396,14 @@ async function minuteRoute(req, res) {
     sendJson(res, 404, { error: "symbol-not-found" });
     return;
   }
-  let result;
+  let packed;
   if (symbol.market === "us") {
     const adapter = await adapterFor(symbol.market);
-    result = await adapter.fetchMinuteDetail(symbol.code); // us 自管链（ADR-0007）
+    packed = { result: await adapter.fetchMinuteDetail(symbol.code), source: "us-detail" }; // us 自管链（ADR-0007）
   } else {
-    result = await chartResult("minute", symbol); // cn/hk/crypto 查链表（ADR-0007）
+    packed = await chartResult("minute", symbol); // cn/hk/crypto 查链表（ADR-0007）
   }
+  const result = packed.result;
   // 空分时不得伪装成功（§12.35 用户反馈：上证指数间歇性空白）：点位不足 2 个按 no-data 上报，客户端据此走休市/错误提示并可重试
   if (!result.error && (!Array.isArray(result.points) || result.points.length < 2)) result = { ...result, points: Array.isArray(result.points) ? result.points : [], error: "no-data" };
   sendJson(res, 200, {
@@ -449,12 +479,13 @@ async function chartResult(kind, symbol, period = "day") {
     cache: false, // 图表旧行为零缓存（§12.35：退化答案不得冻住下一拍轮询）；退避/在途合并仍生效
   });
   const cell = cells.get(symbol.code);
-  if (cell?.ok) return cell.value;
+  if (cell?.ok) return { result: cell.value, source: cell.source };
   const error = cell?.errorKind === "transport" ? "fetch-failed" : (cell?.value?.error ?? "no-data"); // 保留末源错误码（api-error/invalid-code 不吞）
   const errorDetail = cell?.errorKind === "transport" ? (cell.error ?? null) : (cell?.value?.errorDetail ?? null);
-  return kind === "kline"
+  const result = kind === "kline"
     ? { candles: [], adjust: cell?.value?.adjust ?? null, error, errorDetail }
     : { date: cell?.value?.date ?? null, prevClose: cell?.value?.prevClose ?? null, points: [], error, errorDetail };
+  return { result, source: null };
 }
 
 function exportRoute(_req, res) {

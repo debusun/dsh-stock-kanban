@@ -1,10 +1,10 @@
 {
-  "at": "2026-11-15T03:04:54.185Z",
+  "at": "2026-11-15T03:14:13.950Z",
   "results": [
     {
       "name": "tencent-batch-snapshot",
       "ok": true,
-      "ms": 230,
+      "ms": 243,
       "detail": {
         "bytes": 2460,
         "rows": 5,
@@ -56,7 +56,7 @@
     {
       "name": "tencent-minute https://proxy.finance.qq.com/ifzqgtimg",
       "ok": true,
-      "ms": 161,
+      "ms": 150,
       "detail": {
         "code": 0,
         "hasData": true,
@@ -68,7 +68,7 @@
     {
       "name": "tencent-minute https://web.ifzq.gtimg.cn",
       "ok": true,
-      "ms": 195,
+      "ms": 201,
       "detail": {
         "code": 0,
         "hasData": true,
@@ -80,7 +80,7 @@
     {
       "name": "tencent-fqkline-day",
       "ok": true,
-      "ms": 61,
+      "ms": 62,
       "detail": {
         "code": 0,
         "rows": 20,
@@ -108,7 +108,7 @@
     {
       "name": "tencent-fqkline-week",
       "ok": true,
-      "ms": 60,
+      "ms": 59,
       "detail": {
         "code": 0,
         "rows": 20,
@@ -136,7 +136,7 @@
     {
       "name": "tencent-fqkline-month",
       "ok": true,
-      "ms": 60,
+      "ms": 62,
       "detail": {
         "code": 0,
         "rows": 20,
@@ -164,7 +164,7 @@
     {
       "name": "tencent-fqkline-hk",
       "ok": true,
-      "ms": 66,
+      "ms": 65,
       "detail": {
         "code": 0,
         "rows": 20,
@@ -180,7 +180,7 @@
     {
       "name": "em-us-snapshot",
       "ok": true,
-      "ms": 1194,
+      "ms": 758,
       "detail": {
         "name": "苹果",
         "price": 356.27,
@@ -190,69 +190,73 @@
     {
       "name": "em-us-kline-day",
       "ok": false,
-      "ms": 233,
+      "ms": 80,
       "error": "fetch failed"
     },
     {
       "name": "em-us-kline-week",
       "ok": false,
-      "ms": 232,
+      "ms": 79,
       "error": "fetch failed"
     },
     {
       "name": "em-us-kline-month",
       "ok": false,
-      "ms": 973,
+      "ms": 76,
       "error": "fetch failed"
     },
     {
       "name": "em-us-trends2",
-      "ok": false,
-      "ms": 255,
-      "error": "fetch failed"
+      "ok": true,
+      "ms": 79,
+      "detail": {
+        "points": 391,
+        "first": "2026-11-13 22:30,358.155",
+        "last": "2026-11-14 05:00,356.270"
+      }
     },
     {
       "name": "okx-ticker",
       "ok": true,
-      "ms": 60,
+      "ms": 63,
       "detail": {
         "code": "0",
-        "last": "65261.9",
-        "open24h": "67690.8",
-        "ts": "1794711897344"
+        "last": "65232",
+        "open24h": "67526",
+        "ts": "1794712455272"
       }
     },
     {
       "name": "okx-candles-day",
       "ok": true,
-      "ms": 48,
+      "ms": 56,
       "detail": {
         "code": "0",
         "rows": 20,
         "firstTs": "1794672000000",
-        "firstClose": "65261.9"
+        "firstClose": "65232"
       }
     },
     {
       "name": "okx-candles-week",
       "ok": true,
-      "ms": 49,
+      "ms": 52,
       "detail": {
         "code": "0",
         "rows": 20,
         "firstTs": "1794153600000",
-        "firstClose": "65261.9"
+        "firstClose": "65256.4"
       }
     },
     {
       "name": "okx-candles-month",
       "ok": true,
-      "ms": 52,
+      "ms": 65,
       "detail": {
         "code": "0",
         "rows": 20,
         "firstTs": "1793462400000",
-        "firstClose": "65290.6"
+        "firstClose": "65232"
       }
     },
     {
@@ -262,14 +266,14 @@
       "detail": {
         "code": "0",
         "rows": 20,
-        "firstTs": "1794711600000",
-        "firstClose": "65261.9"
+        "firstTs": "1794712200000",
+        "firstClose": "65235.2"
       }
     },
     {
       "name": "okx-instruments",
       "ok": true,
-      "ms": 243,
+      "ms": 182,
       "detail": {
         "code": "0",
         "total": 1232,
@@ -279,7 +283,7 @@
     {
       "name": "smartbox \"茅台\"",
       "ok": true,
-      "ms": 191,
+      "ms": 129,
       "detail": {
         "hits": 1,
         "sample": [
@@ -317,7 +321,7 @@
     {
       "name": "smartbox \"沪深300ETF\"",
       "ok": true,
-      "ms": 62,
+      "ms": 57,
       "detail": {
         "hits": 10,
         "sample": [
@@ -333,7 +337,7 @@
     {
       "name": "em-cn-snapshot",
       "ok": true,
-      "ms": 402,
+      "ms": 288,
       "detail": {
         "name": "贵州茅台",
         "price": 1435.26,
@@ -343,13 +347,13 @@
     {
       "name": "sina-cn-snapshot",
       "ok": false,
-      "ms": 5121,
+      "ms": 5122,
       "error": "HTTP 403"
     },
     {
       "name": "volume-cn-kline-compare",
       "ok": true,
-      "ms": 16434,
+      "ms": 16466,
       "detail": {
         "samples": [
           {
@@ -391,25 +395,25 @@
     {
       "name": "sina-parse-recheck",
       "ok": false,
-      "ms": 5122,
+      "ms": 5119,
       "error": "HTTP 403"
     },
     {
       "name": "em-cn-kline sh600519 day qfq（+腾讯同日对照，volume 单位裁决）",
       "ok": false,
-      "ms": 1834,
+      "ms": 124,
       "error": "em-kline: fetch-failed/fetch failed"
     },
     {
       "name": "em-hk-kline-none hk00700 day fqt=0（+腾讯对照）",
       "ok": false,
-      "ms": 1955,
+      "ms": 125,
       "error": "em-kline: fetch-failed"
     },
     {
       "name": "em-cn-minute sh600519 trends2",
       "ok": true,
-      "ms": 871,
+      "ms": 79,
       "detail": {
         "date": "2026-11-13",
         "prevClose": 1410.27,
@@ -419,7 +423,7 @@
     {
       "name": "em-hk-minute hk00700 trends2",
       "ok": true,
-      "ms": 217,
+      "ms": 28,
       "detail": {
         "date": "2026-11-13",
         "prevClose": 398.8,
@@ -429,7 +433,7 @@
     {
       "name": "em-us-kline-regression NVDA day 缺省 qfq",
       "ok": false,
-      "ms": 1935,
+      "ms": 1244,
       "error": "em-kline: fetch-failed"
     }
   ]

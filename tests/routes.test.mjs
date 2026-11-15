@@ -408,3 +408,78 @@ test("K线：cn 腾讯腿挂 → EM 腿补位（fqt=1），响应形状不变（
     t.close();
   }
 });
+
+/* ---- K线量纲快照锚定（§12.53，评审 F2 收口）：腾讯 fqkline 上游 手↔股 跨窗口翻转 ---- */
+
+/* 腾讯 fqkline 夹具：raw volume 逐字入行（fetchKline 内部 klineVolumeToShares 会 sh/sz/bj ×100）；
+   快照夹具：qtimg 行 idx36 = 股口径量（§12.47 稳定锚）。 */
+function txKlineStub(volumes) {
+  const rows = volumes.map((v, i) => [`2026-11-${13 + i}`, "1404.00", "1435.26", "1437.69", "1394.00", String(v)]);
+  return json0({ code: 0, data: { sh600519: { qfqday: rows } } });
+}
+function json0(body) {
+  return { ok: true, status: 200, arrayBuffer: async () => Buffer.from(JSON.stringify(body), "utf8"), json: async () => body };
+}
+const json0text = (text) => ({ ok: true, status: 200, arrayBuffer: async () => Buffer.from(text, "utf8"), json: async () => ({}) });
+function qtRow(vol) {
+  return 'v_sh600519="1~贵州茅台~600519~1453.00~1452.00~1450.00~0~0~0~0~0~0~0~0~0~0~0~0~0~0~0~0~0~0~0~0~0~0~0~0~202611141500~1.00~0.07~1457.72~1436.00~x~' + vol + '~619953~0.34~22.11";';
+}
+
+test("K线量纲锚定：上游原生股（启发式 ×100 过缩放 100×）→ ÷100 回正对齐快照", async () => {
+  const t = await startServer();
+  const orig = globalThis.fetch;
+  globalThis.fetch = async (u, opts) => {
+    const s = String(u);
+    if (s.includes("127.0.0.1")) return orig(u, opts);
+    if (s.includes("ifzq.gtimg.cn")) return txKlineStub([4284800, 4284800]); // 上游翻转：原生股（股=4284800）
+    if (s.includes("qt.gtimg.cn")) return json0text(qtRow(4284800));          // 快照锚：4284800 股 → 比值 100 → ÷100
+    throw new Error("down");
+  };
+  try {
+    const res = await t.j("/stock-kanban/kline?id=cn:sh600519&period=day");
+    assert.equal(res.status, 200);
+    assert.equal(res.body.error, null);
+    assert.equal(res.body.candles.at(-1).volume, 4284800, "过缩放 100× 应被快照锚回正");
+  } finally {
+    globalThis.fetch = orig;
+    t.close();
+  }
+});
+
+test("K线量纲锚定：口径一致（比值 1）→ 原样不动", async () => {
+  const t = await startServer();
+  const orig = globalThis.fetch;
+  globalThis.fetch = async (u, opts) => {
+    const s = String(u);
+    if (s.includes("127.0.0.1")) return orig(u, opts);
+    if (s.includes("ifzq.gtimg.cn")) return txKlineStub([41780, 41780]); // raw 手 → ×100 = 4178000
+    if (s.includes("qt.gtimg.cn")) return json0text(qtRow(4178000));     // 快照 4178000 → 比值 1 → 不动
+    throw new Error("down");
+  };
+  try {
+    const res = await t.j("/stock-kanban/kline?id=cn:sh600519&period=day");
+    assert.equal(res.body.candles.at(-1).volume, 4178000, "口径一致不得误缩放");
+  } finally {
+    globalThis.fetch = orig;
+    t.close();
+  }
+});
+
+test("K线量纲锚定：快照不可用 → 启发式原值兜底（锚失败静默）", async () => {
+  const t = await startServer();
+  const orig = globalThis.fetch;
+  globalThis.fetch = async (u, opts) => {
+    const s = String(u);
+    if (s.includes("127.0.0.1")) return orig(u, opts);
+    if (s.includes("ifzq.gtimg.cn")) return txKlineStub([41780, 41780]);
+    throw new Error("down"); // 快照链（qtimg/EM）全灭 → snapVol null → 不动
+  };
+  try {
+    const res = await t.j("/stock-kanban/kline?id=cn:sh600519&period=day");
+    assert.equal(res.status, 200);
+    assert.equal(res.body.candles.at(-1).volume, 4178000, "锚不可用 → 启发式 ×100 原值兜底");
+  } finally {
+    globalThis.fetch = orig;
+    t.close();
+  }
+});
