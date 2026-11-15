@@ -296,6 +296,7 @@ export const FLOAT_STYLE_TEXT = `
 .skc-backup-actions .skc-btn{justify-content:center;width:100%}
 .skc-backup-row{display:flex;gap:8px}
 .skc-confirm{border:1px solid color-mix(in srgb,var(--skc-danger) 36%,transparent);background:color-mix(in srgb,var(--skc-danger) 7%,transparent);border-radius:10px;padding:10px 12px;display:flex;flex-direction:column;gap:8px;font-size:13px;line-height:18px}
+.skc-confirm--page{margin:10px 0 0} /* §12.58：详情页整幅条（删除）与头排零间距贴合，删除钮边框压条顶——上留 10px 呼吸；下邻报价行自带 margin-top:10px，节奏 10/10 对称 */
 .skc-confirm .skc-hint{font-size:12px;line-height:18px}
 .skc-warn-text{color:var(--skc-warn);font-size:12px;line-height:18px}
 

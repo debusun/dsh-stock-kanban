@@ -947,3 +947,11 @@ P6（退避期含陈旧缓存时主源缓存优先于备源新鲜度）维持既
 ### 12.56 追记：toast 3s 微调提议撤回（主人拍板保持 4s，未发版）
 
 主人继而问 6s 能否缩到 3s——查实 6s 系旧 bundle 撤销定制窗口（只挂删除），v0.3.7 起删除已回落默认 4s、新增本就 4s；3s 改动（setToast 2800/3000 + 停表钉值 + §12.57 草稿）在工作区做完未提交，主人得知 v0.3.7 已推送后拍板**保持 4s**，即撤回复原（git restore 三文件，grep 复核无残留）。裁决备案：撤销退役后 toast 只剩知会职能，4s 与 3s 无实质体验差，不为微调多打一个发版（同日已 0.3.6/0.3.7 双发）。
+
+## 12.57 删除确认条与头排零间距贴合修复（主人反馈，v0.3.8）
+
+- **背景**：§12.56 后主人实拍：删除确认条上缘与头排删除钮边框「小重合」，要求优化。CDP 探针量测（scratch `.dsh-research/skc-strip-probe/strip-probe.mjs`，shadow DOM 契约同 cdp-shot：capsule Enter 开面板/行点击 MouseEvent）：**非重叠，系零间距贴合**——`.skc-confirm` 无 margin，条顶边与头排底边同线（del.bottom=107=strip.top，gap=0.0），删除钮（head `align-items:stretch` 下 38px）底边框直接压在条顶边框上，双 hairline 叠读成重合。
+- **修复**：confirmStrip 助手加 `page` 修饰位，两个 remove 创建点（syncPendingStrip + 骨架重建补挂）传 `page:true` → `skc-confirm--page`；CSS `.skc-confirm--page{margin:10px 0 0}`（10px 为仓内既有节奏档；下邻报价行自带 margin-top:10px → 条上下 10/10 对称）。表单内联条（清除持仓/目标价/阈值重叠）不带修饰、不受扰。编辑事故一处即纠：remove 分支 edit 误吞 `}` 与 `if (!strip) return;` 两行，当即补回并复读验证（无语法闸漏网）。
+- **测试**：全量 **456/456**（0 净增——r6 两处原位加钉：整幅条含 `skc-confirm--page`、表单内联条不含）；impeccable layout 机械扫描 `detect --json --scope layout` 零发现。
+- **渲染验证**：热部署（f6700945a1a0d48d）+ 硬刷新后探针复测 **gap 0 → 10px**（strip.top 107→117）；前后实拍 `/tmp/skc-strip-probe/{before,after}.png`——条浮为独立组，删除钮边框不再触条。
+- **发版**：v0.3.8 发版链同 §12.56（fix 提交 → bump → build → chore(release) → tag → ci-parity → push → CI publish → 轮询）。

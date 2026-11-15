@@ -567,3 +567,7 @@ P3（产品，需主人决定）
 主人看删除确认条截图后判定「删除后可短暂撤销」半句与 6s 撤销机制鸡肋，要求钢人结论后再动手。钢人裁决（双向最强论证对审）：**全删，确认条保留**——§8.17 第 8 条的双层防护里，区块内 danger 确认条才是真防线；undo 防的是确认条已防住的失误（确认按错 × 6s 内察觉 × 点中 toast 小钮三事件齐发概率趋近零）；复原本身有损（sort 落组尾、addedAt 重置、单槽只记最后一次、窗口远短于人发现失误的延迟）；确认文案的软化半句反降慎重度（moral hazard），与破坏性确认的警示职责相悖；指数标的（截图例上证指数）本就不带持仓/目标价，undo 在最常见场景保护 ≈0。保留方论点如实入档：删除级联掉的是手工输入的持仓/目标价且服务端硬删无回收站，undo 是唯一自动恢复路径——但复原思路已备案于 §12.55（同 market+code 经 symbols/add 复原同 id），未来需要可低成本低重温；唯一用户显性负反馈权重最高。
 
 落地：store `lastRemoved`/`undoRemoveSymbol` 退役（`removeSymbol` 成功回纯文本「已删除 {name}」toast；`setToast` action 参数退役，固定 3800ms 守卫/4000ms 定时）；panel toast action 钮分支退役（纯文本）；`.skc-toast-action` 样式退役；i18n `toast.undo`/`toast.restored` ×2 字典退役、`detail.confirm.remove` 收短为「删除「{name}」？持仓与目标价一并移除。」（zh/en 同步）；`tests/client-undo.test.mjs`（6 例）退役 → `tests/client-remove-toast.test.mjs`（3 例契约钉：纯文本 toast + undoRemoveSymbol 接口面退役钉 / setToast 默认窗口停表钉 / 撤销钮永不复活钉）；i18n 用例原位改写（退役键钉「缺键回退键名」惯例 + confirm.remove 新钉值）。
+
+#### 8.17.8 主人反馈迭代八：删除确认条与头排零间距贴合修复（2026-11-15 当日，v0.3.8）
+
+主人实拍反馈：删除确认条上缘与头排删除钮边框「小重合」。CDP 探针量测裁决：**非真重叠，系零间距贴合**——`.skc-confirm` 无 margin，条顶边与头排底边（`align-items:stretch` 下删除钮 stretch 至 38px）同线（实测 gap=0.0），两条 hairline 边框叠读成重合。修复：confirmStrip 助手加 `page` 修饰位（两个 remove 创建点共用），`.skc-confirm--page{margin:10px 0 0}`——上缘 10px 呼吸（仓内既有 10px 节奏档）；下邻报价行自带 `margin-top:10px`，条上下 10/10 对称；表单内联条（清除持仓/目标价/阈值重叠）不带修饰、不受扰。测试：r6 两处原位加钉（整幅条含 `skc-confirm--page` / 表单内联条不含）；impeccable layout 机械扫描零发现；前后探针对照 gap 0→10px（实拍 `/tmp/skc-strip-probe/`）。

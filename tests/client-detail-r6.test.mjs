@@ -173,6 +173,7 @@ test("清除持仓需区块内确认：点击只出现确认条；确认后才�
     assert.equal(s.calls.filter((c) => c[0] === "updateSymbol").length, 0, "点击清除不直接提交");
     const strip = holdingsForm(s).querySelector(".skc-confirm");
     assert.ok(strip, "区块内出现确认条");
+    assert.equal(strip.classList.contains("skc-confirm--page"), false, "表单内联条不带 page 修饰（§12.58）");
     assert.equal(strip.textContent.includes(t("detail.confirm.clear")), true);
     const ok = [...strip.querySelectorAll("button")].find((b) => b.textContent === t("detail.confirm.clear-ok"));
     ok.click();
@@ -351,6 +352,7 @@ test("删除标的（第 13 轮）：区块内 danger 确认条，不弹原生�
     const strip = s.detail.el.querySelector(".skc-confirm");
     assert.ok(strip, "删除确认条在位");
     assert.equal(strip.nextElementSibling?.classList.contains("skc-quote-line"), true, "确认条插在报价区之前");
+    assert.equal(strip.classList.contains("skc-confirm--page"), true, "整幅条带 page 修饰（§12.58：上缘 10px 呼吸）");
     const ok = [...strip.querySelectorAll("button")].find((b) => b.textContent === t("detail.confirm.remove-ok"));
     ok.click();
     await sleepMs(5);

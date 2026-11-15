@@ -176,10 +176,11 @@ export function createDetail({ store, win }) {
 
   // 原生 confirm 退役（第 13 轮 2026-11-15）：删除与清除/重叠一样走区块内确认条（pending="remove"）
 
-  /** 区块内确认条（第六轮，替代原生 confirm）：清除持仓 / 目标价重叠共用 */
-  const confirmStrip = ({ text, ok, danger, onOk }) => {
+  /** 区块内确认条（第六轮，替代原生 confirm）：清除持仓 / 目标价重叠共用；
+   *  page=true = 详情页整幅条（删除），上缘与头排留 10px 呼吸（§12.58：零间距贴合观感重叠） */
+  const confirmStrip = ({ text, ok, danger, onOk, page = false }) => {
     const box = document.createElement("div");
-    box.className = "skc-confirm";
+    box.className = page ? "skc-confirm skc-confirm--page" : "skc-confirm";
     const msg = document.createElement("div");
     msg.textContent = text;
     const row = document.createElement("div");
@@ -727,7 +728,7 @@ export function createDetail({ store, win }) {
       strip = confirmStrip({ text: t("detail.confirm.overlap"), ok: t("detail.confirm.overlap-ok"), danger: false, onOk: () => saveTargets(symbol, { acknowledged: true }) });
     } else if (pending === "remove") {
       // 第 13 轮：删除确认条插在报价区之前；确认即删（6s 撤销已退役，§12.56）
-      strip = confirmStrip({ text: t("detail.confirm.remove", { name: symbol.name }), ok: t("detail.confirm.remove-ok"), danger: true, onOk: () => { pending = null; performRemove(symbol); } });
+      strip = confirmStrip({ text: t("detail.confirm.remove", { name: symbol.name }), ok: t("detail.confirm.remove-ok"), danger: true, page: true, onOk: () => { pending = null; performRemove(symbol); } });
     }
     if (!strip) return;
     if (pending === "remove") {
@@ -919,7 +920,7 @@ export function createDetail({ store, win }) {
     // 第 13 轮：pending="remove" 的确认条不随骨架内联构建（holdings/targets 的 pending 条由
     // buildHoldingsPanel/buildTargetsPanel 内联，此处补挂会双挂），仅 remove 分支重建时补挂
     if (pending === "remove" && !isIndex) {
-      const strip = confirmStrip({ text: t("detail.confirm.remove", { name: symbol.name }), ok: t("detail.confirm.remove-ok"), danger: true, onOk: () => { pending = null; performRemove(symbol); } });
+      const strip = confirmStrip({ text: t("detail.confirm.remove", { name: symbol.name }), ok: t("detail.confirm.remove-ok"), danger: true, page: true, onOk: () => { pending = null; performRemove(symbol); } });
       el.insertBefore(strip, quoteLine);
       live.strip = strip;
     }
