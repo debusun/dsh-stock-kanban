@@ -270,9 +270,9 @@ export function createPanel({ doc, win, store, views }) {
   }, "wallet");
   const addBtn = makeFooterButton("add", t("add.title"), () => store.setShowAdd(true), "plus");
   const settingsBtn = makeFooterButton("settings", t("app.settings"), () => store.setShowSettings(true), "settings");
-  const refreshBtn = makeFooterButton("refresh", t("list.refresh"), () => store.pollQuotes(), "refresh");
+  // 第 13 轮（2026-11-15）：手动刷新钮退役——与 15 秒自动轮询/可见性恢复/切市场即时拉取冗余（评审 P2-5）
 
-  footerMain.append(pickerLabel, holdingsBtn, addBtn, settingsBtn, refreshBtn);
+  footerMain.append(pickerLabel, holdingsBtn, addBtn, settingsBtn);
   footer.append(footerMain);
 
   // 对话框层（面板内渲染）
@@ -329,13 +329,30 @@ export function createPanel({ doc, win, store, views }) {
 
   /* ---------------- 渲染 ---------------- */
 
-  /** toast 轻路径：引用比对，变化才写节点（structural render 也复用它保持 prevToast 同步） */
+  /** toast 轻路径：引用比对，变化才写节点（structural render 也复用它保持 prevToast 同步）。
+   *  第 13 轮（2026-11-15）：toast 可携 action（可序列化 {kind,label,ms}）——kind=undo-remove 渲染撤销钮，
+   *  点击调 store.undoRemoveSymbol()；无 action 仍是纯文本。 */
   const patchToast = () => {
     const t = snapshot?.toast ?? null;
     if (t === prevToast) return;
     prevToast = t;
-    toast.hidden = !t;
-    if (t) toast.textContent = t.text;
+    if (!t) {
+      toast.hidden = true;
+      toast.replaceChildren();
+      return;
+    }
+    toast.hidden = false;
+    toast.replaceChildren(doc.createTextNode(t.text));
+    if (t.action?.label) {
+      const btn = doc.createElement("button");
+      btn.type = "button";
+      btn.className = "skc-btn skc-btn-text skc-toast-action";
+      btn.textContent = t.action.label;
+      btn.addEventListener("click", () => {
+        if (t.action?.kind === "undo-remove") store.undoRemoveSymbol?.();
+      });
+      toast.append(btn);
+    }
   };
 
   const render = () => {
@@ -347,7 +364,7 @@ export function createPanel({ doc, win, store, views }) {
     // 语言实时跟随（骨架静态文案重套 t()；保持 12.9 的实时切换语义）
     title.textContent = t("app.title");
     pickerLabelText.textContent = t("picker.label");
-    for (const [btn, key] of [[addBtn, "add.title"], [settingsBtn, "app.settings"], [refreshBtn, "list.refresh"], [headerClose, "app.collapse"]]) {
+    for (const [btn, key] of [[addBtn, "add.title"], [settingsBtn, "app.settings"], [headerClose, "app.collapse"]]) {
       btn.title = t(key);
       btn.setAttribute("aria-label", t(key));
     }

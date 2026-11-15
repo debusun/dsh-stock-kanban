@@ -1458,3 +1458,33 @@ test("再点胶囊：额度段按压 → 股票面板关闭", async () => {
   }
 });
 
+test("第 13 轮 · ≤520 媒体块内 is-off 段 display:none（移动端幽灵占位消除）", () => {
+  const s = FLOAT_STYLE_TEXT;
+  const idx = s.indexOf("@media (max-width:520px)");
+  assert.ok(idx >= 0, "520 媒体块存在");
+  const rest = s.slice(idx);
+  const next = rest.indexOf("@media", 6);
+  const media = next >= 0 ? rest.slice(0, next) : rest; // 截到下一个 @media：不把尾部动效块的 transition 误算进来
+  assert.ok(media.includes(".skc-seg-stack > form.is-off{display:none}"), "移动端隐藏段不再占位");
+  assert.ok(!media.includes("transition"), "数据区不引入过渡动画（纪律）");
+});
+
+test("第 13 轮 · 图标钮热区外扩 40px（::before inset -7）", () => {
+  const s = FLOAT_STYLE_TEXT;
+  assert.ok(s.includes(".skc-icon-btn{position:relative;"), "图标钮建立定位上下文");
+  assert.ok(s.includes('.skc-icon-btn::before{content:"";position:absolute;inset:-7px}'), "热区外扩至 40px");
+});
+
+test("第 13 轮 · footer 无刷新钮（手动刷新与自动轮询冗余，2026-11-15 拍板移除）", () => {
+  const s = setupPanel();
+  try {
+    assert.equal(s.panel.el.querySelector('[data-action="refresh"]'), null, "refresh 钮已移除");
+    for (const action of ["holdings", "add", "settings"]) {
+      assert.ok(s.panel.el.querySelector(`[data-action="${action}"]`), `${action} 钮仍在`);
+    }
+  } finally {
+    s.panel.dispose();
+    s.h.cleanup();
+  }
+});
+

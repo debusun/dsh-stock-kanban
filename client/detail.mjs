@@ -9,7 +9,7 @@
  */
 
 import { api } from "./api.mjs";
-import { fmtPrice, fmtPct, fmtAmount, maskIf, trendClass, parsePositiveInput, fmtClock, fmtClockSec } from "./fmt.mjs";
+import { fmtPrice, fmtPct, fmtAmount, fmtChange, priceDigits, maskIf, trendClass, parsePositiveInput, fmtClock, fmtClockSec } from "./fmt.mjs";
 import { buildMinuteChart, buildCandleChart, buildMaLegend } from "./charts.mjs";
 import { iconEl } from "./icons.mjs";
 import { t, tErr, getLang, detailSourceText } from "./i18n.mjs";
@@ -25,10 +25,14 @@ const PERIODS = [
 ];
 
 /* 图表高度随视口收缩（第 10 轮，2026-11-10）：卡片 max-height = 100dvh − 24，图表取「视口 − 24 − 固定区高度」，
-   夹在 [min, max] 内。固定区 = 卡片头尾 + 详情中除图表外的内容；按界面语言取值（英文文案更长，固定区高 17px，实测）。
+   夹在 [min, max] 内。固定区 = 卡片头尾 + 详情中除图表外的内容；按界面语言取值（英文文案更长，实测）。
    分时/K线统一钳位与固定区（第 12 轮，2026-11-10）：指标行四档周期常驻（分时档显示昨收图例，行高恒定），
-   卡片总高与周期无关——切分时/日K/周K/月K 不再触发卡片变高与重新定位（弹跳根除）。 */
-const CHART_H = { max: 230, min: 140, fixed: { zh: 494, en: 511 } };
+   卡片总高与周期无关——切分时/日K/周K/月K 不再触发卡片变高与重新定位（弹跳根除）。
+   第 13 轮（2026-11-15）：hero 改三行数据栈 zh 494→521（溢出差分实测）；同日两轮主人反馈迭代——
+   双栏（新鲜度升右栏）zh 521→497（vh720 差分：svg=175、余量 24 实测）；单行终版（价格+变动+新鲜度
+   同 baseline，hero lineH 54→32）zh 497→475（vh720 差分实测：svg=199、面板余量 22）；
+   en 与 zh 同步同 Δ：511→538→514→492（解析链，未真机实测见 §12.55 遗留）。 */
+const CHART_H = { max: 230, min: 140, fixed: { zh: 475, en: 492 } };
 const chartHeight = (vh) => {
   const fixed = CHART_H.fixed[getLang()] ?? CHART_H.fixed.zh;
   return Math.round(Math.min(CHART_H.max, Math.max(CHART_H.min, vh - 24 - fixed)));
@@ -55,7 +59,7 @@ export function createDetail({ store, win }) {
   let overlapHint = false;
   let lastDetailId;
   let segment = "position"; // 分段：position（持仓）| targets（目标价）；会话态，切换标的保留（第六轮 2026-11-10，方案 B）
-  let pending = null; // 区块内确认条：null | "clear" | "overlap"（替代原生 confirm）
+  let pending = null; // 区块内确认条：null | "clear" | "clear-targets" | "overlap" | "remove"（替代原生 confirm；第 13 轮增 remove）
   let busy = false; // 保存中：禁用保存钮，防重复提交
   let live = null; // 当前渲染的实时节点引用：输入时原位刷新，不重绘
   let skeleton = null; // 骨架节点引用（报价行/周期 Tab/指标行/图表框）；quotes tick 不重建
@@ -170,13 +174,7 @@ export function createDetail({ store, win }) {
     });
   };
 
-  const confirmBox = (message) => {
-    if (typeof window !== "undefined" && typeof window.confirm === "function") {
-      const ok = window.confirm(message);
-      return ok === true;
-    }
-    return true; // 无 confirm 环境（测试）默认放行
-  };
+  // 原生 confirm 退役（第 13 轮 2026-11-15）：删除与清除/重叠一样走区块内确认条（pending="remove"）
 
   /** 区块内确认条（第六轮，替代原生 confirm）：清除持仓 / 目标价重叠共用 */
   const confirmStrip = ({ text, ok, danger, onOk }) => {
@@ -316,8 +314,8 @@ export function createDetail({ store, win }) {
     }
   };
 
-  const removeSymbol = async (symbol) => {
-    if (!confirmBox(t("detail.confirm.remove", { name: symbol.name }))) return;
+  /** 确认后的删除动作（第 13 轮：入口改为删除 chip → pending="remove" 确认条） */
+  const performRemove = async (symbol) => {
     const result = await store.removeSymbol(symbol.id);
     if (result.ok) store.backToList();
   };
@@ -610,7 +608,7 @@ export function createDetail({ store, win }) {
     return { form, strip, live: { buy, sell, save, clear, unsaved } };
   };
 
-  /** 报价行原位刷新（quotes tick 的主要落点）：价格/涨跌/行情时间/stale 徽标 */
+  /** 报价行原位刷新（quotes tick 的主要落点）：价格/涨跌额/涨跌/新鲜度行/stale 徽标（第 13 轮结构） */
   const paintQuoteLine = () => {
     if (!skeleton) return;
     const symbol = symbolOf();
@@ -618,23 +616,44 @@ export function createDetail({ store, win }) {
     const q = snapshot?.quotes?.[symbol.id];
     const price = q?.status === "ok" ? q.price : null;
     const pct = q?.changePercent ?? null;
-    skeleton.quote.price.textContent = price != null ? fmtPrice(price) : q ? (q.status === "error" ? t("list.quote-failed") : "…") : "—";
-    skeleton.quote.price.className = `skc-quote-price ${trendClass(pct)}`;
+    // 第 13 轮（2026-11-15）：涨跌额直用上游口径 changeAmount（六适配器全填、routes:322 透传），
+    // 与涨跌幅同一 tick 自洽；缺失/非有限值时隐藏（退化回「价格+涨跌幅」双元组，不空窗）
+    const chg = Number.isFinite(q?.changeAmount) ? q.changeAmount : null;
+    const priceText = price != null ? fmtPrice(price) : q ? (q.status === "error" ? t("list.quote-failed") : "…") : "—";
+    skeleton.quote.price.textContent = priceText;
+    // 长价降档（第 13 轮·主人终版单行 + 极端档）：格式化 ≥9 字符（BTC 64,486.70 / 纳指 25,136.27）→ 24px；
+    // ≥12 字符（十万点级 1,234,567.89）→ 22px——保证万点/极端长价也能与新鲜度同行
+    skeleton.quote.price.className = `skc-quote-price ${trendClass(pct)}${price != null && priceText.length >= 12 ? " skc-quote-price--xs" : price != null && priceText.length >= 9 ? " skc-quote-price--sm" : ""}`;
+    skeleton.quote.chg.hidden = chg == null;
+    if (chg != null) {
+      // 混合规则（主人拍板）：档位 = max(自身量级档, 价格显示档位)，裁拖零——与同行价格小数位不打架
+      skeleton.quote.chg.textContent = fmtChange(chg, price != null ? priceDigits(price) : 2);
+      skeleton.quote.chg.className = `skc-quote-chg ${trendClass(pct)}`;
+    }
     skeleton.quote.pct.textContent = fmtPct(pct);
     skeleton.quote.pct.className = `skc-quote-pct ${trendClass(pct)}`;
     const qTime = q?.quoteTime ?? null;
     const fTime = q?.fetchedAt ?? null;
     const badgeKind = symbol ? targetBadgeKind(q?.target, symbol.market, Date.now()) : null;
-    const quoteTimeText = q && q.status === "ok" && qTime != null ? fmtClock(qTime) : "—";
-    const fetchTimeText = fTime != null ? fmtClockSec(fTime) : "—";
+    // 新鲜度行收敛为单表达式「HH:mm · 来源全称」（第 13 轮·迭代四：徽章迁头部后恢复经典名，秒数走 tooltip）；
+    // 双时间戳（行情/拉取含秒）降级为 tooltip
+    const fresh = fTime != null ? fmtClock(fTime) : "—";
+    const provider = q?.status === "ok" && q?.source ? t(`provider.${q.source}`) : null;
     const meta = skeleton.quote.meta;
-    meta.replaceChildren(document.createTextNode(t("detail.quote-time", { t: quoteTimeText, f: fetchTimeText })));
+    meta.replaceChildren(document.createTextNode(provider ? t("detail.freshness", { t: fresh, s: provider }) : fresh));
+    skeleton.quoteLine.title = qTime != null
+      ? t("detail.quote-tip", { q: fmtClock(qTime), f: fTime != null ? fmtClockSec(fTime) : "—" })
+      : "";
+    // 状态徽章迁头部蓝框位（迭代四）：meta 行不再挂徽章
     if (badgeKind) {
-      const badge = textSpan("skc-badge skc-badge-stale", badgeKind === "closed" ? t("detail.closed") : badgeKind === "stale" ? t("detail.stale") : t("detail.no-data"));
-      badge.title = t(`badge.${badgeKind}.tip`);
-      meta.append(badge);
+      const text = badgeKind === "closed" ? t("detail.closed") : badgeKind === "stale" ? t("detail.stale") : t("detail.no-data");
+      skeleton.headBadge.textContent = text;
+      skeleton.headBadge.title = t(`badge.${badgeKind}.tip`);
+      skeleton.headBadge.hidden = false;
+    } else {
+      skeleton.headBadge.hidden = true;
     }
-    // §12.48 数据源脚注常显：正常态「数据源：{name}」、降级态附加「（降级自 {from}）」；error/缺 source 时隐藏
+    // §12.48 数据源脚注：改「仅降级态出现」（detailSourceText 正常态返回 null）；error/缺 source/正常态隐藏
     const srcNote = detailSourceText(q);
     if (srcNote) meta.append(textSpan("skc-source-note", srcNote));
   };
@@ -706,10 +725,17 @@ export function createDetail({ store, win }) {
       strip = confirmStrip({ text: t("detail.confirm.clear-targets"), ok: t("detail.confirm.clear-ok"), danger: true, onOk: () => clearTargets(symbol) });
     } else if (pending === "overlap") {
       strip = confirmStrip({ text: t("detail.confirm.overlap"), ok: t("detail.confirm.overlap-ok"), danger: false, onOk: () => saveTargets(symbol, { acknowledged: true }) });
+    } else if (pending === "remove") {
+      // 第 13 轮：删除确认条插在报价区之前；确认即删（T9 接 undo toast）
+      strip = confirmStrip({ text: t("detail.confirm.remove", { name: symbol.name }), ok: t("detail.confirm.remove-ok"), danger: true, onOk: () => { pending = null; performRemove(symbol); } });
     }
     if (!strip) return;
-    const host = pending === "clear" ? live.holdings?.form : live.targets?.form;
-    host?.append(strip);
+    if (pending === "remove") {
+      el.insertBefore(strip, skeleton?.quoteLine ?? el.firstChild);
+    } else {
+      const host = pending === "clear" ? live.holdings?.form : live.targets?.form;
+      host?.append(strip);
+    }
     live.strip = strip;
   };
 
@@ -760,23 +786,37 @@ export function createDetail({ store, win }) {
     titleCol.className = "skc-detail-titlecol";
     const title = textSpan("skc-detail-title", symbol.name);
     title.title = symbol.name;
-    titleCol.append(title, textSpan("skc-detail-meta", `${symbol.code} · ${t(`market.${symbol.market}`)}${symbol.kind === "etf" ? " · ETF" : ""}${symbol.kind === "index" ? ` · ${t("kind.index")}` : ""} · ${symbol.quoteCurrency}`));
-    head.append(back, titleCol);
+    // 第 13 轮·主人反馈迭代五（2026-11-15）：徽章与标的名同行（`恒生科技指数 [休市中]`）——
+    // 语义直接贴合、头部横排不再占宽（代码行宽度全额归还）；长名时标题省略、徽章恒可见（flex:none）
+    const titleRow = document.createElement("span");
+    titleRow.className = "skc-detail-titlerow";
+    const headBadge = textSpan("skc-badge skc-badge-stale", "");
+    headBadge.hidden = true;
+    titleRow.append(title, headBadge);
+    titleCol.append(titleRow, textSpan("skc-detail-meta", `${symbol.code} · ${t(`market.${symbol.market}`)}${symbol.kind === "etf" ? " · ETF" : ""}${symbol.kind === "index" ? ` · ${t("kind.index")}` : ""} · ${symbol.quoteCurrency}`));
     // 删除：中性幽灵钮，悬停/聚焦时才转危险色（原红色实心钮在长名称换行后过于突兀）；整行不换行
     const del = document.createElement("button");
     del.className = "skc-btn skc-detail-delete";
     del.type = "button";
     del.append(iconEl(document, "trash", { strokeWidth: 1.4 }), document.createTextNode(t("detail.delete")));
-    del.addEventListener("click", () => removeSymbol(symbol));
-    head.append(del);
+    del.addEventListener("click", () => {
+      pending = "remove";
+      syncPendingStrip();
+    });
+    head.append(back, titleCol, del);
 
     const quoteLine = document.createElement("div");
     quoteLine.className = "skc-quote-line";
     const quotePrice = textSpan("skc-quote-price", "");
+    const quoteChg = textSpan("skc-quote-chg", "");
+    quoteChg.hidden = true;
     const quotePct = textSpan("skc-quote-pct", "");
+    const quoteMove = document.createElement("span");
+    quoteMove.className = "skc-quote-move";
+    quoteMove.append(quoteChg, quotePct);
     const quoteMeta = document.createElement("span");
     quoteMeta.className = "skc-quote-meta";
-    quoteLine.append(quotePrice, quotePct, quoteMeta);
+    quoteLine.append(quotePrice, quoteMove, quoteMeta);
 
     // 周期切换：独立一行的分段控件（与列表 Tab 同族，四段等宽、文字居中），不与 K 线指标共用一行
     const periodTabs = document.createElement("div");
@@ -867,13 +907,22 @@ export function createDetail({ store, win }) {
       };
     }
     skeleton = {
-      quote: { price: quotePrice, pct: quotePct, meta: quoteMeta },
+      quote: { price: quotePrice, chg: quoteChg, pct: quotePct, meta: quoteMeta },
+      quoteLine,
+      headBadge,
       periodTabs: periodTabRefs,
       periodMeta,
       chartBox,
     };
 
     el.append(head, quoteLine, periodTabs, periodMeta, chartBox, ...(isIndex ? [] : [segTabs]), stack);
+    // 第 13 轮：pending="remove" 的确认条不随骨架内联构建（holdings/targets 的 pending 条由
+    // buildHoldingsPanel/buildTargetsPanel 内联，此处补挂会双挂），仅 remove 分支重建时补挂
+    if (pending === "remove" && !isIndex) {
+      const strip = confirmStrip({ text: t("detail.confirm.remove", { name: symbol.name }), ok: t("detail.confirm.remove-ok"), danger: true, onOk: () => { pending = null; performRemove(symbol); } });
+      el.insertBefore(strip, quoteLine);
+      live.strip = strip;
+    }
     paintQuoteLine();
     paintLive();
   };

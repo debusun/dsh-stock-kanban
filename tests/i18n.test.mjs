@@ -105,3 +105,21 @@ test("语言缝守卫：client 源码（除 i18n.mjs）字符串字面量零 CJK
   }
   assert.deepEqual(violations, [], `硬编码文案（应走 i18n 字典）：${violations.join("、")}`);
 });
+
+test("第 13 轮新键：hero 新鲜度 + 撤销文案（zh/en 逐字）", () => {
+  setLang("zh");
+  assert.equal(t("detail.freshness"), "{t} · {s}", "zh 新鲜度");
+  assert.equal(t("detail.quote-tip"), "行情 {q} · 拉取 {f}", "zh 双时间戳 tooltip");
+  assert.equal(t("detail.confirm.remove-ok"), "确认删除", "zh 删除确认钮");
+  assert.equal(t("toast.removed"), "已删除 {name}", "zh 已删除");
+  assert.equal(t("toast.undo"), "撤销", "zh 撤销");
+  assert.equal(t("toast.restored"), "已恢复 {name}", "zh 已恢复");
+  setLang("en");
+  assert.equal(t("detail.freshness"), "{t} · {s}", "en 新鲜度");
+  assert.equal(t("detail.quote-tip"), "Quote {q} · Fetched {f}", "en 双时间戳 tooltip");
+  assert.equal(t("detail.confirm.remove-ok"), "Delete", "en 删除确认钮");
+  assert.equal(t("toast.removed"), "Removed {name}", "en 已删除");
+  assert.equal(t("toast.undo"), "Undo", "en 撤销");
+  assert.equal(t("toast.restored"), "Restored {name}", "en 已恢复");
+  setLang("zh");
+});

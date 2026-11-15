@@ -1,15 +1,14 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { detailSourceText, setLang } from "../client/i18n.mjs";
+import { detailSourceText, t, setLang } from "../client/i18n.mjs";
 
-/* 脚注文案 helper 单测（§12.48）：文案钉死——zh「数据源：{name}」/「数据源：{name}（降级自 {from}）」，
- * en "Source: {name}" / "Source: {name} (fell back from {from})"；error/null 行返回 null。 */
+/* 脚注文案 helper 单测（§12.48 → 第 13 轮改契约）：正常态返回 null（来源名已并入 hero 新鲜度行
+ * 「HH:mm:ss · 源」，脚注不重复常显）；降级态钉死——zh「数据源：{name}（降级自 {from}）」、
+ * en "Source: {name} (fell back from {from})"；error/null 行返回 null。 */
 
-test("detailSourceText：正常态常显数据源（zh）", () => {
+test("detailSourceText：正常态返回 null（源名已并入新鲜度行）", () => {
   setLang("zh");
-  const s = detailSourceText({ status: "ok", source: "eastmoney", fallbackFrom: null });
-  assert.equal(s, "数据源：东方财富");
-  assert.ok(!s.includes("降级自"));
+  assert.equal(detailSourceText({ status: "ok", source: "eastmoney", fallbackFrom: null }), null);
 });
 
 test("detailSourceText：降级态附加降级来源（zh）", () => {
@@ -24,19 +23,19 @@ test("detailSourceText：error/null/缺 source → null（脚注隐藏）", () =
   assert.equal(detailSourceText({ status: "ok", source: null, fallbackFrom: null }), null);
 });
 
-test("detailSourceText：英文两态", () => {
+test("detailSourceText：英文降级态；正常态 null", () => {
   setLang("en");
-  assert.equal(detailSourceText({ status: "ok", source: "eastmoney", fallbackFrom: null }), "Source: EastMoney");
+  assert.equal(detailSourceText({ status: "ok", source: "eastmoney", fallbackFrom: null }), null);
   assert.equal(detailSourceText({ status: "ok", source: "sina", fallbackFrom: "tencent" }), "Source: Sina (fell back from Tencent)");
   setLang("zh");
 });
 
-test("detailSourceText：六个 provider token 双语键齐全（parity 手检）", () => {
+test("detailSourceText：六个 provider token 双语键齐全（parity 直断 provider 键）", () => {
   for (const lang of ["zh", "en"]) {
     setLang(lang);
     for (const p of ["tencent", "eastmoney", "tencent-us", "yahoo", "okx", "sina"]) {
-      const s = detailSourceText({ status: "ok", source: p, fallbackFrom: null });
-      assert.ok(!s.includes("provider.") && s.length > 0, `${lang}/${p} -> ${s}`);
+      const s = t(`provider.${p}`);
+      assert.ok(s && !s.includes("provider.") && s.length > 0, `${lang}/${p} -> ${s}`);
     }
   }
   setLang("zh");

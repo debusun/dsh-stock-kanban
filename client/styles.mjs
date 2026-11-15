@@ -181,11 +181,20 @@ export const FLOAT_STYLE_TEXT = `
 /* 删除：同构 chip 中性态不抢焦点；悬停/聚焦整组转危险色（描边同染，破坏性意图更明确） */
 .skc-btn.skc-detail-delete{flex:none;min-height:0;padding:0 10px;color:var(--skc-text-2);font-size:12px;font-weight:500}
 .skc-btn.skc-detail-delete:hover{color:var(--skc-danger);border-color:color-mix(in srgb,var(--skc-danger) 38%,transparent);background:color-mix(in srgb,var(--skc-danger) 9%,transparent)}
+/* 状态徽章与标的名同行（第 13 轮·迭代五）：恒生科技指数〔休市中〕——徽章贴合名称语义，代码行宽度全额归还；
+   justify-content:center = 名称+徽章整组与下方代码行同轴居中（主人拍板），长名省略时徽章钉右端自然退化 */
+.skc-detail-titlerow{display:flex;align-items:center;justify-content:center;gap:6px;min-width:0}
+.skc-detail-titlerow .skc-badge{flex:none}
+.skc-detail-titlerow .skc-detail-title{flex:0 1 auto}
 
-.skc-quote-line{display:block;text-align:center;margin:10px 0 12px} /* 结构化分行（§12.53）：hero 层（价格+涨跌幅）恒居中独占行，meta 恒第二行——消除 flex-wrap 随 meta 内容宽度的换行抖动（评审 F2 验核实录）；居中轴保留第 12 轮钦定 */
-.skc-quote-price{font-size:24px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.15;letter-spacing:-.01em}
-.skc-quote-pct{font-size:14px;font-weight:600;font-variant-numeric:tabular-nums;margin-left:10px}
-.skc-quote-meta{color:var(--skc-text-2);font-size:12px;line-height:16px;display:flex;justify-content:center;flex-wrap:wrap;gap:6px;align-items:center;margin-top:4px;font-variant-numeric:tabular-nums}
+.skc-quote-line{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;text-align:left;margin:10px 0 12px} /* 第 13 轮·主人终版拍板（2026-11-15）：单行 hero——价格+变动+新鲜度同 baseline；放不下时 meta 整簇落到右对齐第二行（wrap 兜底，不裁切不逐项乱换）。grid 双栏退役 */
+.skc-quote-price{flex:none;font-size:28px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.15;letter-spacing:-.01em}
+.skc-quote-price--sm{font-size:24px} /* 格式化价 ≥9 字符（BTC 64,486.70 / 纳指 25,136.27）：降档换单行 */
+.skc-quote-price--xs{font-size:22px} /* 极端档 ≥12 字符（十万点级 1,234,567.89）：再降仍保单行 */
+.skc-quote-move{flex:none;display:flex;gap:6px;align-items:baseline}
+.skc-quote-chg{font-size:14px;font-weight:600;font-variant-numeric:tabular-nums}
+.skc-quote-pct{font-size:14px;font-weight:600;font-variant-numeric:tabular-nums} /* 原 margin-left:10px 退役：行内间距归 .skc-quote-move gap */
+.skc-quote-meta{flex:1 1 auto;display:flex;align-items:baseline;gap:5px;flex-wrap:wrap;justify-content:flex-end;min-width:0;color:var(--skc-text-2);font-size:12px;line-height:16px;font-variant-numeric:tabular-nums} /* 元数据集群弹性占尾右对齐；放不下整簇落第二行 */
 /* 周期切换：分段轨道（与列表 Tab 同族），四段等宽独占一行；按钮内 flex 居中，不依赖字体行高（第五轮 2026-11-10） */
 .skc-period-tabs{display:flex;gap:2px;padding:2px;border-radius:9px;background:var(--skc-hover);margin-bottom:8px}
 .skc-period{font-size:12px}
@@ -252,7 +261,8 @@ export const FLOAT_STYLE_TEXT = `
 /* 文字按钮（清除持仓等次要破坏性操作）：不靠边框和底色抢视觉，悬停才下划线 */
 .skc-btn-text{background:transparent;border-color:transparent;color:var(--skc-text-2);padding:0 6px;min-height:28px;font-weight:500}
 .skc-btn-text:hover{background:transparent;color:var(--skc-text);text-decoration:underline;text-underline-offset:3px}
-.skc-icon-btn{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;background:transparent;border:none;color:var(--skc-text-2);cursor:pointer;padding:0;border-radius:6px;font-family:inherit;transition:background .12s var(--skc-ease), color .12s var(--skc-ease)}
+.skc-icon-btn{position:relative;display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;background:transparent;border:none;color:var(--skc-text-2);cursor:pointer;padding:0;border-radius:6px;font-family:inherit;transition:background .12s var(--skc-ease), color .12s var(--skc-ease)}
+.skc-icon-btn::before{content:"";position:absolute;inset:-7px} /* 第 13 轮（2026-11-15）：命中区外扩 26→40px（胶囊 ::before 同技法）；相邻钮 gap 6px 交叠 1px 落在中线可接受 */
 .skc-icon-btn:hover{color:var(--skc-text);background:var(--skc-hover)}
 .skc-icon-btn:active{transform:scale(.94)}
 .skc-icon-btn svg{display:block}
@@ -324,13 +334,16 @@ export const FLOAT_STYLE_TEXT = `
 .skc-capsule-picker .skc-select{flex:1 1 auto;min-width:0}
 .skc-toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);z-index:10001;background:color-mix(in srgb,var(--skc-base) 90%,transparent);-webkit-backdrop-filter:blur(14px) saturate(1.3);backdrop-filter:blur(14px) saturate(1.3);border:1px solid var(--skc-hairline);border-radius:10px;padding:8px 14px;box-shadow:0 8px 24px rgba(0,0,0,.25);pointer-events:none;max-width:80vw;font-size:12px;line-height:18px;color:var(--skc-text)}
 .skc-toast[hidden]{display:none}
+.skc-toast-action{min-height:24px;margin-left:8px} /* 第 13 轮：删除撤销钮（基类 skc-btn skc-btn-text） */
 
-/* 窄屏（手机）：头部计数让位给列表；表单两列改单列 */
+/* 窄屏（手机）：头部计数让位给列表；表单两列改单列；seg-stack 隐藏段改 display:none
+   （第 13 轮 2026-11-15：等高占位在移动端单列下放大成半屏死白，见评审 P0-1；桌面等高语义不变） */
 @media (max-width:520px){
   .skc-header-meta{display:none}
   .skc-form-grid{grid-template-columns:1fr}
   .skc-capsule{max-width:none}
   .skc-capsule-name{max-width:16vw}
+  .skc-seg-stack > form.is-off{display:none}
 }
 
 /* 动效只对允许运动的用户生效（chrome 动效；数据行不做动画） */

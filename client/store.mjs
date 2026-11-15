@@ -171,7 +171,36 @@ export function createStore(storage = window.localStorage, { onEvent } = {}) {
   const addSymbol = (market, code, patch) => mutate((rev) => api.add(market, code, patch, rev), { quiet: true });
   const updateSymbol = (id, patch) => mutate((rev) => api.update(id, patch, rev));
   const reorderSymbols = (market, orderedIds) => mutate((rev) => api.reorder(market, orderedIds, rev));
-  const removeSymbol = (id) => mutate((rev) => api.remove(id, rev));
+  // 第 13 轮（2026-11-15）：删除可撤销——成功即捕获被删记录并给 6s undo toast；
+  // 失败（含 409 conflict）不置捕获、不覆盖 mutate 自带的 conflict/op-failed toast
+  let lastRemoved = null;
+  const removeSymbol = async (id) => {
+    const rec = state.business?.symbols?.find((s) => s.id === id) ?? null;
+    const r = await mutate((rev) => api.remove(id, rev));
+    if (r?.ok === true && rec) {
+      lastRemoved = rec;
+      setToast(t("toast.removed", { name: rec.name }), { kind: "undo-remove", label: t("toast.undo"), ms: 6000 });
+    }
+    return r;
+  };
+  /** 撤销最近一次删除：以相同 market+code 重新加入（服务端 id 由 market+code 派生 → 同 id 复原；
+   *  sort 位不恢复、落到组尾——已接受的取舍，见 docs/verification.md §12.55）。失败不清捕获。 */
+  const undoRemoveSymbol = async () => {
+    const rec = lastRemoved;
+    if (!rec) return { ok: false };
+    const patch = {
+      quantity: rec.quantity ?? null,
+      avgCost: rec.avgCost ?? null,
+      buyTarget: rec.buyTarget ?? null,
+      sellTarget: rec.sellTarget ?? null,
+    };
+    const r = await mutate((rev) => api.add(rec.market, rec.code, patch, rev), { quiet: false });
+    if (r?.ok === true) {
+      lastRemoved = null;
+      setToast(t("toast.restored", { name: rec.name }));
+    }
+    return r;
+  };
   const setPrivacy = (privacyMode) => mutate((rev) => api.setSettings({ privacyMode }, rev));
   const importBackup = (payload) => mutate((rev) => api.importBackup(payload, rev));
 
@@ -260,12 +289,13 @@ export function createStore(storage = window.localStorage, { onEvent } = {}) {
   function setQuotaMerge(v) { setUi({ quotaMerge: v }); }
   function setQuotaCapable(v) { setUi({ quotaCapable: v }); }
 
-  function setToast(text) {
-    set({ toast: text ? { text, at: Date.now() } : null });
+  function setToast(text, action = null) {
+    set({ toast: text ? { text, at: Date.now(), action } : null });
     if (text) {
+      const windowMs = action?.ms ?? 3800;
       setTimeout(() => {
-        if (state.toast && Date.now() - state.toast.at >= 3800) set({ toast: null });
-      }, 4000);
+        if (state.toast && Date.now() - state.toast.at >= windowMs) set({ toast: null });
+      }, windowMs + 200);
     }
   }
 
@@ -295,7 +325,7 @@ export function createStore(storage = window.localStorage, { onEvent } = {}) {
 
   return {
     subscribe, getState, dispose,
-    refreshState, mutate, addSymbol, updateSymbol, reorderSymbols, removeSymbol, setPrivacy, importBackup,
+    refreshState, mutate, addSymbol, updateSymbol, reorderSymbols, removeSymbol, undoRemoveSymbol, setPrivacy, importBackup,
     pollQuotes, restartPolling, openPanel, closePanel, togglePanel, openDetail, backToList,
     setLastMarket, setHoldingsOnly, setMaVisible, setCapsuleSymbol,
     setQuotaMerge, setQuotaCapable,

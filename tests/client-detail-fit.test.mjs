@@ -99,11 +99,11 @@ function setupDetail({ height, lang = "zh", injectWin = false }) {
   };
 }
 
-test("分时：视口 680 → 图表 162（统一钳位，与 K 线同高）", async () => {
+test("分时：视口 680 → 图表 181（未钳位档；单行 hero 固定区 475）", async () => {
   const s = setupDetail({ height: 680 });
   try {
     await s.load();
-    assert.equal(s.chartH(), 162);
+    assert.equal(s.chartH(), 181);
   } finally {
     s.restore();
   }
@@ -129,8 +129,8 @@ test("分时：视口 520 → 图表 140（下限，仍可内滚兜底）", asyn
   }
 });
 
-test("日K：视口 680 → 图表 162；视口 630 → 140（下限）", async () => {
-  for (const [height, expected] of [[680, 162], [630, 140]]) {
+test("日K：视口 720 → 图表 221（未钳位档）；视口 630 → 140（下限）", async () => {
+  for (const [height, expected] of [[720, 221], [630, 140]]) {
     const s = setupDetail({ height });
     try {
       await s.load();
@@ -143,11 +143,11 @@ test("日K：视口 680 → 图表 162；视口 630 → 140（下限）", async 
   }
 });
 
-test("窗口高度变化：resize 后图表高度随之重算（680 → 520：162 → 140）", async () => {
+test("窗口高度变化：resize 后图表高度随之重算（680 → 520：181 → 140）", async () => {
   const s = setupDetail({ height: 680 });
   try {
     await s.load();
-    assert.equal(s.chartH(), 162);
+    assert.equal(s.chartH(), 181);
     s.h.setViewport(s.h.window, 1100, 520);
     s.h.window.dispatchEvent(new s.h.window.Event("resize"));
     assert.equal(s.chartH(), 140, "resize 后图表按新视口重算");
@@ -244,7 +244,7 @@ test("切周期卡片几何恒定（第 12 轮）：分时→日K→周K 图表�
     assert.ok(metaNow().querySelector(".skc-meta-note"), "分时档显示昨收图例（标注图内虚线参考线）");
     s.detail.el.querySelectorAll(".skc-period")[1].click(); // 日K
     const loadingBox = s.detail.el.querySelector(".skc-chartbox");
-    assert.equal(loadingBox.style.height, "162px", "加载骨架占位与成图同高——切周期骨架期卡片不塌陷");
+    assert.equal(loadingBox.style.height, "181px", "加载骨架占位与成图同高——切周期骨架期卡片不塌陷");
     await sleepMs(10);
     assert.equal(s.chartH(), minuteH, "日K 与分时同高——切周期零位移（弹跳根除）");
     s.detail.el.querySelectorAll(".skc-period")[2].click(); // 周K

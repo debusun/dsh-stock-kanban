@@ -877,3 +877,60 @@ P6（退避期含陈旧缓存时主源缓存优先于备源新鲜度）维持既
 
 
 
+
+## 12.55 详情排版第 13 轮（hero 左对齐 / 底部空白 / 触控 / 删除撤销）
+
+- **背景**：impeccable critique 22/40（快照 `.impeccable/critique/2026-11-15T06-35-10Z__client-detail-mjs.md`）+ 主人三决议（方向 A / 全部 5 优先问题 / 涨跌色保持全局红涨、P1-3 不做）；独立评审代理 reviewer-r13 三轮 + 终审，8 项发现（F-4 阻断）全闭环，台账与 6 份探针 log 在 `~/workspace/.dsh-research/plan-review-r13-scratch/`。实施计划 `docs/plans/2026-11-15-detail-typography-overhaul-implementation-plan.md`。
+- **改动**：九条清单见 `docs/ui-redesign.md` §8.17（不重复）。
+- **CHART_H 实测**：zh **521**（vh 760、svg=215、`scroll−client=+1px` → 521；改后复测溢出 0、面板顶格 744）；en **538** = 511+27 解析推算（**未真机实测**——live 切语言需 DSH 设置重载，本轮以 jsdom 夹具算术覆盖，见遗留②）。
+- **测试**：全量 **458/458**（441 → +17。拆账：hero +3、fmtChange +2、undo +6、r6 删除确认 +2、client-dom +3（520 块/热区/无刷新钮）、i18n 新键 +1、T4/T5 钉值与 detail-source 改钉 0 净增、restyle 枚举改写 0 净增；计划账 +16，undo 实拆 6 用例 → +17，据实修正）。
+- **undo 语义备案**：同 id 复原依赖服务端 id=market:code 派生；撤销窗口内再手动添加同一标的 → duplicate → op-failed（预期）；恢复标的 sort 落组尾（不恢复原位）；undo 失败（如上游行情不可用）捕获保留、可修好后重试。
+- **遗留**：① quote error 长文案在 28px hero 的形态未改（评审 P9 不在本轮范围）；② en CHART_H 538 未真机实测；③ 涨跌色保持全局红涨为主人 2026-11-15 拍板（评审 P1-3 不做），方向 A 第二行涨跌额符号提供非色冗余编码；④ 刷新钮移除后手动刷新 = 切市场 Tab / 重开面板 / 页面可见性恢复。
+- **GUI 复验清单（留主人，装机后）**：手机切「目标价」段再切回确认无死白跳动；删除一个标的看 6 秒撤销钮；undo 后确认持仓/目标价字段回来且排序位在组尾；英文界面瞄一眼 hero 与图表高度。
+- **探针 log**：`/tmp/skc-preview/out/r13*-cdp-shot.log`、`r13-measure.log`（vh760 四行读数）、评审侧 `plan-review-r13-scratch/*.log`。
+
+**未提交**：本轮改动留在工作区。
+
+### 12.55 追记（同日二次迭代）：hero 双栏化（主人反馈）
+
+- **主人反馈**：hero 左栏右侧空白应利用，新鲜度行（蓝框）升入红框区；并问「三行摆一行是否够」——判否：420 面板 ~447px 需求 > ~394px 可用（390 sheet 更紧），单行混排宽度随标的/语言漂移即 §12.54 抖动原罪，故落**双栏网格**（两行）。
+- **实现**：`skc-quote-line` grid `grid-template-areas:"price meta" "move meta"` + `align-items:end`；price/move 左栏、meta 右栏右对齐（flex-wrap 内换行兜底）；markup 零改动。`CHART_H.fixed` zh **497**（vh720 差分：svg=175、余量 24 → C_true=497；复测 svg=199、溢出 0、面板 704 顶格）、en **487**（解析，遗留②沿用未实测声明）。
+- **测试**：全量 **458/458**（计数不变——hero 样式断言原位改写双栏网格、fit 改组 0 净增）；实拍 `detail-2col-desktop.png`、`detail-2col-sheet390.png`。
+- **判据**：`grep -cF 'grid-template-areas:"price meta" "move meta"' client/styles.mjs` → 1；构建指纹 page==local。
+
+### 12.55 追记二：新鲜度降密 + 来源缩写（同日第三次迭代）
+
+- **主人两条建议落地**：① 可见新鲜度 `HH:mm:ss` → `HH:mm`（paintQuoteLine 改 fmtClock；秒数在 detail.quote-tip tooltip，悬停可见——原契约不变）；② 来源显示切 `providerShort.*` 缩写键（zh：腾讯/东财/美腾/雅虎/OKX/新浪；en：TC/EM/TU/YH/OKX/Sina），hero 新鲜度行 + detailSourceText 降级源注两处消费面切换；`provider.*` 全称保留。
+- **宽度对账**：最坏指数例 468px → 392px ≈ 394px 可用宽（仍属贴边：徽章在右栏内 flex-wrap 到第二行兜底，grid meta 区跨两行高度足够，不溢出）；普通标的单行余量充足。
+- **真机量测**（1024×720，4 标的逐行）：meta 高 20px（= 徽章高，单行；换行态 ~42px）、meta 左缘 343 > 价格右缘 331 无碰撞；指数详情实拍 `202611-15T1022-detail.png`（`18:23 · 腾讯 [休市中]` 单行居右）。console 0 错误；chrome 已清场。
+- **测试**：全量 **458/458**（计数不变——i18n round-13 测试补 providerShort zh/en 钉 4 断言原位扩展、detail-source en 降级串改缩写 + parity 循环切 providerShort、hero 新鲜度断言切 fmtClock + 缩写源，均 0 净增）。
+- **语义备案**：provider 全称键保留（tooltip 等面可回用）；en 缩写 TC/EM/TU/YH 为内部约定（GLOSSARY 未录，如对外露出再议）。
+
+### 12.55 追记三：hero 单行终版（同日第四次迭代）
+
+- **主人终版拍板**：变动组升价格旁，hero 全要素一行。实现：`skc-quote-line` flex baseline 单行（gap 12、flex-wrap 兜底）+ price/move `flex:none` + meta `flex:1 1 auto` 右对齐；溢出时 meta 整簇落右对齐第二行（确定性降级）。
+- **极端档**（主人点名万点指数）：价格格式化 ≥9 字符 → 24px、≥12 字符 → 22px 两级降档；真机 flex 字形实测 25,136.27@24px=105px、1,234,567.89@22px=126px。
+- **CHART_H.fixed**：zh **475**（vh720 差分实测：svg=199@C=497、余量 22 → 475；复测 svg=221=720−24−475、溢出 0）、en **492**（解析链 511+27−24−22，未真机实测——遗留②沿用）。预算：纳指最坏 337px ≤ 394（桌面）；390 sheet 万点级单行、十万点级落兜底行。
+- **测试**：全量 **458/458**（hero 样式断言原位改写单行串 + --xs 钉、fit 改组 0 净增）。
+- **判据**：`grep -cF "skc-quote-price--xs" client/styles.mjs client/detail.mjs` → 各 ≥1；实拍 `detail-singleline-index.png` / `detail-singleline-sheet390.png`；构建指纹 page==local。
+
+### 12.55 追记四：状态徽章迁头部 + 来源还原全称（同日第五次迭代）
+
+- **主人建议①落地**：徽章（closed/stale/no-data）迁 `skc-detail-head` 蓝框位（titleCol 与删除钮之间，`align-self:center`）；`paintQuoteLine` 切换 `skeleton.headBadge` 显隐与 title；meta 行不再挂徽章——hero 行宽需求 −45~56px，390 sheet 徽章换行边角案例消失；开卡首屏头部即见状态（语义归位：标的级状态属身份区）。
+- **镜像垫片否决（实拍驱动）**：首版配 `visibility:hidden` 同宽垫片保标题居中，实拍发现代码行被挤截断（`指…`，丢 `指数 · HKD`）——弃用垫片，徽章在场时标题中心偏移 ~28px（纯视觉、状态消失即回正），代码行复现完整。中间态（迭代四首版）TDZ 缺陷（head.append 早于 del 声明）由 r6 全红即抓即修。
+- **主人建议②落地**：`providerShort.*` 六键退役（zh/en），消费面（hero 新鲜度行 + detailSourceText）切回 `provider.*` 经典全称；净删 6 键 ×2 字典；自造词「美腾」与 en 内部码（TC/EM/TU/YH）隐患消除（§12.55 追记三的「对外露出再议」结案）。
+- **测试**：全量 **458/458**（计数不变——hero 断言原位改写：meta 无徽章/头部槽在位/缩写退役、徽章显隐值不钉（随真实时钟漂移，badgeKind 逻辑由既有用例覆盖）；detail-source parity 回摆 provider 键；i18n 去 providerShort 钉）。
+- **判据**：`grep -rcF "providerShort" client/` → 0；`grep -cF "headBadge" client/detail.mjs` → ≥1；实拍 `202611-15T1056-detail.png`（徽章蓝框位 + 代码行完整 + hero 单行全称源）；构建指纹 page==local==`57402739535e`。
+
+### 12.55 追记五：徽章与标的名同行 + 双行居中（同日第六次迭代）
+
+- **主人拍板**：徽章与标的名同行、该行与代码行都居中。实现：`skc-detail-titlerow` flex 容器（`justify-content:center`）包名称+徽章，titleCol 纵排两行皆居中；头部横排徽章槽与 headSpacer 残留全部退役（代码行宽度全额归还，迭代四截断代价归零）。
+- **测试**：全量 **458/458**（hero 断言槽位选择器改 `.skc-detail-titlerow .skc-badge`，0 净增）；实拍 `202611-15T1101-detail.png`（名称+徽章整组居中、代码行完整居中、hero 单行）；console 0 错误；构建指纹 page==local。
+- **判据**：`grep -cF "skc-detail-titlerow" client/detail.mjs client/styles.mjs` → 各 ≥1；`grep -rcF "providerShort" client/` → 0 键（i18n.mjs 仅存 1 行退役注释）。
+
+### 12.55 追记六：涨跌额精度混合规则（同日第七次迭代）
+
+- **主人问 + 拍板**：涨跌额小数位不一是 `fmtPrice` 自身量级三档（≥1→2 位、0.01~1→4 位、<0.01→6 位）作用于涨跌额所致；三案对审后选**混合规则**：档位 = max(自身档, 价格显示档位)、min 2 保底、超档裁拖零。效果：`-0.004000 → -0.004`、`-0.0820 → -0.082`、`-21.48` 不变；纯 2 位截断的 `-0.00` 陷阱被 max 档天然排除。
+- **实现**：fmt.mjs 新增导出 `priceDigits(p)`（fmtPrice 重构共用同一档位函数）；`fmtChange(v, refDigits = 2)`；paintQuoteLine 传 `priceDigits(price)`。
+- **测试**：全量 **458/458**（fmt 单测原位改写 + 新增富国/创业板/指数三案例回归与「无参考价自身档兜底」用例，0 净增——原 2 用例改写为 2 用例+内嵌断言扩容）；render-identity 原位更新不受扰。
+- **判据**：`grep -cF "priceDigits" client/fmt.mjs client/detail.mjs` → 各 ≥1。

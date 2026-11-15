@@ -62,7 +62,10 @@ function setup() {
       calls.push(["updateSymbol", id, patch]);
       return { ok: true };
     },
-    removeSymbol: async () => ({ ok: true }),
+    removeSymbol: async (id) => {
+      calls.push(["removeSymbol", id]);
+      return { ok: true };
+    },
     setToast: () => {},
     setMaVisible: () => {},
   };
@@ -326,6 +329,51 @@ test("目标价段为两列表单（与持仓段一致）；无目标价时清�
     assert.ok(form.querySelector(".skc-form-grid"), "两列网格");
     assert.equal(form.querySelector(".skc-form-col"), null, "不再使用单列容器");
     assert.equal(form.querySelector(".skc-btn-text").hidden, true, "无目标价时隐藏清除");
+  } finally {
+    s.restore();
+  }
+});
+
+test("删除标的（第 13 轮）：区块内 danger 确认条，不弹原生窗口；确认才调 removeSymbol + backToList", async () => {
+  const s = setup();
+  let nativeCalled = false;
+  s.h.window.confirm = () => {
+    nativeCalled = true;
+    return true;
+  };
+  try {
+    s.detail.update(snapshot());
+    const del = s.detail.el.querySelector(".skc-detail-delete");
+    del.click();
+    await sleepMs(5);
+    assert.equal(nativeCalled, false, "点删除不弹原生 confirm");
+    assert.equal(s.calls.filter((c) => c[0] === "removeSymbol").length, 0, "确认前不提交");
+    const strip = s.detail.el.querySelector(".skc-confirm");
+    assert.ok(strip, "删除确认条在位");
+    assert.equal(strip.nextElementSibling?.classList.contains("skc-quote-line"), true, "确认条插在报价区之前");
+    const ok = [...strip.querySelectorAll("button")].find((b) => b.textContent === t("detail.confirm.remove-ok"));
+    ok.click();
+    await sleepMs(5);
+    assert.deepEqual(s.calls.find((c) => c[0] === "removeSymbol"), ["removeSymbol", SYMBOL.id]);
+    assert.deepEqual(s.calls.find((c) => c[0] === "back"), ["back"]);
+  } finally {
+    s.restore();
+  }
+});
+
+test("删除标的（第 13 轮）：取消即撤条，不调 removeSymbol", async () => {
+  const s = setup();
+  try {
+    s.detail.update(snapshot());
+    s.detail.el.querySelector(".skc-detail-delete").click();
+    await sleepMs(5);
+    const strip = s.detail.el.querySelector(".skc-confirm");
+    assert.ok(strip, "前置：确认条在位");
+    const cancel = [...strip.querySelectorAll("button")].find((b) => b.textContent === t("detail.cancel"));
+    cancel.click();
+    await sleepMs(5);
+    assert.equal(s.detail.el.querySelector(".skc-confirm"), null, "取消后确认条撤除");
+    assert.equal(s.calls.filter((c) => c[0] === "removeSymbol").length, 0, "取消不提交");
   } finally {
     s.restore();
   }

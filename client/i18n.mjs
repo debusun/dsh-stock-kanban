@@ -53,7 +53,6 @@ const zh = {  "market.cn": "A 股",
   "badge.no-data.tip": "行情缺失：触价状态未知",
 
   "list.holdings-only": "只看持仓",
-  "list.refresh": "刷新",
   "list.empty.watch": "暂无自选，点「＋」添加",
   "list.empty.holdings": "该市场暂无持仓",
   "list.quote-failed": "获取失败",
@@ -61,8 +60,6 @@ const zh = {  "market.cn": "A 股",
   "detail.back": "返回",
   "detail.delete": "删除",
   "detail.missing": "标的不存在或已被删除",
-  "detail.quote-time": "行情 {t} · 拉取 {f}",
-  "detail.source": "数据源：{name}",
   "detail.source.fallback": "数据源：{name}（降级自 {from}）",
   "provider.tencent": "腾讯",
   "provider.eastmoney": "东方财富",
@@ -70,6 +67,7 @@ const zh = {  "market.cn": "A 股",
   "provider.yahoo": "Yahoo",
   "provider.okx": "OKX",
   "provider.sina": "新浪",
+  /* providerShort 六键于迭代四退役（2026-11-15）：徽章迁头部后新鲜度行恢复经典全称，缩写不再需要（历史见 §8.17.2） */
   "detail.stale": "行情过期",
   "detail.no-data": "行情缺失",
   "detail.closed": "休市中",
@@ -121,7 +119,10 @@ const zh = {  "market.cn": "A 股",
   "detail.targets.hint": "行情过期或缺失时暂停提醒，恢复后自动续上。留空即不设置。",
   "detail.confirm.overlap": "买入提醒价不低于卖出提醒价，两个标记会同时显示。",
   "detail.confirm.overlap-ok": "仍要保存",
-  "detail.confirm.remove": "删除「{name}」？持仓与目标价一并移除（可用备份恢复）。",
+  "detail.confirm.remove": "删除「{name}」？持仓与目标价一并移除，删除后可短暂撤销。",
+  "detail.confirm.remove-ok": "确认删除",
+  "detail.freshness": "{t} · {s}",
+  "detail.quote-tip": "行情 {q} · 拉取 {f}",
 
   "add.title": "添加标的",
   "add.search.cn": "输入名称或代码",
@@ -168,6 +169,9 @@ const zh = {  "market.cn": "A 股",
   "toast.conflict": "数据已被其他页面更新：已刷新，请重试",
   "toast.init-failed": "初始化失败：{e}",
   "toast.op-failed": "操作失败：{e}",
+  "toast.removed": "已删除 {name}",
+  "toast.undo": "撤销",
+  "toast.restored": "已恢复 {name}",
 
   "picker.label": "胶囊显示",
   "picker.empty": "先添加标的",
@@ -238,7 +242,6 @@ const en = {
   "badge.no-data.tip": "No quote: trigger state unknown",
 
   "list.holdings-only": "Holdings only",
-  "list.refresh": "Refresh",
   "list.empty.watch": "No symbols yet — tap ＋",
   "list.empty.holdings": "No holdings in this market",
   "list.quote-failed": "Failed",
@@ -246,8 +249,6 @@ const en = {
   "detail.back": "Back",
   "detail.delete": "Delete",
   "detail.missing": "Symbol missing or removed",
-  "detail.quote-time": "Quote {t} · Fetched {f}",
-  "detail.source": "Source: {name}",
   "detail.source.fallback": "Source: {name} (fell back from {from})",
   "provider.tencent": "Tencent",
   "provider.eastmoney": "EastMoney",
@@ -306,7 +307,10 @@ const en = {
   "detail.targets.hint": "Alerts pause while the quote is stale or missing, then resume. Blank means unset.",
   "detail.confirm.overlap": "Buy alert is not below sell alert, so both markers can show.",
   "detail.confirm.overlap-ok": "Save anyway",
-  "detail.confirm.remove": "Remove “{name}”? Position and targets go too (recoverable via backup).",
+  "detail.confirm.remove": "Remove “{name}”? Position and targets go with it — you can undo briefly afterwards.",
+  "detail.confirm.remove-ok": "Delete",
+  "detail.freshness": "{t} · {s}",
+  "detail.quote-tip": "Quote {q} · Fetched {f}",
 
   "add.title": "Add symbol",
   "add.search.cn": "Name or code",
@@ -353,6 +357,9 @@ const en = {
   "toast.conflict": "Data changed in another tab: refreshed — please retry",
   "toast.init-failed": "Init failed: {e}",
   "toast.op-failed": "Action failed: {e}",
+  "toast.removed": "Removed {name}",
+  "toast.undo": "Undo",
+  "toast.restored": "Restored {name}",
 
   "picker.label": "Capsule shows",
   "picker.empty": "add symbols first",
@@ -415,12 +422,13 @@ export function tErr(code, detail) {
   return detail ? `${label} (${detail})` : label;
 }
 
-/** 详情页数据源脚注文案（§12.48）：常显来源，降级时附加首个失败源；error/缺 source 返回 null（脚注隐藏） */
+/** 详情页数据源注（§12.48 → 第 13 轮改契约）：仅降级态返回「数据源：{name}（降级自 {from}）」，
+ *  正常态返回 null（来源名已并入 hero 新鲜度行「HH:mm:ss · 源」，脚注不重复常显）；error/缺 source/无降级 → null */
 export function detailSourceText(row) {
-  if (!row || row.status !== "ok" || !row.source) return null;
+  if (!row || row.status !== "ok" || !row.source || !row.fallbackFrom) return null;
   const name = t(`provider.${row.source}`);
-  const from = row.fallbackFrom ? t(`provider.${row.fallbackFrom}`) : null;
-  return from ? t("detail.source.fallback", { name, from }) : t("detail.source", { name });
+  const from = t(`provider.${row.fallbackFrom}`);
+  return t("detail.source.fallback", { name, from });
 }
 
 export const DICT_KEYS = { zh: Object.keys(zh).sort(), en: Object.keys(en).sort() };

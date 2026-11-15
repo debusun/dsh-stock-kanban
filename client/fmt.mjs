@@ -11,15 +11,19 @@ export function maskIf(privacy, value) {
   return privacy ? MASK : value;
 }
 
+/** 价格显示档位（小数位数）：≥1 → 2 位；0.01~1 → 4 位；<0.01 → 6 位（fmtPrice 与 fmtChange 参考档共用） */
+export function priceDigits(p) {
+  if (p == null || !Number.isFinite(p)) return 2;
+  const abs = Math.abs(p);
+  if (abs >= 1) return 2;
+  if (abs >= 0.01) return 4;
+  return 6;
+}
+
 /** 价格：按量级自适应精度（千分位） */
 export function fmtPrice(p) {
   if (p == null || !Number.isFinite(p)) return "—";
-  const abs = Math.abs(p);
-  let digits;
-  if (abs >= 1000) digits = 2;
-  else if (abs >= 1) digits = 2;
-  else if (abs >= 0.01) digits = 4;
-  else digits = 6;
+  const digits = priceDigits(p);
   return p.toLocaleString("zh-CN", { minimumFractionDigits: digits, maximumFractionDigits: digits });
 }
 
@@ -28,6 +32,18 @@ export function fmtPct(v) {
   if (v == null || !Number.isFinite(v)) return "—";
   const sign = v > 0 ? "+" : "";
   return `${sign}${v.toFixed(2)}%`;
+}
+
+/** 涨跌额（带符号；0 无号；非法 → —）。
+ *  精度 = max(自身量级档, 参考价格档位)，min 2 保底、超档裁拖零
+ *  （第 13 轮·主人拍板混合规则：-0.004000 → -0.004、-0.0820 → -0.082、-21.48 不变——
+ *  不出 -0.00、不拖零、与同行价格小数位不打架）。 */
+export function fmtChange(v, refDigits = 2) {
+  if (v == null || !Number.isFinite(v)) return "—";
+  if (v === 0) return "0.00";
+  const digits = Math.max(priceDigits(v), refDigits);
+  const sign = v > 0 ? "+" : "-";
+  return sign + Math.abs(v).toLocaleString("zh-CN", { minimumFractionDigits: 2, maximumFractionDigits: digits });
 }
 
 /** 金额（千分位，2 位小数；null → —） */
