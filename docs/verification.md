@@ -963,7 +963,7 @@ P6（退避期含陈旧缓存时主源缓存优先于备源新鲜度）维持既
 
 - **背景**：2026-11-16 架构评审（improve-codebase-architecture，钢人裁决）从十个性能候选中定唯一任务——终结 detail resize 节点构建放大器：`onWinResize` 每事件直调 `paintChartArea()` 整棵图表 SVG 重建（日 K 180 根 ≈ 540+ 节点/次），窗口拖拽 30-60 事件/秒 → 1.6 万-3.2 万节点构建/秒。ADR-0004 已列「已知遗留（另行安排）」，本次兑付。服务端/客户端两路审计与 grill 三轮 13 决策、独立评审两轮 8 项闭合（评审台账 `.dsh-research/resize-gate-review-scratch/ledger.md`）。
 - **闸门形状**：`(chartWidth(), chartHeight(viewportHeight()))` 二元组全等 → 零调度（宽度 [240,400] 钳位量化白赚）；rAF 同帧合并 + 150ms 最小间隔节流（`resizeThrottleMs` 注入，缺省 150；leading 下一帧即绘、窗内静默、trailing 必绘兜底终态）；记账在 `buildChartBox`（含 renderSkeleton 直调）；直调真绘清 pending 尾绘并刷新节流钟；dispose 清句柄/定时器（回调另带 disposed 早退）；无 rAF 环境内联 capsule `scheduleFrame` 同款同步回退。守卫保留每事件一次 `clientWidth` 读（无样式失效时有布局缓存，量级远低于整图重建）。
-- **实现**：`client/detail.mjs` 单 seam（+68 行）；其余文件零改动。
+- **实现**：`client/detail.mjs` 单 seam（+65/−3）；其余文件零改动。
 - **测试**：fit 11→15 测（既有两 resize 测改 rAF flush 断言 + 四钉：同帧 5 事件→1 重建（680/181→520/140）/ 守卫零绘（数据到达后装计数器，视口未变 5 事件→0）/ 节流窗 40ms 内 5 事件→1 绘终态 181、窗后 leading→140（setup 720，断言点 221/181/140 互异，2ms 事件间隔保时序余量）/ dispose 静默回归钉）；全量 **460/460**（456 净增 4）。红绿过程：四钉先红（现状计数 5/5→6，与评审探针预证一致）→ 实现后一次全绿。
 - **构建**：`npm run build` 过；产物判据 `grep -cF "resizeThrottleMs" lib/client.js` = 1（基线 0、exit 1——真判别器；评审预证 minify 无 mangle-props、属性键存活）。
 - **实页基线**（cdp，chrome 后台起跑纪律，探针 `.dsh-research/skc-resize-probe/resize-probe.mjs` + log）：已装 **v0.3.8**（dshm_list 核定）实页开面板→入详情（boxH 230px）→shadowRoot 内挂 MutationObserver→连发 30 次 resize（纯事件，v0.3.8 无守卫每事件必绘）→**30/30 全量重建、盒身份变更、1438ms**——放大器实页实证，与预判精确一致。指纹观察：页面 `__DSH_PLUGIN_BUNDLE_SHA__` = `eb91b12e7f6a`，与 §12.57 tarball sha 前缀 `65090ede6dbb3c15` 不同源（宿主运行时自算口径 vs tarball 文件 sha），版本与行为证据独立核定，不作指纹硬判。
