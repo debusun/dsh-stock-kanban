@@ -943,3 +943,7 @@ P6（退避期含陈旧缓存时主源缓存优先于备源新鲜度）维持既
 - **渲染验证**：热部署（deploy-client.sh，sha 前缀 aa8c46c27e5e）+ CDP 硬刷新后 cdp-shot 四轮全绿：指纹 page==local==`79030309cda3`、面板挂载/双层叠哨兵/胶囊四件套在位、详情实拍 hero 单行+徽章同行居中不变；console 仅 favicon.ico 404（DSH web 无 favicon 冷加载固有，非本轮引入）。首跑 `--check` 曾 exit 5（页面仍旧 bundle 指纹 ee72a77dd273 ≠ 本地）——下发+硬刷新后消除，属热部署流程内正常态。
 - **未验证降级**：删除→确认→纯文本 toast 的完整 GUI 点击链未真机实操（cdp-shot 不做破坏性点击；该链的 store/panel/i18n 三层由 jsdom 契约钉覆盖）——装机后主人随手删一个标的复核「已删除 X」无撤销钮即闭环。
 - **沙箱实录**：headless chrome 在默认沙箱内 /dev/shm shared memory Permission denied 必崩（landlock partial），宽权限下一把起——与 know-how 037「构建子进程与沙箱」同族；「重活前 chrome 进程清零」纪律再次有效（收尾 --down 后 pgrep=0）。
+
+### 12.56 追记：toast 3s 微调提议撤回（主人拍板保持 4s，未发版）
+
+主人继而问 6s 能否缩到 3s——查实 6s 系旧 bundle 撤销定制窗口（只挂删除），v0.3.7 起删除已回落默认 4s、新增本就 4s；3s 改动（setToast 2800/3000 + 停表钉值 + §12.57 草稿）在工作区做完未提交，主人得知 v0.3.7 已推送后拍板**保持 4s**，即撤回复原（git restore 三文件，grep 复核无残留）。裁决备案：撤销退役后 toast 只剩知会职能，4s 与 3s 无实质体验差，不为微调多打一个发版（同日已 0.3.6/0.3.7 双发）。
