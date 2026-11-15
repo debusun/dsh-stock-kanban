@@ -189,12 +189,14 @@ await probe("em-hk-kline-none hk00700 day fqt=0（+腾讯对照）", async () =>
 
 await probe("em-cn-minute sh600519 trends2", async () => {
   const r = await emFetchMinuteDetail("sh600519");
-  return { date: r.date, prevClose: r.prevClose, points: r.points?.length ?? 0, error: r.error };
+  if (r.error) throw new Error("em-minute: " + r.error); // ok 语义与 K线探针对齐（F3）：error 必进 ✗ 分支，不得恒真 ✓
+  return { date: r.date, prevClose: r.prevClose, points: r.points?.length ?? 0 };
 });
 
 await probe("em-hk-minute hk00700 trends2", async () => {
   const r = await emFetchMinuteDetail("hk00700");
-  return { date: r.date, prevClose: r.prevClose, points: r.points?.length ?? 0, error: r.error };
+  if (r.error) throw new Error("em-minute: " + r.error);
+  return { date: r.date, prevClose: r.prevClose, points: r.points?.length ?? 0 };
 });
 
 await probe("em-us-kline-regression NVDA day 缺省 qfq", async () => {
