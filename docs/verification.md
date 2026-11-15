@@ -866,6 +866,14 @@ P6（退避期含陈旧缓存时主源缓存优先于备源新鲜度）维持既
 - **运行时影响**：cn/hk 日 K volume 显示在腾讯上游翻转到原生股窗口被回正（此前会虚高 100×）；其余窗口数值不变。响应形状不变，client 零改动。
 - **GUI 复验清单（追加）**：装机后看 cn 日 K 量柱与快照量同量级（若见 100× 虚高即锚定未生效，查 diag `kline.volume.anchor`）。
 
+## 12.54 热部署验核实录 + 详情行情行结构化分行（主人验核发现）
+
+- **热部署**：`dsh plugin --profile web add /home/ubuntu/workspace/dsh-stock-kanban` → profile 以 **link 直挂工作区**（node_modules 本轮幸存未被清）。生效三证：①客户端指纹 page==local==`cc8b9867b809`（0.3.5 build）；②设置页页脚 v0.3.5（实拍读图）；③服务端判别探针——重启前 kline 量 4178000=快照 100×（旧码驻留内存实证）→ `dshm_restart` 后 41780==41780 比值 1（**量纲锚定在生产生效**）、/health 六提供方两层载荷 ✓。教训：**link 装载下客户端文件即时上盘，但服务端模块图仍驻留旧内存——Node 无热重载，服务端生效必须宿主重启**；判别探针（临时加删 cn 标的比 kline/快照量比值）是可复用的服务端版本探针。
+- **验核发现（主人截图六张）**：详情行情行两种形态并存——价格居中独占行（sh510215/hk00700）vs 价格与行情/拉取元信息挤同排（sz159915/AAPL/hk09988/BTC）。根因：`skc-quote-line` 为 `justify-content:center + flex-wrap:wrap` 的三段混排（24/14/12px），是否换行取决于 meta 段（§12.48 数据源脚注常显后变宽）与容器的逐像素算术——**布局随内容抖动**，居中只是换行时的副作用。impeccable 裁决（钢人）：Operate 表面一致性优先，但统一方向保留第 12 轮钦定居中轴——hero 层（价格+涨跌幅）恒居中独占行、meta 层恒第二行居中（结构化分行，偶然换行变必然结构）。
+- **实现**：`skc-quote-line` 改 block+text-align:center（去 flex-wrap 算术），`skc-quote-meta` 改块级 flex+justify-content:center（恒独立行，窄板仍可内换行），pct 补 margin-left:10px（原 flex gap 因去 flex 失效，首版实拍 price/pct 粘连自纠）。纯 CSS 两处，零结构/文案/响应改动。
+- **测试与验证**：全量 441/441；实拍（恒生科技指数详情）hero 行居中 `3,813.19 -3.02%`、meta 行居中随轴，pct 间距 10px 恢复；console 唯一 404 为页面级 `/favicon.ico`（reload 后浏览器探测，宿主页面既有行为，与插件无关）。craft-floor 复核：无梯度字/无眉题/对齐轴一致，未触禁。
+- **遗留**：`/favicon.ico` 404 属宿主页面基建（非本插件），如需消除由宿主侧补 favicon，不入本插件范围。
+
 
 
 

@@ -182,10 +182,10 @@ export const FLOAT_STYLE_TEXT = `
 .skc-btn.skc-detail-delete{flex:none;min-height:0;padding:0 10px;color:var(--skc-text-2);font-size:12px;font-weight:500}
 .skc-btn.skc-detail-delete:hover{color:var(--skc-danger);border-color:color-mix(in srgb,var(--skc-danger) 38%,transparent);background:color-mix(in srgb,var(--skc-danger) 9%,transparent)}
 
-.skc-quote-line{display:flex;align-items:baseline;justify-content:center;gap:10px;margin:10px 0 12px;flex-wrap:wrap} /* 居中：与居中标题同轴，hero 行情行对称（第 12 轮 2026-11-10） */
+.skc-quote-line{display:block;text-align:center;margin:10px 0 12px} /* 结构化分行（§12.53）：hero 层（价格+涨跌幅）恒居中独占行，meta 恒第二行——消除 flex-wrap 随 meta 内容宽度的换行抖动（评审 F2 验核实录）；居中轴保留第 12 轮钦定 */
 .skc-quote-price{font-size:24px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.15;letter-spacing:-.01em}
-.skc-quote-pct{font-size:14px;font-weight:600;font-variant-numeric:tabular-nums}
-.skc-quote-meta{color:var(--skc-text-2);font-size:12px;line-height:16px;display:inline-flex;flex-wrap:wrap;gap:6px;align-items:center;font-variant-numeric:tabular-nums}
+.skc-quote-pct{font-size:14px;font-weight:600;font-variant-numeric:tabular-nums;margin-left:10px}
+.skc-quote-meta{color:var(--skc-text-2);font-size:12px;line-height:16px;display:flex;justify-content:center;flex-wrap:wrap;gap:6px;align-items:center;margin-top:4px;font-variant-numeric:tabular-nums}
 /* 周期切换：分段轨道（与列表 Tab 同族），四段等宽独占一行；按钮内 flex 居中，不依赖字体行高（第五轮 2026-11-10） */
 .skc-period-tabs{display:flex;gap:2px;padding:2px;border-radius:9px;background:var(--skc-hover);margin-bottom:8px}
 .skc-period{font-size:12px}
