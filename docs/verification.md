@@ -954,4 +954,6 @@ P6（退避期含陈旧缓存时主源缓存优先于备源新鲜度）维持既
 - **修复**：confirmStrip 助手加 `page` 修饰位，两个 remove 创建点（syncPendingStrip + 骨架重建补挂）传 `page:true` → `skc-confirm--page`；CSS `.skc-confirm--page{margin:10px 0 0}`（10px 为仓内既有节奏档；下邻报价行自带 margin-top:10px → 条上下 10/10 对称）。表单内联条（清除持仓/目标价/阈值重叠）不带修饰、不受扰。编辑事故一处即纠：remove 分支 edit 误吞 `}` 与 `if (!strip) return;` 两行，当即补回并复读验证（无语法闸漏网）。
 - **测试**：全量 **456/456**（0 净增——r6 两处原位加钉：整幅条含 `skc-confirm--page`、表单内联条不含）；impeccable layout 机械扫描 `detect --json --scope layout` 零发现。
 - **渲染验证**：热部署（f6700945a1a0d48d）+ 硬刷新后探针复测 **gap 0 → 10px**（strip.top 107→117）；前后实拍 `/tmp/skc-strip-probe/{before,after}.png`——条浮为独立组，删除钮边框不再触条。
-- **发版**：v0.3.8 发版链同 §12.56（fix 提交 → bump → build → chore(release) → tag → ci-parity → push → CI publish → 轮询）。
+- **发版**：v0.3.8 发版链同 §12.56（fix 提交 39d4303 → chore(release) 38671fb → tag v0.3.8 → ci-parity OK @ 38671fb → push → CI publish → 轮询）。
+- **上架核验**：CI workflow run `43712674440` success；npm `latest=0.3.8`（RELEASE_LIVE=yes）；下载已发布 tarball 核证修复在包内——`lib/client.js` 含 `skc-confirm--page` 类名 2 处、CSS 规则 `.skc-confirm--page{margin:10px 0 0}` 1 处。本机热部署精确 v0.3.8 产物（sha 前缀 65090ede6dbb3c15，deploy-client 双端 sha 校验过）。
+- **未验证降级**：v0.3.8 上架后的实页 cdp 复测未做——本轮 headless Chrome 在默认沙箱内无法起（/dev/shm 权限拒绝，需提权，本次审批策略禁止申请提权）。修复的几何量测（gap 0→10px）与前后实拍基于同一份源码的热部署产物（f6700945）——该构建之后 client/ 源码未再改动，v0.3.8 与之的唯一输入差异是 package.json 版本号（经 `__APP_VERSION__` 注入）及由其派生的指纹。装机后主人在详情页点删除复看即闭环。
