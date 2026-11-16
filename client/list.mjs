@@ -409,7 +409,7 @@ export function createList({ store }) {
       const tail = row.querySelector(".skc-row-target");
       if (!tail) return;
       tail.replaceChildren();
-      appendTargetBadges(tail, q?.target, s.market);
+      appendTargetBadges(tail, q?.target, s.market, mode); // mode 必穿：native 档 tick 重建 side 类不回退（评审 P1）
     }
   };
 

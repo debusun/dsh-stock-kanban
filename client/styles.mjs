@@ -324,7 +324,7 @@ export const FLOAT_STYLE_TEXT = `
 .skc-colorsem-label{font-size:13px;line-height:18px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .skc-colorsem-sub{font-size:11px;line-height:16px;color:var(--skc-text-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .skc-colorsem-preview{display:flex;align-items:center;gap:6px;flex:none;font-size:12px;line-height:16px;font-variant-numeric:tabular-nums;white-space:nowrap}
-.skc-colorsem-tag{font-size:11px;color:var(--skc-text-3)}
+.skc-colorsem-tag{font-size:11px;line-height:16px;color:var(--skc-text-3);padding:0 5px;border-radius:999px;background:var(--skc-hover)}
 .skc-csp-red{color:var(--skc-red)}
 .skc-csp-green{color:var(--skc-green)}
 .skc-backup{display:flex;flex-direction:column;gap:8px}

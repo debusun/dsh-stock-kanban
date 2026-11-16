@@ -254,6 +254,39 @@ test("list · 行具备 role=button（读屏语义）", () => {
   }
 });
 
+test("list · B/S 徽章 native side 类在 tick 重建后保持（ADR-0009 T6 评审 P1 回归钉）", () => {
+  const g = withGlobals(async () => okJson({}));
+  let list = null;
+  try {
+    list = createList({ store: { setLastMarket() {}, pollQuotes() {}, openDetail() {}, setHoldingsOnly() {} } });
+    const usSym = { id: "us:AAPL", market: "us", code: "AAPL", name: "Apple", quantity: null, avgCost: null };
+    const business = {
+      rev: 1, settings: { privacyMode: false, trendColorMode: "native" }, driverKind: null, loaded: true,
+      symbols: [usSym],
+    };
+    const quote = { id: "us:AAPL", status: "ok", price: 190, changePercent: 1.2, target: { status: "fresh", buyTriggered: true } };
+    const ui = { ...SNAP().ui, showAdd: false, lastMarket: "us" };
+    list.update(SNAP({ business, quotes: { "us:AAPL": quote }, ui }));
+    const badge = list.el.querySelector(".skc-badge-buy");
+    assert.ok(badge, "B 徽章在位（全量重建）");
+    assert.ok(badge.className.includes("skc-side-g"), "全量重建：native us B 徽章带 skc-side-g");
+
+    // quotes-only tick：patchRowDynamic 徽标列重建分支（评审 P1 漏穿点）
+    list.update(SNAP({
+      business,
+      quotes: { "us:AAPL": { ...quote, price: 191 } },
+      changed: { quotes: new Set(["us:AAPL"]), business: false, ui: [], quoteMetaError: false },
+      ui,
+    }));
+    const badge2 = list.el.querySelector(".skc-badge-buy");
+    assert.ok(badge2, "tick 后 B 徽章仍在（列重建）");
+    assert.ok(badge2.className.includes("skc-side-g"), "tick 重建：side 类保持不回退");
+  } finally {
+    list?.dispose();
+    g.restore();
+  }
+});
+
 test("charts · 轴字号 ≥ 11px 且宽度可注入（随面板宽自适应）", () => {
   const g = withGlobals(async () => okJson({}));
   try {
