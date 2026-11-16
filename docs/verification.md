@@ -996,3 +996,12 @@ P6（退避期含陈旧缓存时主源缓存优先于备源新鲜度）维持既
 - **成本与降级**：每次 cn/hk 搜索 +1 批量快照请求（自选交集命中温缓存零增量）；行情链全挂回落池名（= 旧行为，不标错）；最坏 provider 超时拖慢搜索，退避后自愈。
 - **未验证（不冒充已验证）**：GUI 搜索未复验——随下次发版 + `dshm_upgrade` 生效后，实页搜 518850 应显示「黄金ETF华夏」、行情链挂时应显示池名；覆写与面板快照共享 TTL 的实际命中率未在真宿主测量。
 - **发版**：本战役攒批未发版（主人节奏）；提交 feat(search) 单笔（代码 + 测试 + ADR + 术语 + AGENTS 索引 + 本节），push 不带 tag。
+
+## 12.61 v0.3.10 发版（§12.59 数据口径 + §12.60 名称覆写 攒批收口）
+
+- **发版前 dry-run 门（新链首跑实录）**：两次 dry-run 均因深交所接口对本机瞬时 RST fail-closed（重试间隔内未恢复）——按 2026-11-16 节奏条款裁决：**不绑架发版**，本版携带今晨 12:04 已 apply 的池数据（ee09ecf，同交易日漂移 ≈ 0），diff 门跳过；fail-closed 保证无任何半成品数据落盘。下次发版的 dry-run 覆盖本缺口。
+- **发版链**：bump 0.3.9→0.3.10 → build（版本字面量 `grep -cF '"0.3.10"'` lib = 1）→ `chore(release)` aaf0dcd → **ci-parity OK @ aaf0dcdd**（465/465，干净克隆）→ 轻 tag → push main + tag（tag 单次推）→ release-monitor：CI run `43804795155` success（04:34:01Z）→ npm 三键 `latest=0.3.10`（RELEASE_LIVE=yes，published 04:35:21Z）。
+- **tarball 核证**（发布包逐项）：`lib/client.js` 与本地构建**逐字节一致**（cmp）；`src/markets/search.mjs` 含 `overlayPoolNames`（ADR-0008 在包内）；`data/etf_stocks.json` sh518850 =「黄金ETF华夏」（§12.59 在包内，sha256 前缀 fe6b8720b7dfc469）。
+- **本版内容**：池数据全量重刷（ETF 名称口径 948 条改名）+ 搜索名称行情覆写（ADR-0008）+ 文档四件（ADR-0008/数据节奏/GLOSSARY/AGENTS 索引）。
+- **升级与实页**：`dshm_upgrade` 后追记（见下补录）。
+- **未验证（不冒充已验证）**：GUI 搜索未复验——升级后实页搜 518850 应显示「黄金ETF华夏」、行情链挂时应显示池名（主人点验即闭环）；覆写与面板快照共享 TTL 的实际命中率未在真宿主测量。
