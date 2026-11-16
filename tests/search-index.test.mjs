@@ -267,7 +267,7 @@ test("parseSmartbox：A股正股 GP/GP-A 收录为 cn stock（sh/sz/bj），指�
 
 test("搜索 cn：池子未凑满时 smartbox 补充（拼音查询池内无命中）；上游挂时池结果仍在并标错", async () => {
   const originalFetch = globalThis.fetch;
-  const body = 'v_hint="sz~000001~平安银行~payh~GP-A"';
+  const body = 'v_hint="sz~000001~PINGAN~payh~GP-A"'; // ASCII 夹具（GBK 通道纪律，守卫 tests/smartbox-fixture-ascii）
   globalThis.fetch = async () => ({ ok: true, arrayBuffer: async () => Buffer.from(body, "utf8") });
   try {
     const r = await search("cn", "payh");

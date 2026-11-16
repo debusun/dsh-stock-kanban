@@ -17,14 +17,14 @@ const SYM = {
   name: "贵州茅台", addedAt: "2026-01-01T00:00:00.000Z", sort: 1,
 };
 
-async function startServer({ trust, logger, diag } = {}) {
+async function startServer({ trust, logger, diag, chain } = {}) {
   const dir = mkdtempSync(join(tmpdir(), "sk-routes-"));
   process.env.DSH_STOCK_KANBAN_FILE = join(dir, "data.json");
   const store = new Store({}, { info() {}, warn() {} });
   await store.init();
   await store.addSymbol(SYM);
   const quotes = createQuoteService({ chain: createChain({}) });
-  const routes = createRoutes({ store, quotes, chain: createChain({}), logger: logger ?? { info() {}, warn() {} }, trust, diag });
+  const routes = createRoutes({ store, quotes, chain: chain ?? createChain({}), logger: logger ?? { info() {}, warn() {} }, trust, diag });
   const server = http.createServer((req, res) => {
     const route = routes.find((r) => r.path === (req.url ?? "").split("?")[0]);
     if (!route) { res.writeHead(404); res.end("not found"); return; }
@@ -162,6 +162,31 @@ test("路由：搜索失败明确报错，不返回虚构结果（12.2）", asyn
     assert.equal(res.status, 200);
     assert.deepEqual(res.body.rows, []);
     assert.match(res.body.error, /unavailable/);
+  } finally { t.close(); globalThis.fetch = originalFetch; }
+});
+
+test("路由：searchRoute 把 chain 接进 search（ADR-0008 名称覆写接线，重接路由不得静默丢失）", async () => {
+  const originalFetch = globalThis.fetch;
+  const downstream = originalFetch;
+  // smartbox 空 ASCII 夹具（编码守卫纪律）；池行 600519 应被行情链覆写
+  globalThis.fetch = async (url) => (String(url).includes("127.0.0.1") ? downstream(url)
+    : { ok: true, arrayBuffer: async () => Buffer.from('v_hint=""', "utf8") });
+  const seen = [];
+  const chain = {
+    runChain: async (market, ns, codes) => {
+      seen.push([market, ns, [...codes]]);
+      return new Map(codes.map((c) => [c, { ok: true, value: { name: "行情名" + c, price: 1 } }]));
+    },
+  };
+  const t = await startServer({ chain });
+  try {
+    const res = await t.j("/stock-kanban/search?market=cn&q=600519");
+    assert.equal(res.status, 200);
+    const row = res.body.rows.find((r) => r.id === "cn:sh600519");
+    assert.ok(row, JSON.stringify(res.body));
+    assert.equal(row.name, "行情名sh600519"); // 池名被行情名覆盖 = chain 确实被传入 search
+    assert.ok(seen.some(([m, ns, codes]) => m === "cn" && ns === "snap" && codes.includes("sh600519")),
+      `覆写应过行情链同 gate，实际 seen=${JSON.stringify(seen)}`);
   } finally { t.close(); globalThis.fetch = originalFetch; }
 });
 
