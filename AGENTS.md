@@ -7,7 +7,7 @@ DSH 插件（盯盘胶囊 + 面板 + 分时/K 线）。运行时零 npm 依赖�
 - clone 后一次性：`git config core.hooksPath .githooks`（pre-commit 对暂存 `.mjs` 做语法闸；pre-push 跑全套 `npm test` + 产物新鲜度 build+diff `lib/client.js`，红灯不得落进远端历史）。
 - build/test 前：`test -d node_modules`，缺失先 `npm ci`——**`dsh plugin add/remove` 会清掉 workspace 的 node_modules**（2026-10-27、2026-11-10 两次实录）；同时确认无 headless chrome（chrome-cft）进程——pre-push 同口径只计测试进程，桌面浏览器 chrome 不拦（2026-11-13 retro；headless 曾把 npm test 22s→700s）。
 - 改 `client/` 后必跑 `npm run build`（esbuild 打包 `lib/client.js`；`__APP_VERSION__` 由 package.json 注入，设置页页尾展示，构建脚本自带注入断言）。渲染层改动再跑 `scripts/cdp-shot.mjs`（纪律见其头注：chrome 一律后台起跑、假活 `--down` 重启、重活前进程清零）。
-- 发版链：bump → build → `chore(release)` → tag → push → `../01_docs/dsh-intall-know-how/tools/release-monitor.sh <owner/repo> <tag> <npm包> <版本>`（两阶段轮询，铁律见 know-how 018：窗口内不重推 tag）。
+- 发版链：**先 `node scripts/refresh-pools.mjs`（dry-run）核对 diff——实质变化（新增/真改名/缩量）才 `--apply` + chore(data) 随版带上，纯 XD/XR/DR 日戳漂移或空 diff 跳过**（节奏条款见 `data/README.md`）→ bump → build → `chore(release)` → tag → push → `../01_docs/dsh-intall-know-how/tools/release-monitor.sh <owner/repo> <tag> <npm包> <版本>`（两阶段轮询，铁律见 know-how 018：窗口内不重推 tag）。
 - 发版约定：tag 用轻量 tag（`git tag vX.Y.Z`，与历史一致）；先提 fix 提交（不含版本号），再提 `chore(release): vX.Y.Z`（package.json + 重建 `lib/client.js`）；验证记录新编号取 `docs/verification.md` 末尾 §12.N+1。发布推送前跑 `scripts/ci-parity.sh`（无宿主布局克隆全量 npm test，防环境依赖守卫漏网——2026-11-14 v0.3.3 CI 红灯实录，RUN 43477989591）。
 - 联网 npm 命令（`npm view` / `npm ci` / `npm publish`）前加 `npm_config_cache=/home/ubuntu/workspace/.dsh-research/npm-cache-dsh-stock-kanban`：沙箱 `~/.npm` 只读，会报 EROFS（workspace AGENTS 的 npm 一节有完整规则）。
 
