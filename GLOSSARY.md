@@ -90,6 +90,12 @@ _Avoid_: 废码、失效代码
 入池或添加前，以「取到名称且价格 > 0」判定代码有效；格式对 ≠ 标的存在。全链传输失败 ≠ 标的不存在：前者报行情暂不可用（稍后再试），后者才报未找到。
 _Avoid_: 行情验证
 
+## 行情链（Data Sources）
+
+**美股分时链（US Minute Chain）**:
+美股详情分时的供数顺序：东方财富 trends2 → 雪球 minute.json → Yahoo chart 1 分钟（2026-11-17 定案，替换原 EM → Yahoo 双腿）。雪球腿以 guest 引导供全量 1 分钟序列（指数 .DJI/.IXIC/.INX 同形态）；动机是 2026-11-16 实录 EM 对机房 IP 整体封锁（SECID_TRANSPORT）且 Yahoo 持续 429 时分时两腿齐灭，插入中间活源保链。K 线链维持 EM → 腾讯不动。
+_Avoid_: 备用源堆叠、单源分时
+
 ## 涨跌配色
 
 **涨跌语义（Color Semantics）**:
