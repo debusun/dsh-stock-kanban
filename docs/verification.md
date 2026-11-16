@@ -1076,7 +1076,7 @@ P6（退避期含陈旧缓存时主源缓存优先于备源新鲜度）维持既
 - **发版链**：bump 0.3.9→0.3.10 → build（版本字面量 `grep -cF '"0.3.10"'` lib = 1）→ `chore(release)` aaf0dcd → **ci-parity OK @ aaf0dcdd**（465/465，干净克隆）→ 轻 tag → push main + tag（tag 单次推）→ release-monitor：CI run `43804795155` success（04:34:01Z）→ npm 三键 `latest=0.3.10`（RELEASE_LIVE=yes，published 04:35:21Z）。
 - **tarball 核证**（发布包逐项）：`lib/client.js` 与本地构建**逐字节一致**（cmp）；`src/markets/search.mjs` 含 `overlayPoolNames`（ADR-0008 在包内）；`data/etf_stocks.json` sh518850 =「黄金ETF华夏」（§12.59 在包内，sha256 前缀 fe6b8720b7dfc469）。
 - **本版内容**：池数据全量重刷（ETF 名称口径 948 条改名）+ 搜索名称行情覆写（ADR-0008）+ 文档四件（ADR-0008/数据节奏/GLOSSARY/AGENTS 索引）。
-- **升级与实页**：`dshm_upgrade` 0.3.9→0.3.10 完成（npm 精确版）；宿主重启已完成（主人 2026-11-16 确认「重启好了」）。实页点验（搜 518850 应显示「黄金ETF华夏」、行情链挂时应显示池名）待主人复核，结果回填本节。
+- **升级与实页**：`dshm_upgrade` 0.3.9→0.3.10 完成（npm 精确版）；宿主重启已完成（主人 2026-11-16 确认「重启好了」）。**实页点验闭环（2026-11-16 主人复核）**：添加标的搜 `518850` 显示「黄金ETF华夏」，与面板一致——覆写链在真宿主页生效，§12.60 的用户可见闭环就此完成。残留：行情链全挂时的池名兜底路径（fail-open）GUI 未演练，仅 jsdom 覆盖；无人工触发场景，留观。
 
 ## 12.62 验证记录体制改革：判例法定位成文 + 机读事实禁手抄 + 发布后单笔 bookkeeping + 归档线（主人质疑「一直新增、发版后还要更新等 commit」，钢人裁决四条全落）
 
