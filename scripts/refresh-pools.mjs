@@ -4,6 +4,8 @@
 //             行情侧不可达时回落到交易所官方清单（上交所 JSON、深交所报表、港交所证券表），报告中标明实际来源。
 //   对账：行情列表与官方清单双向比对，差异超过 1% 判失败（能对账时才对账）。
 //   校验：腾讯行情能否报价（有名称且价格大于 0），失败率超过 2% 判失败。
+//   名称口径：ETF 池简称以腾讯报价名为准（与添加后面板展示同源；交易所场内简称过短易误认，
+//             如 sh518850 场内简称「黄金9999」实为黄金ETF华夏）；A股 / 港股池保持列表名（2026-11-16 修订）。
 // 数据来源、更新节奏与责任人见 data/README.md。
 //
 //   node scripts/refresh-pools.mjs            dry-run（默认）：抓取、对账、校验、打印报告，不写任何文件
@@ -640,17 +642,23 @@ export async function collectPools({
   };
   const check2 = await quoteBatch(get, [...cand.a, ...cand.etf, ...cand.hk].map((c) => c.key));
   addSource("tencent-quote-check", "https://qt.gtimg.cn/q=（批量报价校验）", check2.buffers, check2.names.size);
-  const validate = (label, list) => {
+  const validate = (label, list, preferQuoteName = false) => {
     const ok = list.filter((c) => check2.names.has(c.key));
     const bad = list.length - ok.length;
     stats.crossChecks[label + " 报价校验"] = { candidates: list.length, valid: ok.length, invalid: bad, invalidKeys: list.filter((c) => !check2.names.has(c.key)).map((c) => c.key).slice(0, 12) };
     if (list.length && bad / list.length > QUOTE_INVALID_TOLERANCE) {
       problems.push(label + ": 报价校验失败 " + bad + "/" + list.length + "，超过 2%");
     }
-    return ok.map((c) => ({ ...c, name: c.name || check2.names.get(c.key) || "" }));
+    return ok.map((c) => ({
+      ...c,
+      // preferQuoteName：该池简称以腾讯报价名为准（ok 行已确保腾讯名存在）；其余池保持列表名，缺失时回落腾讯名
+      name: (preferQuoteName ? check2.names.get(c.key) : null) || c.name || check2.names.get(c.key) || "",
+    }));
   };
   const aOk = validate("a_stocks", cand.a);
-  const etfOk = validate("etf_stocks", cand.etf);
+  // ETF 名称与添加后面板展示同源（腾讯报价简称）：交易所官方场内简称过短且易误认
+  // （2026-11-16 实测：sh518850 场内简称「黄金9999」而面板名「黄金ETF华夏」；全 SH ETF 段 948/948 与面板名不一致）。
+  const etfOk = validate("etf_stocks", cand.etf, true);
   const hkOk = validate("hk_stocks", cand.hk);
   poolSources.a_stocks.push("tencent-quote-check");
   poolSources.etf_stocks.push("tencent-quote-check");
