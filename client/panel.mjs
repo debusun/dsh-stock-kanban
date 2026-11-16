@@ -334,26 +334,35 @@ export function createPanel({ doc, win, store, views }) {
     row.setAttribute("role", "radio");
     row.setAttribute("aria-checked", "false");
     row.dataset.mode = opt.mode;
-    const main = doc.createElement("span");
-    main.className = "skc-colorsem-main";
+    const head = doc.createElement("span");
+    head.className = "skc-colorsem-head";
+    const dot = doc.createElement("span");
+    dot.className = "skc-colorsem-dot";
     const labelEl = doc.createElement("span");
     labelEl.className = "skc-colorsem-label";
     labelEl.dataset.key = opt.label;
+    head.append(dot, labelEl);
     const subEl = doc.createElement("span");
     subEl.className = "skc-colorsem-sub";
     subEl.dataset.key = opt.sub;
-    main.append(labelEl, subEl);
     const preview = doc.createElement("span");
     preview.className = "skc-colorsem-preview";
+    const line = (children) => {
+      const ln = doc.createElement("span");
+      ln.className = "skc-colorsem-line";
+      ln.append(...children);
+      return ln;
+    };
     if (opt.mode === "native") {
-      preview.append(tagSpan("colorsem.tag.cn"), cspSpan("skc-csp-red", 2.35), tagSpan("colorsem.tag.us"), cspSpan("skc-csp-green", 2.35));
+      // 同涨不同色：沪样红、美样绿，两行纵排（窄卡内放不下同排）
+      preview.append(line([tagSpan("colorsem.tag.cn"), cspSpan("skc-csp-red", 2.35)]), line([tagSpan("colorsem.tag.us"), cspSpan("skc-csp-green", 2.35)]));
     } else {
-      preview.append(
+      preview.append(line([
         cspSpan(opt.mode === "red-up" ? "skc-csp-red" : "skc-csp-green", 2.35),
         cspSpan(opt.mode === "red-up" ? "skc-csp-green" : "skc-csp-red", -1.8),
-      );
+      ]));
     }
-    row.append(main, preview);
+    row.append(head, subEl, preview);
     row.addEventListener("click", () => store.setTrendColorMode(opt.mode));
     colorsemGroup.append(row);
     return { row, opt };
@@ -373,7 +382,6 @@ export function createPanel({ doc, win, store, views }) {
     }
     for (const sp of colorsemGroup.querySelectorAll(".skc-colorsem-tag")) sp.textContent = t(sp.dataset.tagKey);
   };
-
   /* 设置体：备份行组 + 页尾脚注（第四轮 2026-11-10：合并显示额度开关已隐藏，默认合并，不再提供设置项） */
   const settingsBody = doc.createElement("div");
   settingsBody.className = "skc-settings-body";
