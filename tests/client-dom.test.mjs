@@ -103,6 +103,40 @@ test("FLOAT_STYLE_TEXT · quota pill 样式：--quota cursor、tabular-nums、wa
   assert.equal(s.split(".skc-qpulse{").length - 1, 1, ".skc-qpulse 只出现一次（守卫块内）");
 });
 
+test("FLOAT_STYLE_TEXT · 涨跌语义三档（ADR-0009 T4）：物理变量、分支类、B/S side、预览类、设置组", () => {
+  const s = FLOAT_STYLE_TEXT;
+  // 物理色对 + 语义对（插值自 client/colors.mjs 单点权威；danger :42 行不受影响）
+  assert.ok(s.includes("--skc-red: #e5484d"), "物理红变量");
+  assert.ok(s.includes("--skc-green: #2bb596"), "物理绿变量");
+  assert.ok(s.includes("--skc-up: #e5484d"), "语义涨色默认（red-up）");
+  assert.ok(s.includes("--skc-down: #2bb596"), "语义跌色默认（red-up）");
+  // native 档市场分支类（DOM 文本）
+  assert.ok(s.includes(".skc-up-cn{color:var(--skc-red)}"), "A股涨=红");
+  assert.ok(s.includes(".skc-down-cn{color:var(--skc-green)}"), "A股跌=绿");
+  assert.ok(s.includes(".skc-up-g{color:var(--skc-green)}"), "国际涨=绿");
+  assert.ok(s.includes(".skc-down-g{color:var(--skc-red)}"), "国际跌=红");
+  // B/S side 覆盖 ×8（mark 14% 底 / badge 38% 边 + 10% 底，配方镜像基类档位）
+  assert.ok(s.includes(".skc-mark-buy.skc-side-cn{"), "mark-buy cn side");
+  assert.ok(s.includes(".skc-mark-sell.skc-side-cn{"), "mark-sell cn side");
+  assert.ok(s.includes(".skc-mark-buy.skc-side-g{"), "mark-buy g side");
+  assert.ok(s.includes(".skc-mark-sell.skc-side-g{"), "mark-sell g side");
+  assert.ok(s.includes(".skc-badge-buy.skc-side-cn{"), "badge-buy cn side");
+  assert.ok(s.includes(".skc-badge-sell.skc-side-cn{"), "badge-sell cn side");
+  assert.ok(s.includes(".skc-badge-buy.skc-side-g{"), "badge-buy g side");
+  assert.ok(s.includes(".skc-badge-sell.skc-side-g{"), "badge-sell g side");
+  // 预览类（设置组行内真实预览，恒真色对，不随当前档位翻）
+  assert.ok(s.includes(".skc-csp-red{"), "预览红类");
+  assert.ok(s.includes(".skc-csp-green{"), "预览绿类");
+  // 设置组：竖排 radio、≥44px 命中、accent 选中态
+  assert.ok(s.includes(".skc-colorsem-title{"), "组标题");
+  assert.ok(s.includes(".skc-colorsem{"), "radiogroup 容器");
+  assert.ok(s.includes(".skc-colorsem-row{"), "radio 行");
+  assert.ok(/\.skc-colorsem-row\{[^}]*min-height:44px/.test(s), "radio 行 ≥44px 命中区");
+  assert.ok(s.includes('[aria-checked="true"]'), "选中态规则存在");
+  assert.ok(s.includes(".skc-colorsem-preview{"), "行内预览列");
+  assert.ok(s.includes(".skc-colorsem-tag{"), "市场小标签");
+});
+
 test("字形：额度危险态对齐 qw 本体红（B26 琥珀退役）", () => {
   assert.ok(
     FLOAT_STYLE_TEXT.includes(".skc-qdanger{color:var(--dsw-alias-label-danger,#c93c3c)}"),
@@ -521,6 +555,39 @@ test("charts · buildMinuteChart 返回 NS 直建 SVG（价格 polyline + 昨收
     const base = el.querySelector("line[stroke-dasharray]");
     assert.ok(base, "昨收虚线 line 在位");
     assert.ok(el.querySelectorAll("rect").length >= 1, "成交量柱在位");
+  } finally {
+    globalThis.document = prevGlobals.document;
+    h.cleanup();
+  }
+});
+
+test("charts · 涨跌着色走 style 属性 var 引用（ADR-0009 T5：默认 red-up 视觉恒等）", () => {
+  const h = createDomHarness();
+  const prevGlobals = { document: globalThis.document };
+  globalThis.document = h.document;
+  try {
+    // MINUTE_POINTS 末点 10.4 >= prevClose 10.1 → 涨向
+    const minute = buildMinuteChart({ points: MINUTE_POINTS, prevClose: 10.1 }, { market: "cn", mode: "red-up" });
+    const priceLine = minute.querySelector("polyline");
+    assert.match(priceLine.getAttribute("style") ?? "", /stroke:var\(--skc-up\)/, "分时主线 stroke 走 style var(--skc-up)");
+    const vol = minute.querySelector("rect");
+    assert.match(vol.getAttribute("style") ?? "", /fill:color-mix\(in srgb,\s*var\(--skc-up\)\s*40%,\s*transparent\)/, "分时量柱 fill 走 color-mix 40%");
+
+    // CANDLES 每根 close > open → 全阳线
+    const candle = buildCandleChart(CANDLES, { market: "cn", mode: "red-up" });
+    const shadow = candle.querySelector("line");
+    assert.match(shadow.getAttribute("style") ?? "", /stroke:var\(--skc-up\)/, "K线影线 stroke 走 style var");
+    const body = candle.querySelector("rect");
+    assert.match(body.getAttribute("style") ?? "", /fill:transparent/, "阳线空心 fill transparent");
+    assert.match(body.getAttribute("style") ?? "", /stroke:var\(--skc-up\)/, "阳线描边 var");
+    const candleVol = [...candle.querySelectorAll("rect")].at(-1);
+    assert.match(candleVol.getAttribute("style") ?? "", /fill:color-mix\(in srgb,\s*var\(--skc-up\)\s*35%,\s*transparent\)/, "K线量柱 color-mix 35%");
+
+    // native 档直出物理 var（SVG 无类名分支，评审 P2 语义）
+    const nativeCn = buildCandleChart(CANDLES, { market: "cn", mode: "native" });
+    assert.match(nativeCn.querySelector("line").getAttribute("style") ?? "", /stroke:var\(--skc-red\)/, "native cn 阳线=物理红");
+    const nativeUs = buildMinuteChart({ points: MINUTE_POINTS, prevClose: 9 }, { market: "us", mode: "native" });
+    assert.match(nativeUs.querySelector("polyline").getAttribute("style") ?? "", /stroke:var\(--skc-green\)/, "native us 涨=物理绿");
   } finally {
     globalThis.document = prevGlobals.document;
     h.cleanup();

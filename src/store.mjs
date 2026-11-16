@@ -12,7 +12,7 @@
 import { mkdir, readFile, rename, unlink } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { homedir } from "node:os";
-import { defaultGlobal, normalizeGlobal, normalizeSymbolRecord } from "./model.mjs";
+import { defaultGlobal, normalizeGlobal, normalizeSymbolRecord, normalizeTrendColorMode } from "./model.mjs";
 
 const UNIT_NAME = "stock_kanban";
 const UNIT_VERSION = 1;
@@ -346,7 +346,7 @@ export class Store {
       const prevGlobal = this.#global;
       const nextGlobal = normalizeGlobal({
         ...prevGlobal,
-        settings: { privacyMode: settings?.privacyMode === true },
+        settings: { privacyMode: settings?.privacyMode === true, trendColorMode: normalizeTrendColorMode(settings?.trendColorMode) },
         updatedAt: new Date().toISOString(),
       });
       nextGlobal.rev = prevGlobal.rev + 1;

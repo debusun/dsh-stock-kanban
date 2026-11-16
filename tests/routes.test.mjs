@@ -224,6 +224,30 @@ test("路由：/health 不含业务数据", async () => {
   } finally { t.close(); }
 });
 
+/* ---------------- 涨跌语义档位（ADR-0009，实施计划 T2） ---------------- */
+
+test("路由：state 载荷携带 trendColorMode；settings POST 生效 rev 自增；非法值回默认", async () => {
+  const t = await startServer();
+  try {
+    const s0 = await t.j("/stock-kanban/state");
+    assert.equal(s0.status, 200);
+    assert.equal(s0.body.settings.trendColorMode, "red-up"); // 默认档随载荷透出
+
+    const revBefore = s0.body.rev;
+    const set = await t.j("/stock-kanban/settings", { method: "POST", headers: H(t.base), body: JSON.stringify({ ifRev: revBefore, trendColorMode: "native" }) });
+    assert.equal(set.status, 200);
+    assert.equal(set.body.settings.trendColorMode, "native");
+    assert.equal(set.body.rev, revBefore + 1);
+
+    const s1 = await t.j("/stock-kanban/state");
+    assert.equal(s1.body.settings.trendColorMode, "native");
+
+    const invalid = await t.j("/stock-kanban/settings", { method: "POST", headers: H(t.base), body: JSON.stringify({ trendColorMode: "rainbow" }) });
+    assert.equal(invalid.status, 200);
+    assert.equal(invalid.body.settings.trendColorMode, "red-up"); // 非法 fail-closed 回默认
+  } finally { t.close(); }
+});
+
 /* ---------------- 拖拽排序路由（symbols/reorder，2026-11-10） ---------------- */
 
 test("路由：reorder 200 重编号 / 422 非排列与非法市场 / ifRev 冲突 409", async () => {

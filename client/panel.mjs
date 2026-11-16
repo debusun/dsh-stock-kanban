@@ -10,10 +10,11 @@
 
 import { t } from "./i18n.mjs";
 import { iconEl } from "./icons.mjs";
+import { fmtTrendPct } from "./fmt.mjs";
 import { MARGIN, titlebarTopInset } from "./float-prefs.mjs";
 import { parseInset } from "./drag.mjs";
 import { MARKETS } from "../src/identity.mjs";
-import { compareBySort } from "../src/model.mjs";
+import { compareBySort, normalizeTrendColorMode } from "../src/model.mjs";
 import { VERSION_LABEL } from "./version.mjs";
 
 const ZERO_INSETS = { left: 0, right: 0, top: 0, bottom: 0 };
@@ -299,6 +300,79 @@ export function createPanel({ doc, win, store, views }) {
   settingsClose.addEventListener("click", () => store.setShowSettings(false));
   settingsHead.append(settingsTitle, settingsSpacer, settingsClose);
 
+  /* 涨跌配色组（ADR-0009 T7）：竖排 radio 三行、每行内嵌真实预览（fmtTrendPct 真渲染，恒真色对不随当前档位翻；
+     行3「同涨不同色」沪红/美绿）。写入走 store.setTrendColorMode（mutate 包装：rev 冲突自动刷新、
+     失败自动复用 toast.op-failed——评审建议 2）；与备份区之间由 .skc-settings-body > * + * 既有 hairline 分隔 */
+  const colorsemWrap = doc.createElement("div");
+  const colorsemTitle = doc.createElement("div");
+  colorsemTitle.className = "skc-colorsem-title";
+  const colorsemGroup = doc.createElement("div");
+  colorsemGroup.className = "skc-colorsem";
+  colorsemGroup.setAttribute("role", "radiogroup");
+  const COLORSEM_OPTIONS = [
+    { mode: "red-up", label: "colorsem.mode.redup", sub: "colorsem.sub.redup" },
+    { mode: "green-up", label: "colorsem.mode.greenup", sub: "colorsem.sub.greenup" },
+    { mode: "native", label: "colorsem.mode.native", sub: "colorsem.sub.native" },
+  ];
+  const cspSpan = (cls, v) => {
+    const sp = doc.createElement("span");
+    sp.className = cls;
+    sp.textContent = fmtTrendPct(v);
+    return sp;
+  };
+  const tagSpan = (key) => {
+    const sp = doc.createElement("span");
+    sp.className = "skc-colorsem-tag";
+    sp.dataset.tagKey = key;
+    return sp; // 文案随语言切换在 patchColorsem 重套
+  };
+  const colorsemRows = COLORSEM_OPTIONS.map((opt) => {
+    const row = doc.createElement("button");
+    row.type = "button";
+    row.className = "skc-colorsem-row";
+    row.setAttribute("role", "radio");
+    row.setAttribute("aria-checked", "false");
+    row.dataset.mode = opt.mode;
+    const main = doc.createElement("span");
+    main.className = "skc-colorsem-main";
+    const labelEl = doc.createElement("span");
+    labelEl.className = "skc-colorsem-label";
+    labelEl.dataset.key = opt.label;
+    const subEl = doc.createElement("span");
+    subEl.className = "skc-colorsem-sub";
+    subEl.dataset.key = opt.sub;
+    main.append(labelEl, subEl);
+    const preview = doc.createElement("span");
+    preview.className = "skc-colorsem-preview";
+    if (opt.mode === "native") {
+      preview.append(tagSpan("colorsem.tag.cn"), cspSpan("skc-csp-red", 2.35), tagSpan("colorsem.tag.us"), cspSpan("skc-csp-green", 2.35));
+    } else {
+      preview.append(
+        cspSpan(opt.mode === "red-up" ? "skc-csp-red" : "skc-csp-green", 2.35),
+        cspSpan(opt.mode === "red-up" ? "skc-csp-green" : "skc-csp-red", -1.8),
+      );
+    }
+    row.append(main, preview);
+    row.addEventListener("click", () => store.setTrendColorMode(opt.mode));
+    colorsemGroup.append(row);
+    return { row, opt };
+  });
+  colorsemWrap.append(colorsemTitle, colorsemGroup);
+
+  /** 涨跌配色组原位刷新：aria-checked 以快照为准（无乐观更新，写入失败=下一次快照仍旧档自然回滚）；
+      静态文案重套 t()（语言实时跟随，骨架静态文案重套惯例同 list.mjs:450） */
+  const patchColorsem = (next) => {
+    const mode = normalizeTrendColorMode(next?.business?.settings?.trendColorMode);
+    colorsemTitle.textContent = t("colorsem.title");
+    colorsemGroup.setAttribute("aria-label", t("colorsem.title"));
+    for (const { row, opt } of colorsemRows) {
+      row.setAttribute("aria-checked", opt.mode === mode ? "true" : "false");
+      row.querySelector(".skc-colorsem-label").textContent = t(opt.label);
+      row.querySelector(".skc-colorsem-sub").textContent = t(opt.sub);
+    }
+    for (const sp of colorsemGroup.querySelectorAll(".skc-colorsem-tag")) sp.textContent = t(sp.dataset.tagKey);
+  };
+
   /* 设置体：备份行组 + 页尾脚注（第四轮 2026-11-10：合并显示额度开关已隐藏，默认合并，不再提供设置项） */
   const settingsBody = doc.createElement("div");
   settingsBody.className = "skc-settings-body";
@@ -316,7 +390,7 @@ export function createPanel({ doc, win, store, views }) {
   noteVersion.textContent = VERSION_LABEL; // 构建期注入（client/version.mjs），产品名恒拉丁不参与语言切换
   noteLine.append(noteDelay, noteSep, noteVersion);
   notes.append(noteLine);
-  settingsBody.append(views.backup.el, notes);
+  settingsBody.append(colorsemWrap, views.backup.el, notes);
   settingsLayer.append(settingsHead, settingsBody);
 
   const toast = doc.createElement("div");
@@ -454,7 +528,10 @@ export function createPanel({ doc, win, store, views }) {
     views.list.update(next);
     views.detail.update(next);
     if (next?.ui?.showAdd) views.add.update(next);
-    if (next?.ui?.showSettings) views.backup.update(next);
+    if (next?.ui?.showSettings) {
+      views.backup.update(next);
+      patchColorsem(next); // 涨跌配色组：aria 以快照为准（ADR-0009 T7）
+    }
     patchToast(); // toast 轻路径：不依赖 structural（空切片 emit 也能显示/清除）
     const structural = changed === undefined
       || changed.business === true

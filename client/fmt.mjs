@@ -59,10 +59,37 @@ export function fmtQty(v) {
   return s.length === 0 ? "0" : s;
 }
 
-/** 涨跌颜色类名（A股红涨绿跌惯例） */
-export function trendClass(v) {
+/** 涨跌颜色类名（ADR-0009 三档语义）：flat 恒中性灰；red-up/green-up 恒全局对（翻向由 float root 的 --skc-up/--skc-down 内联变量承载，见 client/colors.mjs）；native 按标的所在市场分支类——A股红涨绿跌，港/美/币绿涨红跌，指数随所属市场 */
+export function trendClass(v, market = null, mode = "red-up") {
   if (v == null || !Number.isFinite(v) || v === 0) return "skc-flat";
-  return v > 0 ? "skc-up" : "skc-down";
+  if (mode !== "native") return v > 0 ? "skc-up" : "skc-down";
+  return market === "cn" ? (v > 0 ? "skc-up-cn" : "skc-down-cn") : (v > 0 ? "skc-up-g" : "skc-down-g");
+}
+
+/** SVG style 属性用的 var 引用（与 trendClass 同判定树；flat → null）。native 直出物理色 var——SVG 无类名分支。 */
+export function trendVarRef(v, market = null, mode = "red-up") {
+  if (v == null || !Number.isFinite(v) || v === 0) return null;
+  if (mode !== "native") return v > 0 ? "var(--skc-up)" : "var(--skc-down)";
+  return market === "cn"
+    ? (v > 0 ? "var(--skc-red)" : "var(--skc-green)")
+    : (v > 0 ? "var(--skc-green)" : "var(--skc-red)");
+}
+
+/** 图表布尔方向入口：charts.mjs 的方向判定输出布尔（分时 last.p>=prevClose、K线 close>=open），无数值 */
+export function trendDirVar(up, market = null, mode = "red-up") {
+  return trendVarRef(up ? 1 : -1, market, mode);
+}
+
+/** 涨跌幅专用：▲/▼ 方向前缀 + fmtPct（颜色+符号双编码，色弱冗余）。平盘/无数据不加符号。持仓盈亏幅仍走 fmtPct（豁免符号）。 */
+export function fmtTrendPct(v) {
+  if (v == null || !Number.isFinite(v)) return fmtPct(v);
+  const glyph = v > 0 ? "▲" : v < 0 ? "▼" : "";
+  return `${glyph}${fmtPct(v)}`;
+}
+
+/** B/S 标记/徽章的 native 档 side 追加类；非 native 恒 ""（全局变量翻向已覆盖） */
+export function trendSideClass(market = null, mode = "red-up") {
+  return mode === "native" ? (market === "cn" ? "skc-side-cn" : "skc-side-g") : "";
 }
 
 /** epoch ms → 当地 HH:mm（行情时间展示） */

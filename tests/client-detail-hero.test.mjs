@@ -130,7 +130,7 @@ test("hero 三行结构：价格行 / 变动行（chg+pct 同色）/ 新鲜度�
     assert.equal(chg.hidden, false);
     assert.equal(chg.textContent, fmtChange(0.1)); // "+0.1000"（abs≥0.01 四位档）
     assert.equal(chg.className.includes("skc-up"), true, "涨跌额与涨跌幅同色");
-    assert.equal(pct.textContent, "+0.30%");
+    assert.equal(pct.textContent, "▲+0.30%"); // ADR-0009 Q6：涨跌幅带 ▼▲ 方向前缀
     const metaText = line.querySelector(".skc-quote-meta").textContent;
     assert.equal(metaText.includes(t("detail.freshness", { t: fmtClock(1), s: t("provider.okx") })), true, "新鲜度单表达式（HH:mm · 经典全称源）");
     assert.equal(metaText.includes(t("providerShort.okx")), false, "缩写源已退役");
@@ -146,7 +146,7 @@ test("hero 三行结构：价格行 / 变动行（chg+pct 同色）/ 新鲜度�
     s.detail.update(s.snap(row));
     const line2 = s.detail.el.querySelector(".skc-quote-line");
     assert.equal(line2.querySelector(".skc-quote-chg").hidden, true, "无 changeAmount → chg 隐藏");
-    assert.equal(line2.querySelector(".skc-quote-pct").textContent, "+0.30%", "pct 仍在（退化不空窗）");
+    assert.equal(line2.querySelector(".skc-quote-pct").textContent, "▲+0.30%", "pct 仍在（退化不空窗）");
   } finally {
     s.restore();
   }
@@ -172,4 +172,41 @@ test("hero 退役：detail.quote-time 键删除（缺键回退键名）", () => 
   setLang("en");
   assert.equal(t("detail.quote-time"), "detail.quote-time");
   setLang("zh");
+});
+
+test("hero 涨跌语义三档（ADR-0009 T6）：native cn=up-cn / native us=up-g / green-up 恒全局类；▲ 仅涨跌幅", () => {
+  const s = setupHero();
+  try {
+    // native：cn 标的（夹具 SYMBOL market=cn）涨 → skc-up-cn；▲ 只加涨跌幅，涨跌额不加（Q11）
+    const sn = s.snap();
+    sn.business.settings = { privacyMode: false, trendColorMode: "native" };
+    s.detail.update(sn);
+    const line = s.detail.el.querySelector(".skc-quote-line");
+    assert.ok(line.querySelector(".skc-quote-price").className.includes("skc-up-cn"), "native cn 价格=skc-up-cn");
+    assert.ok(line.querySelector(".skc-quote-chg").className.includes("skc-up-cn"), "native cn 涨跌额=skc-up-cn");
+    assert.ok(line.querySelector(".skc-quote-pct").className.includes("skc-up-cn"), "native cn 涨跌幅=skc-up-cn");
+    assert.equal(line.querySelector(".skc-quote-pct").textContent, "▲+0.30%", "▲ 前缀加在涨跌幅");
+    assert.equal(line.querySelector(".skc-quote-chg").textContent, fmtChange(0.1), "涨跌额不加符号（Q11）");
+    assert.equal(line.querySelector(".skc-quote-price").textContent, "8.50", "价格不加符号（Q11）");
+
+    // native：us 标的涨 → skc-up-g（国际分支）
+    const usSn = s.snap();
+    usSn.business.symbols = [{ ...SYMBOL, id: "us:AAPL", market: "us", code: "AAPL", quoteCurrency: "USD" }];
+    usSn.business.settings = { privacyMode: false, trendColorMode: "native" };
+    usSn.quotes = { "us:AAPL": QUOTE_ROW };
+    usSn.ui = { ...usSn.ui, detailId: "us:AAPL", lastMarket: "us" };
+    s.detail.update(usSn);
+    const usLine = s.detail.el.querySelector(".skc-quote-line");
+    assert.ok(usLine.querySelector(".skc-quote-pct").className.includes("skc-up-g"), "native us 涨跌幅=skc-up-g");
+
+    // green-up：类名恒全局对（翻向由根变量承载），▲ 同样在
+    const guSn = s.snap();
+    guSn.business.settings = { privacyMode: false, trendColorMode: "green-up" };
+    s.detail.update(guSn);
+    const guLine = s.detail.el.querySelector(".skc-quote-line");
+    assert.ok(guLine.querySelector(".skc-quote-pct").className.includes("skc-up"), "green-up 涨=skc-up（根变量翻向）");
+    assert.equal(guLine.querySelector(".skc-quote-pct").textContent, "▲+0.30%", "green-up 涨跌幅同样带 ▲");
+  } finally {
+    s.restore();
+  }
 });

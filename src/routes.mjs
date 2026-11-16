@@ -6,7 +6,7 @@
 
 import { isSameOriginRequest } from "./access.mjs";
 import { identityConsistent, MARKETS } from "./identity.mjs";
-import { buildExportPayload, parseImportPayload } from "./model.mjs";
+import { buildExportPayload, parseImportPayload, normalizeTrendColorMode } from "./model.mjs";
 import { targetState, validateTargets } from "./targets.mjs";
 import { positionMetrics } from "./portfolio.mjs";
 
@@ -161,7 +161,7 @@ function statePayload() {
   const store = deps.store;
   return {
     rev: store.rev,
-    settings: { privacyMode: store.global.settings.privacyMode === true },
+    settings: { privacyMode: store.global.settings.privacyMode === true, trendColorMode: normalizeTrendColorMode(store.global.settings.trendColorMode) },
     updatedAt: store.global.updatedAt,
     symbols: store.symbols,
     driverKind: store.driverKind,
@@ -263,6 +263,7 @@ async function reorderSymbolRoute(body, res) {
 async function settingsRoute(body, res) {
   const patch = {};
   if (typeof body.privacyMode === "boolean") patch.privacyMode = body.privacyMode;
+  if (typeof body.trendColorMode === "string") patch.trendColorMode = normalizeTrendColorMode(body.trendColorMode); // ADR-0009：非法值 normalize 回默认，不报错（与 privacyMode 强转同风格）
   const result = await deps.store.setSettings(patch);
   sendJson(res, 200, { rev: result.global.rev, settings: result.global.settings });
 }

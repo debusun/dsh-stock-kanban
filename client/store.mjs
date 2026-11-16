@@ -180,6 +180,8 @@ export function createStore(storage = window.localStorage, { onEvent } = {}) {
     return r;
   };
   const setPrivacy = (privacyMode) => mutate((rev) => api.setSettings({ privacyMode }, rev));
+  // 涨跌语义档（ADR-0009 T7）：mutate 管道自带 rev 冲突刷新与失败 toast.op-failed（复用既有键，不新增）
+  const setTrendColorMode = (trendColorMode) => mutate((rev) => api.setSettings({ trendColorMode }, rev));
   const importBackup = (payload) => mutate((rev) => api.importBackup(payload, rev));
 
   /* ------------------------------------------------ 行情轮询 */
@@ -303,7 +305,7 @@ export function createStore(storage = window.localStorage, { onEvent } = {}) {
 
   return {
     subscribe, getState, dispose,
-    refreshState, mutate, addSymbol, updateSymbol, reorderSymbols, removeSymbol, setPrivacy, importBackup,
+    refreshState, mutate, addSymbol, updateSymbol, reorderSymbols, removeSymbol, setPrivacy, setTrendColorMode, importBackup,
     pollQuotes, restartPolling, openPanel, closePanel, togglePanel, openDetail, backToList,
     setLastMarket, setHoldingsOnly, setMaVisible, setCapsuleSymbol,
     setQuotaMerge, setQuotaCapable,

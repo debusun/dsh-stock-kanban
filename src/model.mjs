@@ -2,7 +2,7 @@
  * 业务数据模型与备份校验 —— 纯函数，无 IO。
  *
  * 存储形状（DSH storage KV 单元 stock_kanban v1，layout single）：
- *   global:  { rev: number, settings: { privacyMode: boolean }, updatedAt: ISO }
+ *   global:  { rev: number, settings: { privacyMode: boolean, trendColorMode: string }, updatedAt: ISO }
  *   symbols: { [id]: SymbolRecord }
  *
  * SymbolRecord：
@@ -81,9 +81,17 @@ export function normalizeSymbolRecord(raw) {
   return record;
 }
 
+/** 涨跌语义档位（ADR-0009）：red-up 红涨绿跌（默认=现状）/ green-up 红跌绿涨 / native 原生语义 */
+export const TREND_COLOR_MODES = ["red-up", "green-up", "native"];
+
+/** 涨跌语义规范化：非法/缺失 fail-closed 回默认 red-up（与 privacyMode 强转同风格） */
+export function normalizeTrendColorMode(v) {
+  return TREND_COLOR_MODES.includes(v) ? v : "red-up";
+}
+
 /** 默认全局 */
 export function defaultGlobal() {
-  return { rev: 0, settings: { privacyMode: false }, updatedAt: new Date(0).toISOString() };
+  return { rev: 0, settings: { privacyMode: false, trendColorMode: "red-up" }, updatedAt: new Date(0).toISOString() };
 }
 
 /** 规范化 global（读取/导入边界）。非法回退默认；rev 必须非负整数 */
@@ -92,7 +100,8 @@ export function normalizeGlobal(raw) {
   if (!raw || typeof raw !== "object") return base;
   const rev = typeof raw.rev === "number" && Number.isSafeInteger(raw.rev) && raw.rev >= 0 ? raw.rev : base.rev;
   const privacyMode = raw.settings?.privacyMode === true;
-  return { rev, settings: { privacyMode }, updatedAt: isoOrNull(raw.updatedAt) ?? base.updatedAt };
+  const trendColorMode = normalizeTrendColorMode(raw.settings?.trendColorMode);
+  return { rev, settings: { privacyMode, trendColorMode }, updatedAt: isoOrNull(raw.updatedAt) ?? base.updatedAt };
 }
 
 /**
@@ -202,7 +211,7 @@ export function buildExportPayload(global, symbolsById) {
     kind: BACKUP_KIND,
     schemaVersion: BACKUP_SCHEMA_VERSION,
     exportedAt: new Date().toISOString(),
-    settings: { privacyMode: global.settings.privacyMode === true },
+    settings: { privacyMode: global.settings.privacyMode === true, trendColorMode: normalizeTrendColorMode(global.settings.trendColorMode) },
     symbols: Object.values(symbolsById).map((s) => ({ ...s })),
   };
 }
@@ -210,7 +219,7 @@ export function buildExportPayload(global, symbolsById) {
 /**
  * 解析并校验导入备份。结构/字段/数值/身份逐项校验，任何一条标的非法 → 计入 rejected（不中断整体），
  * 但结构级错误（kind/schemaVersion/非对象/settings/symbols 不是数组）→ 整体拒绝。
- * @returns {{ok: true, settings: {privacyMode: boolean}, symbols: SymbolRecord[], rejected: number}
+ * @returns {{ok: true, settings: {privacyMode: boolean, trendColorMode: string}, symbols: SymbolRecord[], rejected: number}
  *           |{ok: false, error: string}}
  */
 export function parseImportPayload(raw) {
@@ -218,7 +227,7 @@ export function parseImportPayload(raw) {
   if (raw.kind !== BACKUP_KIND) return { ok: false, error: "wrong-kind" };
   if (raw.schemaVersion !== BACKUP_SCHEMA_VERSION) return { ok: false, error: "unsupported-schema-version" };
   if (!Array.isArray(raw.symbols)) return { ok: false, error: "symbols-not-array" };
-  const settings = { privacyMode: raw.settings?.privacyMode === true };
+  const settings = { privacyMode: raw.settings?.privacyMode === true, trendColorMode: normalizeTrendColorMode(raw.settings?.trendColorMode) };
   const symbols = [];
   let rejected = 0;
   const seen = new Set();

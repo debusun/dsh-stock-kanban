@@ -9,7 +9,7 @@
  */
 
 import { api } from "./api.mjs";
-import { fmtPrice, fmtPct, fmtAmount, fmtChange, priceDigits, maskIf, trendClass, parsePositiveInput, fmtClock, fmtClockSec } from "./fmt.mjs";
+import { fmtPrice, fmtPct, fmtAmount, fmtChange, fmtTrendPct, priceDigits, maskIf, trendClass, parsePositiveInput, fmtClock, fmtClockSec } from "./fmt.mjs";
 import { buildMinuteChart, buildCandleChart, buildMaLegend } from "./charts.mjs";
 import { iconEl } from "./icons.mjs";
 import { t, tErr, getLang, detailSourceText } from "./i18n.mjs";
@@ -430,10 +430,10 @@ export function createDetail({ store, win, resizeThrottleMs = 150 }) {
     } else if (period === "minute") {
       box.append(buildMinuteChart(
         { points: chart.data?.points ?? [], prevClose: chart.data?.prevClose ?? chart.prevClose ?? null },
-        { dark: false, market: symbol.market, width: chartWidth(), height: chartHeight(viewportHeight()) },
+        { dark: false, market: symbol.market, mode: snapshot?.business?.settings?.trendColorMode, width: chartWidth(), height: chartHeight(viewportHeight()) },
       ));
     } else {
-      box.append(buildCandleChart(chart.data ?? [], { maVisible: ui.maVisible, dark: false, width: chartWidth(), height: chartHeight(viewportHeight()) }));
+      box.append(buildCandleChart(chart.data ?? [], { maVisible: ui.maVisible, dark: false, market: symbol.market, mode: snapshot?.business?.settings?.trendColorMode, width: chartWidth(), height: chartHeight(viewportHeight()) }));
     }
     lastBoxDims = dimsOf(); // 守卫记账唯一权威：每次盒构建记录 (宽,高)（含 renderSkeleton 直调路径）
     return box;
@@ -673,6 +673,7 @@ export function createDetail({ store, win, resizeThrottleMs = 150 }) {
     const q = snapshot?.quotes?.[symbol.id];
     const price = q?.status === "ok" ? q.price : null;
     const pct = q?.changePercent ?? null;
+    const trendMode = snapshot?.business?.settings?.trendColorMode; // ADR-0009（undefined → 解析层默认 red-up）
     // 第 13 轮（2026-11-15）：涨跌额直用上游口径 changeAmount（六适配器全填、routes:322 透传），
     // 与涨跌幅同一 tick 自洽；缺失/非有限值时隐藏（退化回「价格+涨跌幅」双元组，不空窗）
     const chg = Number.isFinite(q?.changeAmount) ? q.changeAmount : null;
@@ -680,15 +681,15 @@ export function createDetail({ store, win, resizeThrottleMs = 150 }) {
     skeleton.quote.price.textContent = priceText;
     // 长价降档（第 13 轮·主人终版单行 + 极端档）：格式化 ≥9 字符（BTC 64,486.70 / 纳指 25,136.27）→ 24px；
     // ≥12 字符（十万点级 1,234,567.89）→ 22px——保证万点/极端长价也能与新鲜度同行
-    skeleton.quote.price.className = `skc-quote-price ${trendClass(pct)}${price != null && priceText.length >= 12 ? " skc-quote-price--xs" : price != null && priceText.length >= 9 ? " skc-quote-price--sm" : ""}`;
+    skeleton.quote.price.className = `skc-quote-price ${trendClass(pct, symbol.market, trendMode)}${price != null && priceText.length >= 12 ? " skc-quote-price--xs" : price != null && priceText.length >= 9 ? " skc-quote-price--sm" : ""}`;
     skeleton.quote.chg.hidden = chg == null;
     if (chg != null) {
       // 混合规则（主人拍板）：档位 = max(自身量级档, 价格显示档位)，裁拖零——与同行价格小数位不打架
-      skeleton.quote.chg.textContent = fmtChange(chg, price != null ? priceDigits(price) : 2);
-      skeleton.quote.chg.className = `skc-quote-chg ${trendClass(pct)}`;
+      skeleton.quote.chg.textContent = fmtChange(chg, price != null ? priceDigits(price) : 2); // 涨跌额不加方向符号（Q11）
+      skeleton.quote.chg.className = `skc-quote-chg ${trendClass(pct, symbol.market, trendMode)}`;
     }
-    skeleton.quote.pct.textContent = fmtPct(pct);
-    skeleton.quote.pct.className = `skc-quote-pct ${trendClass(pct)}`;
+    skeleton.quote.pct.textContent = fmtTrendPct(pct); // ▲▼ 仅涨跌幅（ADR-0009 Q11）
+    skeleton.quote.pct.className = `skc-quote-pct ${trendClass(pct, symbol.market, trendMode)}`;
     const qTime = q?.quoteTime ?? null;
     const fTime = q?.fetchedAt ?? null;
     const badgeKind = symbol ? targetBadgeKind(q?.target, symbol.market, Date.now()) : null;

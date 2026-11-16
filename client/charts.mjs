@@ -8,11 +8,10 @@
 
 import { computeMa, niceBounds } from "./chartmath.mjs";
 import { t } from "./i18n.mjs";
+import { trendDirVar } from "./fmt.mjs";
 import { CHART_WINDOWS } from "../src/sessions.mjs";
 
 const SVG_NS = "http://www.w3.org/2000/svg";
-const UP = "#e5484d"; // A股惯例红涨
-const DOWN = "#2bb596"; // 绿跌
 const YELLOW = "#d9a514";
 /** MA 线色：MA5 由 #e8e8e8（深底遗产，浅色面板不可读）改中性灰蓝（2026-11-10 UI 重构） */
 const MA_COLORS = { 5: "#94a3b8", 10: "#d9a514", 20: "#a78bfa", 60: "#4ade80" };
@@ -38,7 +37,8 @@ function emptyState(key) {
 /**
  * 分时图：价格线 + 均价线 + 昨收虚线 + 成交量柱。
  * @param {{points?: Array<{t:number,p:number,v?:number}>, prevClose?: number|null}} svgData
- * @param {{width?:number,height?:number,volHeight?:number,dark?:boolean}} [opts]
+ * @param {{width?:number,height?:number,volHeight?:number,dark?:boolean,market?:string,mode?:string}} [opts]
+ *   market/mode：涨跌语义（ADR-0009）——mode 缺省 red-up；native 档按 market 直出物理色 var
  * @returns {Element} SVG 根（数据不足时为 .skc-chart-empty div）
  */
 export function buildMinuteChart(svgData, opts = {}) {
@@ -105,6 +105,7 @@ export function buildMinuteChart(svgData, opts = {}) {
     return `${xOf(i).toFixed(1)},${yOf(avg).toFixed(1)}`;
   }).join(" ");
   const up = Number.isFinite(prevClose) && prevClose > 0 ? points[points.length - 1].p >= prevClose : true;
+  const trendRef = trendDirVar(up, opts.market ?? null, opts.mode); // 回退语义维持现状：prevClose 无效 → up=true（涨向，ADR-0009 T5）
   const baseY = Number.isFinite(prevClose) && prevClose > 0 ? yOf(prevClose) : null;
   void dark; // 轴色已改主题令牌（AXIS_TEXT_STYLE），dark 参数保留 API 兼容
   const timeLabel = (ts) => {
@@ -113,7 +114,7 @@ export function buildMinuteChart(svgData, opts = {}) {
   };
 
   const kids = [
-    svgEl("polyline", { points: pricePts, fill: "none", stroke: up ? UP : DOWN, "stroke-width": 1.5 }),
+    svgEl("polyline", { points: pricePts, fill: "none", style: `stroke:${trendRef};stroke-width:1.5` }),
     svgEl("polyline", { points: avgPts, fill: "none", stroke: YELLOW, "stroke-width": 1 }),
     ...(axisLabels
       ? axisLabels.map(({ text, r }, k, arr) => {
@@ -148,7 +149,7 @@ export function buildMinuteChart(svgData, opts = {}) {
         y: volYOf(p.v),
         width: 1.4,
         height: volTop + volHeight - volYOf(p.v),
-        fill: up ? "rgba(229,72,77,.4)" : "rgba(43,181,150,.4)",
+        style: `fill:color-mix(in srgb, ${trendRef} 40%, transparent)`,
       }));
     }
   });
@@ -161,12 +162,15 @@ export function buildMinuteChart(svgData, opts = {}) {
 /**
  * K 线图：蜡烛 + MA + 成交量柱。
  * @param {Array<{time:string,open:number,close:number,high:number,low:number,volume?:number}>} klineData
- * @param {{maVisible?:Object,width?:number,height?:number,volHeight?:number,dark?:boolean}} [opts]
+ * @param {{maVisible?:Object,width?:number,height?:number,volHeight?:number,dark?:boolean,market?:string,mode?:string}} [opts]
+ *   market/mode：涨跌语义（ADR-0009）——mode 缺省 red-up；native 档按 market 直出物理色 var
  * @returns {Element} SVG 根（无数据时为 .skc-chart-empty div）
  */
 export function buildCandleChart(klineData, opts = {}) {
   const candles = klineData ?? [];
   const { maVisible = {}, width = 372, height = 230, volHeight = 34, dark = false } = opts;
+  const candleMarket = opts.market ?? null;
+  const candleMode = opts.mode;
   if (!Array.isArray(candles) || candles.length === 0) {
     return emptyState("detail.chart.empty.candle");
   }
@@ -189,19 +193,17 @@ export function buildCandleChart(klineData, opts = {}) {
   const volTop = pad + priceH + pad;
   const kids = [];
   candles.forEach((c, i) => {
-    const up = c.close >= c.open;
-    const color = up ? UP : DOWN;
+    const up = c.close >= c.open; // K线方向判定维持现状（ADR-0009 T5）
+    const color = trendDirVar(up, candleMarket, candleMode);
     const yO = yOf(Math.max(c.open, c.close));
     const yC = yOf(Math.min(c.open, c.close));
-    kids.push(svgEl("line", { x1: xOf(i), x2: xOf(i), y1: yOf(c.high), y2: yOf(c.low), stroke: color, "stroke-width": 1 }));
+    kids.push(svgEl("line", { x1: xOf(i), x2: xOf(i), y1: yOf(c.high), y2: yOf(c.low), style: `stroke:${color};stroke-width:1` }));
     kids.push(svgEl("rect", {
       x: xOf(i) - bodyW / 2,
       y: yO,
       width: bodyW,
       height: Math.max(0.8, yC - yO),
-      fill: up ? "transparent" : color,
-      stroke: color,
-      "stroke-width": 0.8,
+      style: `fill:${up ? "transparent" : color};stroke:${color};stroke-width:0.8`,
     }));
     if ((c.volume ?? 0) > 0) {
       const yV = volTop + volHeight - (c.volume / maxVol) * volHeight;
@@ -210,7 +212,7 @@ export function buildCandleChart(klineData, opts = {}) {
         y: yV,
         width: bodyW,
         height: volTop + volHeight - yV,
-        fill: up ? "rgba(229,72,77,.35)" : "rgba(43,181,150,.35)",
+        style: `fill:color-mix(in srgb, ${color} 35%, transparent)`,
       }));
     }
   });

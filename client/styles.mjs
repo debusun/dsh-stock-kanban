@@ -22,6 +22,8 @@
  * transition:none + scale(1.04)）；位置记忆挂 host 的 left/top，胶囊自身
  * position:relative（随 stack 流动）。
  */
+import { TREND_RED, TREND_GREEN } from "./colors.mjs";
+
 export const FLOAT_STYLE_TEXT = `
 :host { position: fixed; z-index: 2147483000; }
 :host {
@@ -41,8 +43,10 @@ export const FLOAT_STYLE_TEXT = `
   --skc-pressed: var(--dsw-alias-interactive-bg-active, rgba(128,128,128,.18));
   --skc-danger: var(--dsw-alias-state-error-primary, #e5484d);
   --skc-warn: var(--dsw-alias-state-warn-label, #d29922);
-  --skc-up: #e5484d; /* A股惯例红涨 */
-  --skc-down: #2bb596; /* 绿跌 */
+  --skc-red: #e5484d; /* 物理红（插值 client/colors.mjs TREND_RED——与 :42 danger fallback 同 hex 但语义无关，禁按色值全局替换） */
+  --skc-green: #2bb596; /* 物理绿（插值 TREND_GREEN） */
+  --skc-up: ${TREND_RED}; /* 语义涨色：静态默认 red-up；运行期 main.mjs 按 trendModeVars 写 float root 内联变量翻向（ADR-0009） */
+  --skc-down: ${TREND_GREEN}; /* 语义跌色 */
   --skc-shadow-lift: 0 18px 48px rgba(0,0,0,.22), 0 2px 8px rgba(0,0,0,.12);
   --skc-ease: cubic-bezier(.2,.8,.2,1);
 
@@ -81,6 +85,20 @@ export const FLOAT_STYLE_TEXT = `
 .skc-up{color:var(--skc-up)}
 .skc-down{color:var(--skc-down)}
 .skc-flat{color:var(--skc-text-2)}
+/* 涨跌语义三档（ADR-0009）：native 档市场分支类；red-up/green-up 由根变量翻向承载，无需分支类 */
+.skc-up-cn{color:var(--skc-red)}
+.skc-down-cn{color:var(--skc-green)}
+.skc-up-g{color:var(--skc-green)}
+.skc-down-g{color:var(--skc-red)}
+/* B/S 买卖标记/徽章 native 档 side 覆盖（双类特异性压过基类；配方镜像基类 color-mix 档位 14%/38%/10%） */
+.skc-mark-buy.skc-side-cn{color:var(--skc-red);background:color-mix(in srgb,var(--skc-red) 14%,transparent)}
+.skc-mark-sell.skc-side-cn{color:var(--skc-green);background:color-mix(in srgb,var(--skc-green) 14%,transparent)}
+.skc-mark-buy.skc-side-g{color:var(--skc-green);background:color-mix(in srgb,var(--skc-green) 14%,transparent)}
+.skc-mark-sell.skc-side-g{color:var(--skc-red);background:color-mix(in srgb,var(--skc-red) 14%,transparent)}
+.skc-badge-buy.skc-side-cn{color:var(--skc-red);border-color:color-mix(in srgb,var(--skc-red) 38%,transparent);background:color-mix(in srgb,var(--skc-red) 10%,transparent)}
+.skc-badge-sell.skc-side-cn{color:var(--skc-green);border-color:color-mix(in srgb,var(--skc-green) 38%,transparent);background:color-mix(in srgb,var(--skc-green) 10%,transparent)}
+.skc-badge-buy.skc-side-g{color:var(--skc-green);border-color:color-mix(in srgb,var(--skc-green) 38%,transparent);background:color-mix(in srgb,var(--skc-green) 10%,transparent)}
+.skc-badge-sell.skc-side-g{color:var(--skc-red);border-color:color-mix(in srgb,var(--skc-red) 38%,transparent);background:color-mix(in srgb,var(--skc-red) 10%,transparent)}
 
 /* 面板（锚定胶囊弹出；≤480px 转底部 sheet；头不再拖动）
    一级列表宽 360px（第四轮）；二级视图（详情/添加/设置）按 data-surface 展开到 420px（第五轮），超出视口时收窄；高度由内容决定，对话框打开时只显示对话框。
@@ -291,6 +309,24 @@ export const FLOAT_STYLE_TEXT = `
 /* 页尾脚注一行制（2026-11-10）：行情说明 + 版本号同线，· 分隔弱一档 */
 .skc-setting-notesep{margin:0 5px;opacity:.5}
 .skc-setting-version{opacity:.65;font-variant-numeric:tabular-nums}
+/* 涨跌配色组（ADR-0009 三档 radio）：竖排三行、每行内嵌真实预览；选中态 accent，涨跌色只属于预览演示。
+   与备份区的分隔复用 .skc-settings-body > * + * 既有 hairline（不设 divider 元素） */
+.skc-colorsem-title{font-size:11px;line-height:16px;color:var(--skc-text-2);letter-spacing:.02em}
+.skc-colorsem{display:flex;flex-direction:column;gap:2px}
+.skc-colorsem-row{display:flex;align-items:center;gap:10px;min-height:44px;padding:6px 8px;border-radius:9px;border:1px solid transparent;background:transparent;color:var(--skc-text);cursor:pointer;font:inherit;text-align:left;width:100%;transition:background .12s var(--skc-ease)}
+.skc-colorsem-row:hover{background:var(--skc-hover)}
+.skc-colorsem-row:active{background:var(--skc-pressed)}
+.skc-colorsem-row:focus-visible{outline:2px solid var(--dsw-alias-brand-primary,#5b8def);outline-offset:2px}
+.skc-colorsem-row::before{content:"";flex:none;width:14px;height:14px;border-radius:999px;border:1.5px solid var(--skc-hairline-strong);transition:border-color .12s var(--skc-ease), box-shadow .12s var(--skc-ease)}
+.skc-colorsem-row[aria-checked="true"]::before{border-color:var(--skc-accent);background:var(--skc-accent);box-shadow:inset 0 0 0 2.5px var(--skc-surface)}
+.skc-colorsem-row[aria-checked="true"] .skc-colorsem-label{font-weight:600}
+.skc-colorsem-main{display:flex;flex-direction:column;gap:1px;min-width:0;flex:1 1 auto}
+.skc-colorsem-label{font-size:13px;line-height:18px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.skc-colorsem-sub{font-size:11px;line-height:16px;color:var(--skc-text-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.skc-colorsem-preview{display:flex;align-items:center;gap:6px;flex:none;font-size:12px;line-height:16px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.skc-colorsem-tag{font-size:11px;color:var(--skc-text-3)}
+.skc-csp-red{color:var(--skc-red)}
+.skc-csp-green{color:var(--skc-green)}
 .skc-backup{display:flex;flex-direction:column;gap:8px}
 .skc-backup-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .skc-backup-actions .skc-btn{justify-content:center;width:100%}

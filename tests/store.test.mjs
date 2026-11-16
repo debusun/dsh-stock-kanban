@@ -94,6 +94,17 @@ test("存储：导入覆盖语义 + 失败回滚", async () => {
   assert.equal(store.global.settings.privacyMode, true);
 });
 
+test("存储：importAll 携带涨跌语义档位（ADR-0009 T2）", async () => {
+  const { store } = tempStore();
+  await store.init();
+  await store.importAll([{ ...SYM, id: "us:AAPL", market: "us", code: "AAPL", quoteCurrency: "USD", quantity: 3, avgCost: 100 }], { privacyMode: false, trendColorMode: "green-up" });
+  assert.equal(store.global.settings.trendColorMode, "green-up");
+  await store.importAll([], { privacyMode: false, trendColorMode: "nope" }); // 非法 fail-closed 回默认
+  assert.equal(store.global.settings.trendColorMode, "red-up");
+  await store.importAll([], { privacyMode: false }); // 缺字段补默认
+  assert.equal(store.global.settings.trendColorMode, "red-up");
+});
+
 test("存储：损坏文件隔离后可继续使用（原字节保留）", async () => {
   const dir = mkdtempSync(join(tmpdir(), "sk-store-"));
   const file = join(dir, "data.json");

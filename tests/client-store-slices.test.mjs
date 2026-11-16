@@ -15,6 +15,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { createStore } from "../client/store.mjs";
+import { getLang, setLang } from "../client/i18n.mjs";
 
 function createStorageStub(seed = {}) {
   const map = new Map(Object.entries(seed));
@@ -283,6 +284,30 @@ test("⑨ providers 引用变化、其余判定域全等 → 照常 emit 且 quo
     assert.deepEqual(changed.ui, []);
   } finally {
     restore();
+    store.dispose();
+  }
+});
+
+test("setTrendColorMode 失败冒泡 toast.op-failed（mutate 管道，ADR-0009 T7）", async () => {
+  const store = createStore(createStorageStub());
+  await seedBusiness(store);
+  const prevLang = getLang();
+  setLang("zh"); // toast 文案断言钉 zh 字典（环境默认 en）
+  const real = globalThis.fetch;
+  globalThis.fetch = async (path) => {
+    if (String(path).startsWith("/stock-kanban/settings")) {
+      return { ok: false, status: 500, json: async () => ({ error: "boom" }) };
+    }
+    return { ok: true, json: async () => ({ rev: 1, settings: {}, symbols: [], driverKind: null }) };
+  };
+  try {
+    const r = await store.setTrendColorMode("green-up");
+    assert.equal(r.ok, false);
+    const toast = store.getState().toast;
+    assert.ok(String(toast?.text ?? "").startsWith("操作失败"), `失败冒泡通用 toast（实际：${JSON.stringify(toast)}）`);
+  } finally {
+    globalThis.fetch = real;
+    setLang(prevLang);
     store.dispose();
   }
 });

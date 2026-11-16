@@ -8,7 +8,7 @@
  * 手势期间才绑 doc 级 move/up/cancel（rest 态零 document 监听）。
  */
 
-import { fmtPrice, fmtPct, trendClass } from "./fmt.mjs";
+import { fmtPrice, fmtPct, fmtTrendPct, trendClass, trendSideClass } from "./fmt.mjs";
 import { t } from "./i18n.mjs";
 import { targetBadgeKind } from "../src/sessions.mjs";
 import {
@@ -420,13 +420,20 @@ export function createCapsule({ doc, win, storage, shadow, store, onTogglePanel,
     const paused = target?.status === "stale" || target?.status === "no-data";
     markBuy.hidden = target?.buyTriggered !== true;
     markSell.hidden = target?.sellTriggered !== true;
+    // 涨跌语义（ADR-0009 T6）：native 档 B/S 标记按标的所在市场挂 side 类（update 路径同步重写——
+    // 创建点 :233-236 类名固定，换档/换标的必须在此刷新；评审 P3 双写点）
+    const trendMode = snapshot?.business?.settings?.trendColorMode;
+    const side = trendSideClass(symbol?.market, trendMode);
+    for (const [mark, base] of [[markBuy, "skc-mark-buy"], [markSell, "skc-mark-sell"]]) {
+      mark.className = `skc-capsule-mark ${base}${side ? ` ${side}` : ""}`;
+    }
     nameEl.textContent = name;
     const closedNow = paused && quote && targetBadgeKind(target, symbol?.market, Date.now()) === "closed";
     priceEl.textContent =
       price != null ? fmtPrice(price) : paused && quote ? (closedNow ? t("capsule.closed") : t("capsule.stale")) : "—";
-    priceEl.className = `skc-capsule-price ${trendClass(pct)}`;
-    pctEl.textContent = fmtPct(pct);
-    pctEl.className = `skc-capsule-pct ${trendClass(pct)}`;
+    priceEl.className = `skc-capsule-price ${trendClass(pct, symbol?.market, trendMode)}`;
+    pctEl.textContent = fmtTrendPct(pct);
+    pctEl.className = `skc-capsule-pct ${trendClass(pct, symbol?.market, trendMode)}`;
     if (paused && (symbol?.buyTarget != null || symbol?.sellTarget != null)) {
       el.title = t("capsule.tip.stale");
     } else {

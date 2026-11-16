@@ -4,7 +4,7 @@
  * 位置：常驻层（面板 body 内）；update(snapshot) 增量重绘行区。
  */
 
-import { fmtPrice, fmtPct, fmtAmount, trendClass, MASK } from "./fmt.mjs";
+import { fmtPrice, fmtPct, fmtAmount, fmtTrendPct, trendClass, trendSideClass, MASK } from "./fmt.mjs";
 import { t } from "./i18n.mjs";
 import { iconEl } from "./icons.mjs";
 import { targetBadgeKind } from "../src/sessions.mjs";
@@ -26,16 +26,17 @@ function appendText(parent, className, text) {
   return span;
 }
 
-/** 触价/休市/过期标记（语义与 React 版一致） */
-function appendTargetBadges(container, target, market) {
+/** 触价/休市/过期标记（语义与 React 版一致）；mode：涨跌语义档（B/S 徽章 native 档挂 side 类，ADR-0009） */
+function appendTargetBadges(container, target, market, mode) {
   // 未设目标价/无行情不再提前返回（§12.34 实拍）：休市标注整列一致，由 targetBadgeKind 统一判定
   if (target?.buyTriggered || target?.sellTriggered) {
+    const side = trendSideClass(market, mode);
     if (target.buyTriggered) {
-      const b = appendText(container, "skc-badge skc-badge-buy", "B");
+      const b = appendText(container, `skc-badge skc-badge-buy${side ? ` ${side}` : ""}`, "B");
       b.title = t("detail.buy-target", { ccy: "" });
     }
     if (target.sellTriggered) {
-      const s = appendText(container, "skc-badge skc-badge-sell", "S");
+      const s = appendText(container, `skc-badge skc-badge-sell${side ? ` ${side}` : ""}`, "S");
       s.title = t("detail.sell-target", { ccy: "" });
     }
     return;
@@ -281,7 +282,7 @@ export function createList({ store }) {
     if (dragActive) e.preventDefault();
   }, { passive: false });
 
-  const buildRow = (s, ui, quotes, privacy) => {
+  const buildRow = (s, ui, quotes, privacy, mode) => {
     const q = quotes[s.id];
     const price = q?.status === "ok" ? q.price : null;
     const pct = q?.changePercent ?? null;
@@ -330,10 +331,10 @@ export function createList({ store }) {
     priceCol.className = "skc-row-price";
     appendText(
       priceCol,
-      trendClass(pct),
+      trendClass(pct, s.market, mode),
       price != null ? fmtPrice(price) : q ? (q.status === "error" ? t("list.quote-failed") : "—") : "…",
     );
-    appendText(priceCol, `skc-pct ${trendClass(pct)}`, fmtPct(pct));
+    appendText(priceCol, `skc-pct ${trendClass(pct, s.market, mode)}`, fmtTrendPct(pct)); // ▲▼ 仅涨跌幅（ADR-0009 Q11）
 
     let tailCol;
     if (ui.holdingsOnly && hasPos) {
@@ -341,7 +342,7 @@ export function createList({ store }) {
       tailCol.className = "skc-row-pnl";
       const amt = appendText(
         tailCol,
-        `skc-pnl-amt ${trendClass(m?.pnl)}`,
+        `skc-pnl-amt ${trendClass(m?.pnl, s.market, mode)}`,
         privacy
           ? MASK
           : m?.pnl != null
@@ -353,13 +354,13 @@ export function createList({ store }) {
       }
       appendText(
         tailCol,
-        `skc-pnl-pct ${trendClass(m?.pnl)}`,
-        privacy ? MASK : m?.pnlPct != null ? fmtPct(m.pnlPct) : "—",
+        `skc-pnl-pct ${trendClass(m?.pnl, s.market, mode)}`,
+        privacy ? MASK : m?.pnlPct != null ? fmtPct(m.pnlPct) : "—", // 盈亏幅不加符号（Q11 豁免）
       );
     } else {
       tailCol = document.createElement("div");
       tailCol.className = "skc-row-target";
-      appendTargetBadges(tailCol, q?.target, s.market);
+      appendTargetBadges(tailCol, q?.target, s.market, mode);
     }
 
     const gripEl = document.createElement("span");
@@ -371,7 +372,7 @@ export function createList({ store }) {
   };
 
   /** quotes tick 行内动态域原位改写。dragMode=true 时零节点增删（仅文本，tailCol 徽标不动）。 */
-  const patchRowDynamic = (row, s, ui, quotes, privacy, dragMode) => {
+  const patchRowDynamic = (row, s, ui, quotes, privacy, dragMode, mode) => {
     const q = quotes[s.id];
     const price = q?.status === "ok" ? q.price : null;
     const pct = q?.changePercent ?? null;
@@ -381,11 +382,11 @@ export function createList({ store }) {
     const pctSpan = priceCol.children[1];
     if (priceSpan) {
       priceSpan.textContent = price != null ? fmtPrice(price) : q ? (q.status === "error" ? t("list.quote-failed") : "—") : "…";
-      priceSpan.className = trendClass(pct);
+      priceSpan.className = trendClass(pct, s.market, mode);
     }
     if (pctSpan) {
-      pctSpan.textContent = fmtPct(pct);
-      pctSpan.className = `skc-pct ${trendClass(pct)}`;
+      pctSpan.textContent = fmtTrendPct(pct);
+      pctSpan.className = `skc-pct ${trendClass(pct, s.market, mode)}`;
     }
     const hasPos = s.quantity != null && s.quantity > 0;
     if (ui.holdingsOnly && hasPos) {
@@ -397,11 +398,11 @@ export function createList({ store }) {
       const pctEl = tail.children[1];
       if (amt) {
         amt.textContent = privacy ? MASK : m?.pnl != null ? `${m.pnl > 0 ? "+" : ""}${fmtAmount(m.pnl)}` : "—";
-        amt.className = `skc-pnl-amt ${trendClass(m?.pnl)}`;
+        amt.className = `skc-pnl-amt ${trendClass(m?.pnl, s.market, mode)}`;
       }
       if (pctEl) {
         pctEl.textContent = privacy ? MASK : m?.pnlPct != null ? fmtPct(m.pnlPct) : "—";
-        pctEl.className = `skc-pnl-pct ${trendClass(m?.pnl)}`;
+        pctEl.className = `skc-pnl-pct ${trendClass(m?.pnl, s.market, mode)}`;
       }
     } else if (!dragMode) {
       // target 徽标列重建（涉及节点增删，拖拽中跳过——徽标随下次全量/非拖拽 patch 刷新）
@@ -412,7 +413,7 @@ export function createList({ store }) {
     }
   };
 
-  const rebuildRows = (shown, ui, quotes, privacy) => {
+  const rebuildRows = (shown, ui, quotes, privacy, mode) => {
     rowsEl.replaceChildren();
     if (shown.length === 0) {
       // 教学式空态：自选空给「添加」图形引导；持仓空纯文案
@@ -430,7 +431,7 @@ export function createList({ store }) {
       rowsEl.append(empty);
       return;
     }
-    for (const s of shown) rowsEl.append(buildRow(s, ui, quotes, privacy));
+    for (const s of shown) rowsEl.append(buildRow(s, ui, quotes, privacy, mode));
   };
 
   const update = (snapshot) => {
@@ -439,6 +440,7 @@ export function createList({ store }) {
     const business = snapshot?.business ?? { symbols: [] };
     const quotes = snapshot?.quotes ?? {};
     const privacy = business.settings?.privacyMode === true;
+    const trendMode = business.settings?.trendColorMode; // ADR-0009：涨跌语义档（undefined → 解析层默认 red-up）
     const changed = snapshot?.changed; // undefined = 全量（订阅回放/语言切换/旧快照）
     const market = MARKETS.includes(ui.lastMarket) ? ui.lastMarket : "cn";
     // 展示序 = sort 升序（compareBySort：sort → addedAt → id 兜底）；过滤保持相对序
@@ -468,7 +470,7 @@ export function createList({ store }) {
         for (const s of shown) {
           if (!changed.quotes.has(s.id)) continue;
           const row = rowById(s.id);
-          if (row) patchRowDynamic(row, s, ui, quotes, privacy, true);
+          if (row) patchRowDynamic(row, s, ui, quotes, privacy, true, trendMode);
         }
       } else {
         dragSkippedStructural = true;
@@ -479,7 +481,7 @@ export function createList({ store }) {
     if (ui.view !== "list" && !structural) return; // detail 期间不白做（新鲜度：backToList 即时 pollQuotes 保证最新）
 
     if (structural) {
-      rebuildRows(shown, ui, quotes, privacy);
+      rebuildRows(shown, ui, quotes, privacy, trendMode);
       return;
     }
     // quotes-only tick：行内动态域原位写（零节点增删，行身份/焦点天然保留）
@@ -487,7 +489,7 @@ export function createList({ store }) {
     for (const s of shown) {
       if (!changed.quotes.has(s.id)) continue;
       const row = rowById(s.id);
-      if (row) patchRowDynamic(row, s, ui, quotes, privacy, false);
+      if (row) patchRowDynamic(row, s, ui, quotes, privacy, false, trendMode);
     }
   };
 

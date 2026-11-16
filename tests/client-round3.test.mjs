@@ -307,6 +307,7 @@ test("list · 行情 tick 行节点身份不变、焦点不被打断（keyed 行
     assert.equal(again, second, "行情 tick 行节点身份不变（keyed 复用，不再销毁重建）");
     assert.equal(h.document.activeElement, second, "键盘焦点不被打断（焦点抢救补丁退役后由身份复用天然保证）");
     assert.equal(again.querySelector(".skc-row-price")?.children[0]?.textContent, "12.34", "行内价格已原位更新");
+    assert.equal(again.querySelector(".skc-pct")?.textContent, "▲+1.10%", "行情 tick 涨跌幅带 ▲ 前缀（patch 路径，ADR-0009 T6）");
   } finally {
     list?.dispose();
     g.restore();

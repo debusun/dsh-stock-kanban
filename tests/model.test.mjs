@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { normalizeSymbolRecord, patchSymbolRecord, newSymbolRecord, buildExportPayload, parseImportPayload, normalizeGlobal, sanitizeName, defaultGlobal } from "../src/model.mjs";
+import { normalizeSymbolRecord, patchSymbolRecord, newSymbolRecord, buildExportPayload, parseImportPayload, normalizeGlobal, sanitizeName, defaultGlobal, TREND_COLOR_MODES, normalizeTrendColorMode } from "../src/model.mjs";
 
 const BASE = { id: "cn:sh600519", market: "cn", code: "sh600519", quoteCurrency: "CNY", kind: "stock", name: "贵州茅台" };
 
@@ -55,7 +55,7 @@ test("global 归一化：非法回退默认", () => {
   assert.equal(normalizeGlobal({ rev: -1 }).rev, 0);
   assert.equal(normalizeGlobal({ rev: 5, settings: { privacyMode: true } }).settings.privacyMode, true);
   assert.equal(normalizeGlobal({ rev: 5, settings: { privacyMode: "yes" } }).settings.privacyMode, false);
-  assert.deepEqual(defaultGlobal().settings, { privacyMode: false });
+  assert.deepEqual(defaultGlobal().settings, { privacyMode: false, trendColorMode: "red-up" }); // ADR-0009：settings 增加涨跌语义档（T1 新规格）
 });
 
 test("备份导出/导入校验与版本处理（12.1）", () => {
@@ -112,4 +112,42 @@ test("指数记录：目录外代码传 kind=index 降级 stock（不绕过校�
   const built = newSymbolRecord("cn", "sh600519", "贵州茅台", { kind: "index" });
   assert.equal(built.ok, true);
   assert.equal(built.record.kind, "stock");
+});
+
+/* ---------------- 涨跌语义 schema（ADR-0009，实施计划 T1） ---------------- */
+
+test("trendColorMode：normalizeGlobal 三态与非法回退", () => {
+  const ok = normalizeGlobal({ rev: 7, settings: { privacyMode: false, trendColorMode: "green-up" }, updatedAt: "2026-11-16T00:00:00.000Z" });
+  assert.equal(ok.settings.trendColorMode, "green-up");
+  assert.equal(ok.settings.privacyMode, false);
+  assert.equal(normalizeGlobal({ rev: 7, settings: { trendColorMode: "nope" } }).settings.trendColorMode, "red-up");
+  assert.equal(normalizeGlobal({ rev: 7, settings: {} }).settings.trendColorMode, "red-up");
+  assert.equal(normalizeGlobal(null).settings.trendColorMode, "red-up");
+});
+
+test("trendColorMode：TREND_COLOR_MODES 与 normalizeTrendColorMode 导出", () => {
+  assert.deepEqual(TREND_COLOR_MODES, ["red-up", "green-up", "native"]);
+  assert.equal(normalizeTrendColorMode("native"), "native");
+  assert.equal(normalizeTrendColorMode("green-up"), "green-up");
+  assert.equal(normalizeTrendColorMode(undefined), "red-up");
+  assert.equal(normalizeTrendColorMode(42), "red-up");
+});
+
+test("trendColorMode：parseImportPayload 往返与旧备份缺字段补默认", () => {
+  const globalState = normalizeGlobal({ rev: 1, settings: { privacyMode: false, trendColorMode: "native" } });
+  const backup = buildExportPayload(globalState, {});
+  assert.equal(backup.settings.trendColorMode, "native"); // 导出携带（评审 P1）
+  const parsed = parseImportPayload(backup);
+  assert.equal(parsed.ok, true);
+  assert.equal(parsed.settings.trendColorMode, "native");
+  const legacy = parseImportPayload({ kind: backup.kind, schemaVersion: backup.schemaVersion, settings: { privacyMode: true }, symbols: [] });
+  assert.equal(legacy.ok, true);
+  assert.equal(legacy.settings.trendColorMode, "red-up"); // 旧备份缺字段补默认
+});
+
+test("trendColorMode：导出→导入端到端往返 green-up（评审 P1 回归钉）", () => {
+  const globalState = normalizeGlobal({ rev: 2, settings: { privacyMode: true, trendColorMode: "green-up" } });
+  const round = parseImportPayload(buildExportPayload(globalState, {}));
+  assert.equal(round.ok, true);
+  assert.equal(round.settings.trendColorMode, "green-up");
 });
