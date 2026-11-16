@@ -4,69 +4,69 @@
     "tool": "scripts/refresh-pools.mjs",
     "version": 3
   },
-  "generatedAt": "2026-11-13T16:01:24.847Z",
+  "generatedAt": "2026-11-16T03:45:18.900Z",
   "sources": [
     {
       "id": "sse-stock-list",
       "url": "https://query.sse.com.cn/sseQuery/commonQuery.do?isPagination=false&sqlId=COMMON_SSE_CP_GPJCTPZ_GPLB_GP_L&stockType=1&_=1",
-      "retrievedAt": "2026-11-13T16:01:24.847Z",
-      "rawSha256": "884fcb7a18fe657ed15cebf28160ee2515963168cb88931013c34f73e87ba19e",
+      "retrievedAt": "2026-11-16T03:45:18.900Z",
+      "rawSha256": "08ce4bbc7ae22b5ec12d70da8566cc14f59baca5f2c153c08d4d6017345d34b2",
       "records": 2357
     },
     {
       "id": "yunhq-equity",
       "url": "https://yunhq.sse.com.cn:32042/v1/sh1/list/exchange/equity?select=code,name",
-      "retrievedAt": "2026-11-13T16:01:24.847Z",
-      "rawSha256": "026186d00dbda71d613e061e8e59e7bd8cfb3016e6045476061888eebe4ab546",
+      "retrievedAt": "2026-11-16T03:45:18.900Z",
+      "rawSha256": "ef763362d018fe6ee1a4efa6b7aa4ab004e751061b8dcf8c00a1f6c5ee71e529",
       "records": 2319
     },
     {
       "id": "szse-a-list",
       "url": "https://www.szse.cn/api/report/ShowReport/data?SHOWTYPE=JSON&CATALOGID=1110&TABKEY=tab1&PAGENO=1&random=0.5",
-      "retrievedAt": "2026-11-13T16:01:24.847Z",
-      "rawSha256": "a2553842d174bbd9e5f79340066cc5f54be0687038f42aa831c8019472aa28f3",
+      "retrievedAt": "2026-11-16T03:45:18.900Z",
+      "rawSha256": "a9928efc8730de969e6f467dbf659e662618204f0c16dd200e66e36918751538",
       "records": 2905
     },
     {
       "id": "bj-tencent-enum",
       "url": "https://qt.gtimg.cn/q=bj920000..bj920999",
-      "retrievedAt": "2026-11-13T16:01:24.847Z",
-      "rawSha256": "2187cefe52529b9153b70e2d7bd0925fb6c09a9c33620dbd9be17b4d2cdc2e7e",
+      "retrievedAt": "2026-11-16T03:45:18.900Z",
+      "rawSha256": "d6a1c285cf29ce7f2cf5bba14276c45a7c8f2464c869392c382a421bc1ce9b89",
       "records": 357
     },
     {
       "id": "yunhq-etf",
       "url": "https://yunhq.sse.com.cn:32042/v1/sh1/list/exchange/etf?select=code,name",
-      "retrievedAt": "2026-11-13T16:01:24.847Z",
-      "rawSha256": "3190009df16ceab7b62275c3349153386e2898d19b28fee58169d1b980358bf3",
+      "retrievedAt": "2026-11-16T03:45:18.900Z",
+      "rawSha256": "416691d69df2897a6afb0769656590bae81b62f351facc3ea6dd19950789b30f",
       "records": 948
     },
     {
       "id": "szse-etf-list",
       "url": "https://www.szse.cn/api/report/ShowReport/data?SHOWTYPE=JSON&CATALOGID=1945&TABKEY=tab1&PAGENO=1&random=0.5",
-      "retrievedAt": "2026-11-13T16:01:24.847Z",
-      "rawSha256": "c5fa712f21d4eb40a7b8dbf0b62ca4be973bf4a7a3181ca5684d933a364d7c9f",
+      "retrievedAt": "2026-11-16T03:45:18.900Z",
+      "rawSha256": "9129ebe9ac13b00983a2d7c38fea3f83a8b7f3bf776cf35c664e23d261808ab7",
       "records": 772
     },
     {
       "id": "hkex-securities",
       "url": "https://www.hkex.com.hk/eng/services/trading/securities/securitieslists/ListOfSecurities.xlsx",
-      "retrievedAt": "2026-11-13T16:01:24.847Z",
+      "retrievedAt": "2026-11-16T03:45:18.900Z",
       "rawSha256": "da74ebbcbdc708dd74ec153e9dba1a5fdb8ddad4ba96bd95e982c2b0fe2e376f",
       "records": 3066
     },
     {
       "id": "tencent-quote-check",
       "url": "https://qt.gtimg.cn/q=（批量报价校验）",
-      "retrievedAt": "2026-11-13T16:01:24.847Z",
-      "rawSha256": "b105e6a9fa1119a852ecf752ede7871356d0e45ddcb483b6a15e1b0273685c62",
-      "records": 10365
+      "retrievedAt": "2026-11-16T03:45:18.900Z",
+      "rawSha256": "75b32d1bb1c38859b39e90777d37940ef03e49f08774d2f2ca66a58d080f3ade",
+      "records": 10367
     }
   ],
   "files": {
     "a_stocks.json": {
       "records": 5581,
-      "sha256": "3247d091a3a6aa22af493e42358544437b464aca6c5e760e04168f1b14c1e1a9",
+      "sha256": "6c836a01f3749cce427599c984175df2a1ca6d435774fd4fb17394f220f7135a",
       "sources": [
         "yunhq-equity",
         "szse-a-list",
@@ -76,7 +76,7 @@
     },
     "etf_stocks.json": {
       "records": 1720,
-      "sha256": "8786330daed82b8397d9894a3f3010a0da425e3b4e129bc8459c03ea58abdf21",
+      "sha256": "fe6b8720b7dfc469bc0e0d9aaf94a5dd558d0ec2620edda66989d153e9a6a2e7",
       "sources": [
         "yunhq-etf",
         "szse-etf-list",
@@ -84,8 +84,8 @@
       ]
     },
     "hk_stocks.json": {
-      "records": 3064,
-      "sha256": "4f0b36ea36a7590304d092d9ec547132701011a03184fb5626b7b38d6089f77e",
+      "records": 3066,
+      "sha256": "d195d5039336d9093d749c9205cf66d4ee12458b345165ee42e0863ddf76ce17",
       "sources": [
         "hkex-securities",
         "tencent-quote-check"

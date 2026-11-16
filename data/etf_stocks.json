@@ -1,3795 +1,3795 @@
 [
   {
     "code": "sh510010",
-    "name": "治理ETF"
+    "name": "180治理ETF交银"
   },
   {
     "code": "sh510020",
-    "name": "超大ETF"
+    "name": "超大盘ETF博时"
   },
   {
     "code": "sh510030",
-    "name": "价值ETF"
+    "name": "价值ETF华宝"
   },
   {
     "code": "sh510040",
-    "name": "上证180E"
+    "name": "上证180ETF鹏华"
   },
   {
     "code": "sh510050",
-    "name": "50ETF"
+    "name": "上证50ETF华夏"
   },
   {
     "code": "sh510060",
-    "name": "央企ETF"
+    "name": "央企ETF工银"
   },
   {
     "code": "sh510090",
-    "name": "ESG建信"
+    "name": "责任ETF建信"
   },
   {
     "code": "sh510100",
-    "name": "SZ50ETF"
+    "name": "上证50ETF易方达"
   },
   {
     "code": "sh510130",
-    "name": "中盘ETF"
+    "name": "上证中盘ETF易方达"
   },
   {
     "code": "sh510140",
-    "name": "上证指"
+    "name": "上证综指ETF华夏"
   },
   {
     "code": "sh510150",
-    "name": "消费ETF"
+    "name": "消费ETF招商"
   },
   {
     "code": "sh510160",
-    "name": "产业升级"
+    "name": "产业升级ETF南方"
   },
   {
     "code": "sh510170",
-    "name": "商品ETF"
+    "name": "大宗商品ETF国联安"
   },
   {
     "code": "sh510180",
-    "name": "180ETF"
+    "name": "上证180ETF华安"
   },
   {
     "code": "sh510190",
-    "name": "上证50基"
+    "name": "上证50ETF华安"
   },
   {
     "code": "sh510200",
-    "name": "上证券商"
+    "name": "上证券商ETF汇安"
   },
   {
     "code": "sh510210",
-    "name": "综指ETF"
+    "name": "上证指数ETF富国"
   },
   {
     "code": "sh510230",
-    "name": "金融ETF"
+    "name": "金融ETF国泰"
   },
   {
     "code": "sh510270",
-    "name": "国企ETF"
+    "name": "国企ETF中银"
   },
   {
     "code": "sh510290",
-    "name": "380ETF"
+    "name": "上证380ETF南方"
   },
   {
     "code": "sh510300",
-    "name": "300ETF"
+    "name": "沪深300ETF华泰柏瑞"
   },
   {
     "code": "sh510310",
-    "name": "HS300ETF"
+    "name": "沪深300ETF易方达"
   },
   {
     "code": "sh510320",
-    "name": "300中金"
+    "name": "沪深300ETF中金"
   },
   {
     "code": "sh510330",
-    "name": "华夏300"
+    "name": "沪深300ETF华夏"
   },
   {
     "code": "sh510350",
-    "name": "工银300"
+    "name": "沪深300ETF工银"
   },
   {
     "code": "sh510360",
-    "name": "广发300"
+    "name": "沪深300ETF广发"
   },
   {
     "code": "sh510370",
-    "name": "兴业300"
+    "name": "沪深300ETF兴业"
   },
   {
     "code": "sh510380",
-    "name": "国寿300"
+    "name": "沪深300ETF国寿"
   },
   {
     "code": "sh510390",
-    "name": "平安300"
+    "name": "沪深300ETF平安"
   },
   {
     "code": "sh510410",
-    "name": "资源ETF"
+    "name": "资源ETF博时"
   },
   {
     "code": "sh510500",
-    "name": "500ETF"
+    "name": "中证500ETF南方"
   },
   {
     "code": "sh510510",
-    "name": "广发500"
+    "name": "中证500ETF广发"
   },
   {
     "code": "sh510530",
-    "name": "工银500"
+    "name": "中证500ETF工银"
   },
   {
     "code": "sh510550",
-    "name": "方正500"
+    "name": "中证500ETF方正富邦"
   },
   {
     "code": "sh510560",
-    "name": "国寿500"
+    "name": "中证500ETF国寿"
   },
   {
     "code": "sh510570",
-    "name": "兴业500"
+    "name": "中证500ETF兴业"
   },
   {
     "code": "sh510580",
-    "name": "ZZ500ETF"
+    "name": "中证500ETF易方达"
   },
   {
     "code": "sh510590",
-    "name": "平安500"
+    "name": "中证500ETF平安"
   },
   {
     "code": "sh510600",
-    "name": "沪50ETF"
+    "name": "上证50ETF申万菱信"
   },
   {
     "code": "sh510630",
-    "name": "消费30"
+    "name": "消费ETF华夏"
   },
   {
     "code": "sh510650",
-    "name": "金融行业"
+    "name": "金融地产ETF华夏"
   },
   {
     "code": "sh510660",
-    "name": "医药行业"
+    "name": "医药ETF华夏"
   },
   {
     "code": "sh510670",
-    "name": "180指"
+    "name": "上证180ETF华夏"
   },
   {
     "code": "sh510680",
-    "name": "万家50"
+    "name": "上证50ETF万家"
   },
   {
     "code": "sh510710",
-    "name": "上50ETF"
+    "name": "上证50ETF博时"
   },
   {
     "code": "sh510720",
-    "name": "XD红利国"
+    "name": "红利国企ETF国泰"
   },
   {
     "code": "sh510760",
-    "name": "上证ETF"
+    "name": "上证指数ETF国泰"
   },
   {
     "code": "sh510770",
-    "name": "G60创新"
+    "name": "G60创新ETF申万菱信"
   },
   {
     "code": "sh510800",
-    "name": "上证50"
+    "name": "上证50ETF建信"
   },
   {
     "code": "sh510810",
-    "name": "上海国企"
+    "name": "上海国企ETF汇添富"
   },
   {
     "code": "sh510850",
-    "name": "工银上50"
+    "name": "上证50ETF工银"
   },
   {
     "code": "sh510880",
-    "name": "红利ETF"
+    "name": "红利ETF华泰柏瑞"
   },
   {
     "code": "sh510900",
-    "name": "恒生中国"
+    "name": "恒生中国企业ETF易方达"
   },
   {
     "code": "sh510910",
-    "name": "上证指CS"
+    "name": "上证指数ETF南方"
   },
   {
     "code": "sh510950",
-    "name": "上证广发"
+    "name": "上证50ETF广发"
   },
   {
     "code": "sh510980",
-    "name": "上证综合"
+    "name": "上证指数ETF汇添富"
   },
   {
     "code": "sh510990",
-    "name": "ESG180"
+    "name": "180ESGETF工银"
   },
   {
     "code": "sh511010",
-    "name": "国债ETF"
+    "name": "国债ETF国泰"
   },
   {
     "code": "sh511020",
-    "name": "活跃国债"
+    "name": "国债ETF平安"
   },
   {
     "code": "sh511030",
-    "name": "公司债"
+    "name": "公司债ETF平安"
   },
   {
     "code": "sh511060",
-    "name": "5年地债"
+    "name": "5年地方债ETF海富通"
   },
   {
     "code": "sh511070",
-    "name": "沪公司债"
+    "name": "公司债ETF南方"
   },
   {
     "code": "sh511090",
-    "name": "30年国债"
+    "name": "30年国债ETF鹏扬"
   },
   {
     "code": "sh511100",
-    "name": "基准国债"
+    "name": "国债ETF华夏"
   },
   {
     "code": "sh511110",
-    "name": "公司债易"
+    "name": "公司债ETF易方达"
   },
   {
     "code": "sh511120",
-    "name": "科创债基"
+    "name": "科创债ETF广发"
   },
   {
     "code": "sh511130",
-    "name": "国债30年"
+    "name": "30年国债ETF博时"
   },
   {
     "code": "sh511150",
-    "name": "科债永赢"
+    "name": "科创债ETF永赢"
   },
   {
     "code": "sh511160",
-    "name": "国债东财"
+    "name": "国债ETF东财"
   },
   {
     "code": "sh511180",
-    "name": "上证转债"
+    "name": "可转债ETF海富通"
   },
   {
     "code": "sh511190",
-    "name": "信用债"
+    "name": "信用债ETF海富通"
   },
   {
     "code": "sh511200",
-    "name": "信用债基"
+    "name": "信用债ETF华夏"
   },
   {
     "code": "sh511220",
-    "name": "城投ETF"
+    "name": "城投债ETF海富通"
   },
   {
     "code": "sh511260",
-    "name": "十年国债"
+    "name": "十年国债ETF国泰"
   },
   {
     "code": "sh511270",
-    "name": "10年地债"
+    "name": "10年地方债ETF海富通"
   },
   {
     "code": "sh511360",
-    "name": "短融ETF"
+    "name": "短融ETF海富通"
   },
   {
     "code": "sh511380",
-    "name": "转债ETF"
+    "name": "可转债ETF博时"
   },
   {
     "code": "sh511520",
-    "name": "政金债"
+    "name": "政金债ETF富国"
   },
   {
     "code": "sh511580",
-    "name": "国债政金"
+    "name": "国债政金债ETF招商"
   },
   {
     "code": "sh511600",
-    "name": "货币ETF"
+    "name": "华安日日鑫ETF"
   },
   {
     "code": "sh511620",
-    "name": "货币基金"
+    "name": "货币ETF国泰"
   },
   {
     "code": "sh511650",
-    "name": "华夏快线"
+    "name": "货币ETF华夏"
   },
   {
     "code": "sh511660",
-    "name": "建信添益"
+    "name": "货币ETF建信"
   },
   {
     "code": "sh511670",
-    "name": "华泰天金"
+    "name": "华泰天天金ETF"
   },
   {
     "code": "sh511690",
-    "name": "交易货币"
+    "name": "交易货币ETF大成"
   },
   {
     "code": "sh511700",
-    "name": "场内货币"
+    "name": "货币ETF平安"
   },
   {
     "code": "sh511770",
-    "name": "金鹰增益"
+    "name": "金鹰增益货币ETF"
   },
   {
     "code": "sh511800",
-    "name": "易货币"
+    "name": "易方达货币ETF"
   },
   {
     "code": "sh511810",
-    "name": "理财金H"
+    "name": "货币ETF南方"
   },
   {
     "code": "sh511820",
-    "name": "鹏华添利"
+    "name": "鹏华添利ETF"
   },
   {
     "code": "sh511830",
-    "name": "华泰货币"
+    "name": "货币ETF华泰柏瑞"
   },
   {
     "code": "sh511850",
-    "name": "财富宝E"
+    "name": "招商财富宝ETF"
   },
   {
     "code": "sh511860",
-    "name": "博时货币"
+    "name": "货币ETF博时"
   },
   {
     "code": "sh511880",
-    "name": "银华日利"
+    "name": "银华日利ETF"
   },
   {
     "code": "sh511900",
-    "name": "富国货币"
+    "name": "富国货币ETF"
   },
   {
     "code": "sh511910",
-    "name": "融通货币"
+    "name": "融通货币ETF"
   },
   {
     "code": "sh511920",
-    "name": "广发货币"
+    "name": "货币ETF广发"
   },
   {
     "code": "sh511930",
-    "name": "国联日盈"
+    "name": "货币ETF国联"
   },
   {
     "code": "sh511950",
-    "name": "广发添利"
+    "name": "添利货币ETF广发"
   },
   {
     "code": "sh511960",
-    "name": "嘉实快线"
+    "name": "货币ETF嘉实"
   },
   {
     "code": "sh511970",
-    "name": "国寿货币"
+    "name": "国寿货币ETF"
   },
   {
     "code": "sh511980",
-    "name": "现金添富"
+    "name": "货币ETF汇添富"
   },
   {
     "code": "sh511990",
-    "name": "华宝添益"
+    "name": "华宝添益ETF"
   },
   {
     "code": "sh512000",
-    "name": "券商ETF"
+    "name": "券商ETF华宝"
   },
   {
     "code": "sh512010",
-    "name": "医药ETF"
+    "name": "医药ETF易方达"
   },
   {
     "code": "sh512020",
-    "name": "A500"
+    "name": "A500ETF鹏华"
   },
   {
     "code": "sh512030",
-    "name": "A50增"
+    "name": "中证A50增强ETF易方达"
   },
   {
     "code": "sh512040",
-    "name": "国信价值"
+    "name": "价值ETF富国"
   },
   {
     "code": "sh512050",
-    "name": "A500E"
+    "name": "A500ETF华夏"
   },
   {
     "code": "sh512060",
-    "name": "A100指基"
+    "name": "A100ETF天弘"
   },
   {
     "code": "sh512070",
-    "name": "证券保险"
+    "name": "证券保险ETF易方达"
   },
   {
     "code": "sh512080",
-    "name": "A500中金"
+    "name": "A500ETF中金"
   },
   {
     "code": "sh512090",
-    "name": "MSCI易基"
+    "name": "MSCIA股ETF易方达"
   },
   {
     "code": "sh512100",
-    "name": "1000ETF"
+    "name": "中证1000ETF南方"
   },
   {
     "code": "sh512120",
-    "name": "医药50"
+    "name": "医药ETF华安"
   },
   {
     "code": "sh512130",
-    "name": "现金全指"
+    "name": "全指现金流ETF鹏华"
   },
   {
     "code": "sh512140",
-    "name": "电力事业"
+    "name": "电力ETF华安"
   },
   {
     "code": "sh512150",
-    "name": "A50ETF"
+    "name": "富时A50ETF汇安"
   },
   {
     "code": "sh512160",
-    "name": "MSCI基金"
+    "name": "MSCI中国A股ETF南方"
   },
   {
     "code": "sh512170",
-    "name": "医疗ETF"
+    "name": "医疗ETF华宝"
   },
   {
     "code": "sh512180",
-    "name": "建信MSCI"
+    "name": "MSCIA股ETF建信"
   },
   {
     "code": "sh512190",
-    "name": "之江凤凰"
+    "name": "浙商之江凤凰ETF"
   },
   {
     "code": "sh512200",
-    "name": "地产ETF"
+    "name": "房地产ETF南方"
   },
   {
     "code": "sh512220",
-    "name": "TMTETF"
+    "name": "TMTETF景顺"
   },
   {
     "code": "sh512240",
-    "name": "A50龙头"
+    "name": "A50ETF鹏华"
   },
   {
     "code": "sh512250",
-    "name": "A50指数E"
+    "name": "A50ETF招商"
   },
   {
     "code": "sh512260",
-    "name": "500低波"
+    "name": "中证500低波动ETF华安"
   },
   {
     "code": "sh512290",
-    "name": "生物医药"
+    "name": "生物医药ETF国泰"
   },
   {
     "code": "sh512330",
-    "name": "信息ETF"
+    "name": "信息科技ETF南方"
   },
   {
     "code": "sh512360",
-    "name": "MSCI国际"
+    "name": "MSCIA股ETF平安"
   },
   {
     "code": "sh512370",
-    "name": "A500增指"
+    "name": "A500增强ETF华夏"
   },
   {
     "code": "sh512380",
-    "name": "MSCI中国"
+    "name": "MSCI中国ETF银华"
   },
   {
     "code": "sh512400",
-    "name": "有色ETF"
+    "name": "有色金属ETF南方"
   },
   {
     "code": "sh512410",
-    "name": "银行广发"
+    "name": "银行ETF广发"
   },
   {
     "code": "sh512420",
-    "name": "机械华安"
+    "name": "工程机械ETF华安"
   },
   {
     "code": "sh512430",
-    "name": "家电家居"
+    "name": "家居家电ETF华泰柏瑞"
   },
   {
     "code": "sh512450",
-    "name": "广发养殖"
+    "name": "畜牧养殖ETF广发"
   },
   {
     "code": "sh512460",
-    "name": "电池主题"
+    "name": "电池ETF华夏"
   },
   {
     "code": "sh512470",
-    "name": "工有色GF"
+    "name": "工业有色ETF广发"
   },
   {
     "code": "sh512480",
-    "name": "半导体"
+    "name": "半导体ETF国联安"
   },
   {
     "code": "sh512500",
-    "name": "中证500"
+    "name": "中证500ETF华夏"
   },
   {
     "code": "sh512510",
-    "name": "ETF500"
+    "name": "中证500ETF华泰柏瑞"
   },
   {
     "code": "sh512520",
-    "name": "MSCIETF"
+    "name": "MSCI中国ETF华泰柏瑞"
   },
   {
     "code": "sh512530",
-    "name": "300红利"
+    "name": "沪深300红利ETF建信"
   },
   {
     "code": "sh512550",
-    "name": "A50基金"
+    "name": "富时A50ETF嘉实"
   },
   {
     "code": "sh512560",
-    "name": "中证军工"
+    "name": "军工ETF易方达"
   },
   {
     "code": "sh512570",
-    "name": "中证证券"
+    "name": "证券ETF易方达"
   },
   {
     "code": "sh512580",
-    "name": "环保ETF"
+    "name": "环保ETF广发"
   },
   {
     "code": "sh512600",
-    "name": "必选消费"
+    "name": "消费ETF嘉实"
   },
   {
     "code": "sh512620",
-    "name": "农业TH"
+    "name": "农业ETF天弘"
   },
   {
     "code": "sh512630",
-    "name": "卫星基金"
+    "name": "卫星ETF广发"
   },
   {
     "code": "sh512640",
-    "name": "金融地产"
+    "name": "金融地产ETF嘉实"
   },
   {
     "code": "sh512650",
-    "name": "长三角"
+    "name": "长三角ETF汇添富"
   },
   {
     "code": "sh512660",
-    "name": "军工ETF"
+    "name": "军工ETF国泰"
   },
   {
     "code": "sh512670",
-    "name": "国防ETF"
+    "name": "国防ETF鹏华"
   },
   {
     "code": "sh512680",
-    "name": "军工基金"
+    "name": "军工ETF广发"
   },
   {
     "code": "sh512690",
-    "name": "酒ETF"
+    "name": "酒ETF鹏华"
   },
   {
     "code": "sh512700",
-    "name": "银行基金"
+    "name": "银行ETF南方"
   },
   {
     "code": "sh512710",
-    "name": "军工龙头"
+    "name": "军工龙头ETF富国"
   },
   {
     "code": "sh512720",
-    "name": "计算机"
+    "name": "计算机ETF国泰"
   },
   {
     "code": "sh512730",
-    "name": "银行FUND"
+    "name": "银行ETF鹏华"
   },
   {
     "code": "sh512740",
-    "name": "车零件GF"
+    "name": "汽车零部件ETF广发"
   },
   {
     "code": "sh512750",
-    "name": "基本面50"
+    "name": "基本面50ETF嘉实"
   },
   {
     "code": "sh512760",
-    "name": "芯片ETF"
+    "name": "芯片ETF国泰"
   },
   {
     "code": "sh512770",
-    "name": "战略新兴"
+    "name": "战略新兴ETF华夏"
   },
   {
     "code": "sh512800",
-    "name": "银行ETF"
+    "name": "银行ETF华宝"
   },
   {
     "code": "sh512810",
-    "name": "国防军工"
+    "name": "军工ETF华宝"
   },
   {
     "code": "sh512820",
-    "name": "银行股基"
+    "name": "银行ETF汇添富"
   },
   {
     "code": "sh512870",
-    "name": "杭州湾区"
+    "name": "杭州湾区ETF南华"
   },
   {
     "code": "sh512880",
-    "name": "证券ETF"
+    "name": "证券ETF国泰"
   },
   {
     "code": "sh512890",
-    "name": "红利低波"
+    "name": "红利低波ETF华泰柏瑞"
   },
   {
     "code": "sh512900",
-    "name": "证券基金"
+    "name": "证券ETF南方"
   },
   {
     "code": "sh512910",
-    "name": "100ETF"
+    "name": "A100ETF广发"
   },
   {
     "code": "sh512930",
-    "name": "AIETF"
+    "name": "AI人工智能ETF平安"
   },
   {
     "code": "sh512940",
-    "name": "有色矿业"
+    "name": "有色ETF华安"
   },
   {
     "code": "sh512950",
-    "name": "央企改革"
+    "name": "央企改革ETF华夏"
   },
   {
     "code": "sh512960",
-    "name": "央调ETF"
+    "name": "央企结构调整ETF博时"
   },
   {
     "code": "sh512970",
-    "name": "湾区ETF"
+    "name": "大湾区ETF平安"
   },
   {
     "code": "sh512980",
-    "name": "传媒ETF"
+    "name": "传媒ETF广发"
   },
   {
     "code": "sh512990",
-    "name": "MSCIA股"
+    "name": "MSCIA股ETF华夏"
   },
   {
     "code": "sh513000",
-    "name": "225ETF"
+    "name": "日经225ETF易方达"
   },
   {
     "code": "sh513010",
-    "name": "港股科技"
+    "name": "恒生科技ETF易方达"
   },
   {
     "code": "sh513020",
-    "name": "科技HK"
+    "name": "港股科技ETF国泰"
   },
   {
     "code": "sh513030",
-    "name": "德国ETF"
+    "name": "德国ETF华安"
   },
   {
     "code": "sh513040",
-    "name": "HK互联网"
+    "name": "港股通互联网ETF易方达"
   },
   {
     "code": "sh513050",
-    "name": "中概互联"
+    "name": "中概互联网ETF易方达"
   },
   {
     "code": "sh513060",
-    "name": "恒生医疗"
+    "name": "恒生医疗ETF博时"
   },
   {
     "code": "sh513070",
-    "name": "HK消费50"
+    "name": "港股通消费ETF易方达"
   },
   {
     "code": "sh513080",
-    "name": "法国ETF"
+    "name": "法国ETF华安"
   },
   {
     "code": "sh513090",
-    "name": "香港证券"
+    "name": "香港证券ETF易方达"
   },
   {
     "code": "sh513100",
-    "name": "纳指ETF"
+    "name": "纳指ETF国泰"
   },
   {
     "code": "sh513110",
-    "name": "纳指100"
+    "name": "纳指ETF华泰柏瑞"
   },
   {
     "code": "sh513120",
-    "name": "HK创新药"
+    "name": "港股创新药ETF广发"
   },
   {
     "code": "sh513130",
-    "name": "恒生科技"
+    "name": "恒生科技ETF华泰柏瑞"
   },
   {
     "code": "sh513140",
-    "name": "港股金融"
+    "name": "港股通金融ETF华泰柏瑞"
   },
   {
     "code": "sh513150",
-    "name": "港科技50"
+    "name": "港股通科技ETF华泰柏瑞"
   },
   {
     "code": "sh513160",
-    "name": "科技30"
+    "name": "港股科技ETF银华"
   },
   {
     "code": "sh513170",
-    "name": "恒生央企"
+    "name": "恒生央企ETF鹏华"
   },
   {
     "code": "sh513180",
-    "name": "恒指科技"
+    "name": "恒生科技ETF华夏"
   },
   {
     "code": "sh513190",
-    "name": "H股金融"
+    "name": "港股通金融ETF华夏"
   },
   {
     "code": "sh513200",
-    "name": "港股医药"
+    "name": "港股通医药ETF易方达"
   },
   {
     "code": "sh513210",
-    "name": "恒生E"
+    "name": "恒生ETF易方达"
   },
   {
     "code": "sh513220",
-    "name": "互联网30"
+    "name": "中概互联ETF招商"
   },
   {
     "code": "sh513230",
-    "name": "H股消费"
+    "name": "港股通消费ETF华夏"
   },
   {
     "code": "sh513240",
-    "name": "港信息"
+    "name": "港股通信息技术ETF华安"
   },
   {
     "code": "sh513260",
-    "name": "恒科技"
+    "name": "恒生科技ETF汇添富"
   },
   {
     "code": "sh513280",
-    "name": "恒生生物"
+    "name": "恒生生物科技ETF汇添富"
   },
   {
     "code": "sh513290",
-    "name": "纳指生物"
+    "name": "纳指生物科技ETF汇添富"
   },
   {
     "code": "sh513300",
-    "name": "纳斯达克"
+    "name": "纳斯达克ETF华夏"
   },
   {
     "code": "sh513310",
-    "name": "中韩芯片"
+    "name": "中韩半导体ETF华泰柏瑞"
   },
   {
     "code": "sh513320",
-    "name": "HK新经济"
+    "name": "港股通新经济ETF易方达"
   },
   {
     "code": "sh513330",
-    "name": "恒生互联"
+    "name": "恒生互联网ETF华夏"
   },
   {
     "code": "sh513350",
-    "name": "油气ETF"
+    "name": "标普油气ETF富国"
   },
   {
     "code": "sh513360",
-    "name": "教育ETF"
+    "name": "教育ETF博时"
   },
   {
     "code": "sh513380",
-    "name": "科技恒生"
+    "name": "恒生科技ETF广发"
   },
   {
     "code": "sh513390",
-    "name": "纳指基金"
+    "name": "纳指100ETF博时"
   },
   {
     "code": "sh513400",
-    "name": "道琼斯"
+    "name": "道琼斯ETF鹏华"
   },
   {
     "code": "sh513500",
-    "name": "标普500"
+    "name": "标普500ETF博时"
   },
   {
     "code": "sh513520",
-    "name": "日经ETF"
+    "name": "日经ETF华夏"
   },
   {
     "code": "sh513530",
-    "name": "港股红利"
+    "name": "XD港股通红利ETF华泰柏瑞"
   },
   {
     "code": "sh513550",
-    "name": "港股通50"
+    "name": "港股通50ETF华泰柏瑞"
   },
   {
     "code": "sh513560",
-    "name": "香港科技"
+    "name": "香港科技ETF兴银"
   },
   {
     "code": "sh513580",
-    "name": "HS科技"
+    "name": "恒生科技ETF华安"
   },
   {
     "code": "sh513590",
-    "name": "香港消费"
+    "name": "港股通消费ETF鹏华"
   },
   {
     "code": "sh513600",
-    "name": "恒指ETF"
+    "name": "恒生指数ETF南方"
   },
   {
     "code": "sh513620",
-    "name": "港医疗指"
+    "name": "港股医疗ETF银华"
   },
   {
     "code": "sh513630",
-    "name": "香港红利"
+    "name": "港股低波红利ETF摩根"
   },
   {
     "code": "sh513650",
-    "name": "标普ETF"
+    "name": "标普500ETF南方"
   },
   {
     "code": "sh513660",
-    "name": "恒生通"
+    "name": "恒生ETF华夏"
   },
   {
     "code": "sh513690",
-    "name": "港红利股"
+    "name": "港股红利ETF博时"
   },
   {
     "code": "sh513700",
-    "name": "香港医药"
+    "name": "港股通医药ETF鹏华"
   },
   {
     "code": "sh513720",
-    "name": "香港互联"
+    "name": "港股互联网ETF国泰"
   },
   {
     "code": "sh513730",
-    "name": "东南亚"
+    "name": "东南亚科技ETF华泰柏瑞"
   },
   {
     "code": "sh513750",
-    "name": "港股非银"
+    "name": "港股通非银ETF广发"
   },
   {
     "code": "sh513770",
-    "name": "港股互联"
+    "name": "港股互联网ETF华宝"
   },
   {
     "code": "sh513780",
-    "name": "港股新药"
+    "name": "港股创新药ETF景顺"
   },
   {
     "code": "sh513800",
-    "name": "东证ETF"
+    "name": "日本东证指数ETF南方"
   },
   {
     "code": "sh513810",
-    "name": "港股国企"
+    "name": "港股国企ETF华夏"
   },
   {
     "code": "sh513820",
-    "name": "港股分红"
+    "name": "港股通红利ETF汇添富"
   },
   {
     "code": "sh513830",
-    "name": "红利港股"
+    "name": "港股通高股息ETF嘉实"
   },
   {
     "code": "sh513850",
-    "name": "美国50"
+    "name": "美国50ETF易方达"
   },
   {
     "code": "sh513860",
-    "name": "HKC科技"
+    "name": "港股通科技ETF海富通"
   },
   {
     "code": "sh513870",
-    "name": "纳指指数"
+    "name": "纳指ETF富国"
   },
   {
     "code": "sh513880",
-    "name": "日经225"
+    "name": "日经225ETF华安"
   },
   {
     "code": "sh513890",
-    "name": "HK科技"
+    "name": "恒生科技ETF摩根"
   },
   {
     "code": "sh513900",
-    "name": "港股100"
+    "name": "港股通100ETF华安"
   },
   {
     "code": "sh513910",
-    "name": "红利央企"
+    "name": "港股通央企红利ETF华夏"
   },
   {
     "code": "sh513920",
-    "name": "央企40"
+    "name": "港股通央企红利ETF华安"
   },
   {
     "code": "sh513930",
-    "name": "香港生科"
+    "name": "恒生生物科技ETF华泰柏瑞"
   },
   {
     "code": "sh513950",
-    "name": "恒生红利"
+    "name": "恒生红利ETF富国"
   },
   {
     "code": "sh513970",
-    "name": "恒生消费"
+    "name": "恒生消费ETF景顺"
   },
   {
     "code": "sh513980",
-    "name": "科技港股"
+    "name": "港股科技ETF景顺"
   },
   {
     "code": "sh513990",
-    "name": "港股通综"
+    "name": "港股通ETF招商"
   },
   {
     "code": "sh515000",
-    "name": "科技ETF"
+    "name": "科技ETF华宝"
   },
   {
     "code": "sh515010",
-    "name": "华夏证券"
+    "name": "证券ETF华夏"
   },
   {
     "code": "sh515020",
-    "name": "银行指数"
+    "name": "银行ETF华夏"
   },
   {
     "code": "sh515030",
-    "name": "新汽车"
+    "name": "新能源车ETF华夏"
   },
   {
     "code": "sh515040",
-    "name": "工业金属"
+    "name": "工业有色ETF华夏"
   },
   {
     "code": "sh515050",
-    "name": "5GETF"
+    "name": "通信ETF华夏"
   },
   {
     "code": "sh515060",
-    "name": "华夏地产"
+    "name": "房地产ETF华夏"
   },
   {
     "code": "sh515070",
-    "name": "AI智能"
+    "name": "人工智能ETF华夏"
   },
   {
     "code": "sh515080",
-    "name": "中证红利"
+    "name": "中证红利ETF招商"
   },
   {
     "code": "sh515090",
-    "name": "可持续"
+    "name": "可持续发展ETF博时"
   },
   {
     "code": "sh515100",
-    "name": "红利100"
+    "name": "红利低波100ETF景顺"
   },
   {
     "code": "sh515110",
-    "name": "国企方达"
+    "name": "一带一路ETF易方达"
   },
   {
     "code": "sh515120",
-    "name": "创新药"
+    "name": "创新药ETF广发"
   },
   {
     "code": "sh515130",
-    "name": "HS300E"
+    "name": "沪深300ETF博时"
   },
   {
     "code": "sh515150",
-    "name": "国企富国"
+    "name": "一带一路ETF富国"
   },
   {
     "code": "sh515160",
-    "name": "MSCI招商"
+    "name": "MSCI中国ETF招商"
   },
   {
     "code": "sh515170",
-    "name": "食品饮料"
+    "name": "食品饮料ETF华夏"
   },
   {
     "code": "sh515180",
-    "name": "100红利"
+    "name": "红利ETF易方达"
   },
   {
     "code": "sh515190",
-    "name": "BOCI500"
+    "name": "中证500ETF中银证券"
   },
   {
     "code": "sh515200",
-    "name": "创新100"
+    "name": "创新100ETF申万菱信"
   },
   {
     "code": "sh515210",
-    "name": "钢铁ETF"
+    "name": "钢铁ETF国泰"
   },
   {
     "code": "sh515220",
-    "name": "煤炭ETF"
+    "name": "煤炭ETF国泰"
   },
   {
     "code": "sh515230",
-    "name": "软件ETF"
+    "name": "软件ETF国泰"
   },
   {
     "code": "sh515250",
-    "name": "智能汽车"
+    "name": "智能汽车ETF富国"
   },
   {
     "code": "sh515260",
-    "name": "电子ETF"
+    "name": "电子ETF华宝"
   },
   {
     "code": "sh515290",
-    "name": "银行"
+    "name": "银行ETF天弘"
   },
   {
     "code": "sh515300",
-    "name": "红利300"
+    "name": "300红利低波ETF嘉实"
   },
   {
     "code": "sh515310",
-    "name": "添富300"
+    "name": "沪深300ETF汇添富"
   },
   {
     "code": "sh515320",
-    "name": "电子50"
+    "name": "电子50ETF华安"
   },
   {
     "code": "sh515330",
-    "name": "天弘300"
+    "name": "沪深300ETF天弘"
   },
   {
     "code": "sh515350",
-    "name": "民生300"
+    "name": "沪深300ETF民生加银"
   },
   {
     "code": "sh515360",
-    "name": "方正300"
+    "name": "沪深300ETF方正富邦"
   },
   {
     "code": "sh515370",
-    "name": "中证光伏"
+    "name": "光伏ETF华夏"
   },
   {
     "code": "sh515380",
-    "name": "泰康300"
+    "name": "沪深300ETF泰康"
   },
   {
     "code": "sh515390",
-    "name": "HS300"
+    "name": "沪深300ETF华安"
   },
   {
     "code": "sh515400",
-    "name": "大数据"
+    "name": "大数据ETF富国"
   },
   {
     "code": "sh515440",
-    "name": "A股南方"
+    "name": "A股ETF南方"
   },
   {
     "code": "sh515450",
-    "name": "红利50"
+    "name": "红利低波50ETF南方"
   },
   {
     "code": "sh515460",
-    "name": "质量红利"
+    "name": "红利质量ETF南方"
   },
   {
     "code": "sh515470",
-    "name": "AI南方"
+    "name": "人工智能ETF南方"
   },
   {
     "code": "sh515480",
-    "name": "红利一百"
+    "name": "红利低波100ETF南方"
   },
   {
     "code": "sh515530",
-    "name": "泰康500"
+    "name": "中证500ETF泰康"
   },
   {
     "code": "sh515540",
-    "name": "有色PY"
+    "name": "工业有色ETF浦银"
   },
   {
     "code": "sh515550",
-    "name": "国联500"
+    "name": "中证500ETF国联"
   },
   {
     "code": "sh515560",
-    "name": "证券E"
+    "name": "证券ETF建信"
   },
   {
     "code": "sh515580",
-    "name": "中证科技"
+    "name": "科技100ETF华泰柏瑞"
   },
   {
     "code": "sh515590",
-    "name": "500ETFEW"
+    "name": "500等权ETF前海开源"
   },
   {
     "code": "sh515600",
-    "name": "央企创新"
+    "name": "央企创新ETF广发"
   },
   {
     "code": "sh515630",
-    "name": "保险证券"
+    "name": "证券保险ETF鹏华"
   },
   {
     "code": "sh515640",
-    "name": "家电指数"
+    "name": "家电ETF华夏"
   },
   {
     "code": "sh515650",
-    "name": "消费50"
+    "name": "消费50ETF富国"
   },
   {
     "code": "sh515660",
-    "name": "沪深300E"
+    "name": "沪深300ETF国联安"
   },
   {
     "code": "sh515680",
-    "name": "创新央企"
+    "name": "央企创新ETF嘉实"
   },
   {
     "code": "sh515700",
-    "name": "新能车"
+    "name": "新能源车ETF平安"
   },
   {
     "code": "sh515710",
-    "name": "食品ETF"
+    "name": "食品饮料ETF华宝"
   },
   {
     "code": "sh515720",
-    "name": "金科富国"
+    "name": "金融科技ETF富国"
   },
   {
     "code": "sh515730",
-    "name": "家居家电"
+    "name": "家居家电ETF永赢"
   },
   {
     "code": "sh515750",
-    "name": "科技50"
+    "name": "科技50ETF富国"
   },
   {
     "code": "sh515760",
-    "name": "浙江国资"
+    "name": "浙江国资ETF华夏"
   },
   {
     "code": "sh515770",
-    "name": "MSCIAETF"
+    "name": "MSCI中国A股ETF摩根"
   },
   {
     "code": "sh515790",
-    "name": "光伏ETF"
+    "name": "光伏ETF华泰柏瑞"
   },
   {
     "code": "sh515800",
-    "name": "800ETF"
+    "name": "中证800ETF汇添富"
   },
   {
     "code": "sh515810",
-    "name": "ZZ800ETF"
+    "name": "中证800ETF易方达"
   },
   {
     "code": "sh515840",
-    "name": "食品南方"
+    "name": "食品ETF南方"
   },
   {
     "code": "sh515850",
-    "name": "证券龙头"
+    "name": "证券ETF富国"
   },
   {
     "code": "sh515860",
-    "name": "科技100"
+    "name": "科技ETF嘉实"
   },
   {
     "code": "sh515880",
-    "name": "通信ETF"
+    "name": "通信ETF国泰"
   },
   {
     "code": "sh515890",
-    "name": "红利博时"
+    "name": "红利ETF博时"
   },
   {
     "code": "sh515900",
-    "name": "央创ETF"
+    "name": "央企创新ETF博时"
   },
   {
     "code": "sh515910",
-    "name": "质量ETF"
+    "name": "质量ETF中金"
   },
   {
     "code": "sh515920",
-    "name": "智能消费"
+    "name": "智能消费ETF博时"
   },
   {
     "code": "sh515940",
-    "name": "电网南方"
+    "name": "电网设备ETF南方"
   },
   {
     "code": "sh515950",
-    "name": "医药龙头"
+    "name": "医药50ETF富国"
   },
   {
     "code": "sh515960",
-    "name": "医药100"
+    "name": "医药ETF嘉实"
   },
   {
     "code": "sh515970",
-    "name": "华夏机械"
+    "name": "工程机械ETF华夏"
   },
   {
     "code": "sh515980",
-    "name": "人工智能"
+    "name": "人工智能ETF华富"
   },
   {
     "code": "sh515990",
-    "name": "添富国企"
+    "name": "一带一路ETF汇添富"
   },
   {
     "code": "sh516000",
-    "name": "数据ETF"
+    "name": "大数据ETF华夏"
   },
   {
     "code": "sh516010",
-    "name": "游戏ETF"
+    "name": "游戏ETF国泰"
   },
   {
     "code": "sh516020",
-    "name": "化工ETF"
+    "name": "化工ETF华宝"
   },
   {
     "code": "sh516040",
-    "name": "现金300"
+    "name": "300现金流ETF华夏"
   },
   {
     "code": "sh516050",
-    "name": "科技龙头"
+    "name": "科技龙头ETF工银"
   },
   {
     "code": "sh516060",
-    "name": "新药ETF"
+    "name": "创新药ETF工银"
   },
   {
     "code": "sh516070",
-    "name": "碳中和50"
+    "name": "低碳ETF易方达"
   },
   {
     "code": "sh516080",
-    "name": "创新医药"
+    "name": "创新药ETF易方达"
   },
   {
     "code": "sh516090",
-    "name": "新能源E"
+    "name": "新能源ETF易方达"
   },
   {
     "code": "sh516100",
-    "name": "科技金融"
+    "name": "金融科技ETF华夏"
   },
   {
     "code": "sh516110",
-    "name": "汽车ETF"
+    "name": "汽车ETF国泰"
   },
   {
     "code": "sh516120",
-    "name": "化工50"
+    "name": "化工ETF富国"
   },
   {
     "code": "sh516130",
-    "name": "消费龙头"
+    "name": "消费龙头ETF华宝"
   },
   {
     "code": "sh516150",
-    "name": "稀土基金"
+    "name": "稀土ETF嘉实"
   },
   {
     "code": "sh516160",
-    "name": "新能源"
+    "name": "新能源ETF南方"
   },
   {
     "code": "sh516180",
-    "name": "光伏产业"
+    "name": "光伏ETF平安"
   },
   {
     "code": "sh516190",
-    "name": "文娱ETF"
+    "name": "传媒ETF华夏"
   },
   {
     "code": "sh516200",
-    "name": "证券行业"
+    "name": "证券ETF华安"
   },
   {
     "code": "sh516210",
-    "name": "银行股"
+    "name": "银行ETF华安"
   },
   {
     "code": "sh516220",
-    "name": "化工龙头"
+    "name": "化工ETF国泰"
   },
   {
     "code": "sh516230",
-    "name": "光伏招商"
+    "name": "光伏ETF招商"
   },
   {
     "code": "sh516250",
-    "name": "富国机械"
+    "name": "工程机械ETF富国"
   },
   {
     "code": "sh516260",
-    "name": "物联网50"
+    "name": "物联网ETF华夏"
   },
   {
     "code": "sh516270",
-    "name": "新能源50"
+    "name": "新能源ETF华安"
   },
   {
     "code": "sh516290",
-    "name": "光伏基金"
+    "name": "光伏ETF汇添富"
   },
   {
     "code": "sh516300",
-    "name": "中证1000"
+    "name": "中证1000ETF华泰柏瑞"
   },
   {
     "code": "sh516310",
-    "name": "银行指基"
+    "name": "银行ETF易方达"
   },
   {
     "code": "sh516320",
-    "name": "装备ETF"
+    "name": "高端装备ETF华夏"
   },
   {
     "code": "sh516330",
-    "name": "物联网"
+    "name": "物联网ETF华泰柏瑞"
   },
   {
     "code": "sh516350",
-    "name": "芯片50"
+    "name": "芯片ETF易方达"
   },
   {
     "code": "sh516360",
-    "name": "新材料"
+    "name": "新材料ETF华宝"
   },
   {
     "code": "sh516370",
-    "name": "全指电力"
+    "name": "电力ETF汇添富"
   },
   {
     "code": "sh516380",
-    "name": "智能电车"
+    "name": "智能电动车ETF华宝"
   },
   {
     "code": "sh516390",
-    "name": "电动车"
+    "name": "新能源车ETF汇添富"
   },
   {
     "code": "sh516440",
-    "name": "南方机械"
+    "name": "工程机械ETF南方"
   },
   {
     "code": "sh516460",
-    "name": "现金流E"
+    "name": "现金流ETF800鹏华"
   },
   {
     "code": "sh516500",
-    "name": "生物ETF"
+    "name": "生物科技ETF华夏"
   },
   {
     "code": "sh516510",
-    "name": "云计算"
+    "name": "云计算ETF易方达"
   },
   {
     "code": "sh516520",
-    "name": "智能驾驶"
+    "name": "智能驾驶ETF华泰柏瑞"
   },
   {
     "code": "sh516530",
-    "name": "物流快递"
+    "name": "物流ETF银华"
   },
   {
     "code": "sh516550",
-    "name": "农业ETF"
+    "name": "农业ETF嘉实"
   },
   {
     "code": "sh516560",
-    "name": "养老ETF"
+    "name": "养老ETF华宝"
   },
   {
     "code": "sh516570",
-    "name": "石化ETF"
+    "name": "石化ETF易方达"
   },
   {
     "code": "sh516580",
-    "name": "新能源BS"
+    "name": "新能源ETF博时"
   },
   {
     "code": "sh516590",
-    "name": "电动汽车"
+    "name": "智能汽车ETF易方达"
   },
   {
     "code": "sh516600",
-    "name": "消服ETF"
+    "name": "消费服务ETF工银"
   },
   {
     "code": "sh516610",
-    "name": "医服ETF"
+    "name": "医疗设备ETF大成"
   },
   {
     "code": "sh516620",
-    "name": "影视ETF"
+    "name": "影视ETF国泰"
   },
   {
     "code": "sh516630",
-    "name": "云计算50"
+    "name": "云计算ETF华夏"
   },
   {
     "code": "sh516640",
-    "name": "芯片龙头"
+    "name": "芯片ETF富国"
   },
   {
     "code": "sh516650",
-    "name": "有色50"
+    "name": "有色金属ETF华夏"
   },
   {
     "code": "sh516660",
-    "name": "新能汽车"
+    "name": "新能源车ETF华安"
   },
   {
     "code": "sh516670",
-    "name": "畜牧养殖"
+    "name": "畜牧养殖ETF招商"
   },
   {
     "code": "sh516700",
-    "name": "数据产业"
+    "name": "大数据ETF华宝"
   },
   {
     "code": "sh516710",
-    "name": "新材料50"
+    "name": "新材料ETF华夏"
   },
   {
     "code": "sh516720",
-    "name": "ESGETF"
+    "name": "ESGETF浦银"
   },
   {
     "code": "sh516730",
-    "name": "证券公司"
+    "name": "证券ETF浦银"
   },
   {
     "code": "sh516750",
-    "name": "建材ETF"
+    "name": "建材ETF富国"
   },
   {
     "code": "sh516760",
-    "name": "养殖ETF"
+    "name": "养殖ETF平安"
   },
   {
     "code": "sh516770",
-    "name": "游戏动漫"
+    "name": "游戏ETF华泰柏瑞"
   },
   {
     "code": "sh516780",
-    "name": "稀土ETF"
+    "name": "稀土ETF华泰柏瑞"
   },
   {
     "code": "sh516790",
-    "name": "保健ETF"
+    "name": "医疗ETF华泰柏瑞"
   },
   {
     "code": "sh516800",
-    "name": "智能制造"
+    "name": "智能制造ETF华宝"
   },
   {
     "code": "sh516810",
-    "name": "农业"
+    "name": "农业ETF华夏"
   },
   {
     "code": "sh516820",
-    "name": "医疗创新"
+    "name": "医疗创新ETF平安"
   },
   {
     "code": "sh516830",
-    "name": "300ESG"
+    "name": "沪深300ESGETF富国"
   },
   {
     "code": "sh516840",
-    "name": "汽车基金"
+    "name": "汽车ETF南方"
   },
   {
     "code": "sh516850",
-    "name": "新能源80"
+    "name": "新能源ETF华夏"
   },
   {
     "code": "sh516860",
-    "name": "金融科技"
+    "name": "金融科技ETF博时"
   },
   {
     "code": "sh516880",
-    "name": "光伏50"
+    "name": "光伏ETF银华"
   },
   {
     "code": "sh516890",
-    "name": "新材ETF"
+    "name": "新材料ETF平安"
   },
   {
     "code": "sh516900",
-    "name": "食品50"
+    "name": "食品饮料ETF华安"
   },
   {
     "code": "sh516910",
-    "name": "物流ETF"
+    "name": "物流ETF富国"
   },
   {
     "code": "sh516920",
-    "name": "芯片基金"
+    "name": "芯片ETF汇添富"
   },
   {
     "code": "sh516930",
-    "name": "生科ETF"
+    "name": "生物科技ETF民生加银"
   },
   {
     "code": "sh516950",
-    "name": "基建ETF"
+    "name": "基建ETF银华"
   },
   {
     "code": "sh516960",
-    "name": "机械ETF"
+    "name": "机械ETF国泰"
   },
   {
     "code": "sh516970",
-    "name": "基建50"
+    "name": "基建ETF广发"
   },
   {
     "code": "sh516980",
-    "name": "证券先锋"
+    "name": "证券先锋ETF华富"
   },
   {
     "code": "sh517000",
-    "name": "沪港深"
+    "name": "沪港深500ETF银华"
   },
   {
     "code": "sh517010",
-    "name": "HGS500E"
+    "name": "沪港深500ETF易方达"
   },
   {
     "code": "sh517030",
-    "name": "HGS300"
+    "name": "沪港深300ETF易方达"
   },
   {
     "code": "sh517050",
-    "name": "互联网50"
+    "name": "互联网ETF华泰柏瑞"
   },
   {
     "code": "sh517080",
-    "name": "HGS500"
+    "name": "沪港深500ETF汇添富"
   },
   {
     "code": "sh517090",
-    "name": "共赢ETF"
+    "name": "央企共赢ETF国泰"
   },
   {
     "code": "sh517100",
-    "name": "AH500ETF"
+    "name": "沪港深500ETF富国"
   },
   {
     "code": "sh517110",
-    "name": "创新药HK"
+    "name": "创新药ETF国泰"
   },
   {
     "code": "sh517120",
-    "name": "创新药50"
+    "name": "创新药ETF华泰柏瑞"
   },
   {
     "code": "sh517130",
-    "name": "云计算JS"
+    "name": "云计算ETF嘉实"
   },
   {
     "code": "sh517160",
-    "name": "长江ETF"
+    "name": "长江保护ETF南方"
   },
   {
     "code": "sh517170",
-    "name": "沪港深E"
+    "name": "沪港深500ETF华夏"
   },
   {
     "code": "sh517180",
-    "name": "中国国企"
+    "name": "中国国企ETF南方"
   },
   {
     "code": "sh517200",
-    "name": "互联网"
+    "name": "互联网ETF嘉实"
   },
   {
     "code": "sh517230",
-    "name": "云计算MW"
+    "name": "云计算ETF永赢"
   },
   {
     "code": "sh517300",
-    "name": "AH300ETF"
+    "name": "沪港深300ETF国寿"
   },
   {
     "code": "sh517330",
-    "name": "长江保护"
+    "name": "长江保护ETF易方达"
   },
   {
     "code": "sh517350",
-    "name": "龙头科技"
+    "name": "沪港深科技ETF广发"
   },
   {
     "code": "sh517360",
-    "name": "AH科技"
+    "name": "沪港深科技ETF华安"
   },
   {
     "code": "sh517380",
-    "name": "创新药AH"
+    "name": "创新药ETF天弘"
   },
   {
     "code": "sh517390",
-    "name": "云计算AH"
+    "name": "云计算ETF天弘"
   },
   {
     "code": "sh517400",
-    "name": "黄金股票"
+    "name": "黄金股ETF国泰"
   },
   {
     "code": "sh517520",
-    "name": "黄金股"
+    "name": "黄金股ETF永赢"
   },
   {
     "code": "sh517550",
-    "name": "消费主题"
+    "name": "沪港深消费龙头ETF招商"
   },
   {
     "code": "sh517660",
-    "name": "物联网AH"
+    "name": "物联网ETF天弘"
   },
   {
     "code": "sh517770",
-    "name": "游戏传媒"
+    "name": "游戏传媒ETF浦银"
   },
   {
     "code": "sh517800",
-    "name": "AI50"
+    "name": "人工智能50ETF方正富邦"
   },
   {
     "code": "sh517850",
-    "name": "张江ETF"
+    "name": "张江ETF汇添富"
   },
   {
     "code": "sh517880",
-    "name": "品牌消费"
+    "name": "品牌消费ETF华泰柏瑞"
   },
   {
     "code": "sh517900",
-    "name": "银行优选"
+    "name": "银行AH优选ETF招商"
   },
   {
     "code": "sh517950",
-    "name": "交银科技"
+    "name": "沪深港科技50ETF交银"
   },
   {
     "code": "sh517990",
-    "name": "医药基金"
+    "name": "沪港深医药ETF招商"
   },
   {
     "code": "sh518600",
-    "name": "上海金"
+    "name": "金ETF广发"
   },
   {
     "code": "sh518660",
-    "name": "工银黄金"
+    "name": "黄金ETF工银"
   },
   {
     "code": "sh518680",
-    "name": "金ETF"
+    "name": "金ETF富国"
   },
   {
     "code": "sh518800",
-    "name": "黄金基金"
+    "name": "黄金ETF国泰"
   },
   {
     "code": "sh518850",
-    "name": "黄金9999"
+    "name": "黄金ETF华夏"
   },
   {
     "code": "sh518860",
-    "name": "上海金E"
+    "name": "上海金ETF建信"
   },
   {
     "code": "sh518880",
-    "name": "黄金ETF"
+    "name": "黄金ETF华安"
   },
   {
     "code": "sh518890",
-    "name": "中银黄金"
+    "name": "上海金ETF中银"
   },
   {
     "code": "sh520500",
-    "name": "恒生新药"
+    "name": "恒生创新药ETF华泰柏瑞"
   },
   {
     "code": "sh520510",
-    "name": "港股医疗"
+    "name": "港股通医疗ETF华夏"
   },
   {
     "code": "sh520520",
-    "name": "HK消费"
+    "name": "恒生消费ETF华泰柏瑞"
   },
   {
     "code": "sh520530",
-    "name": "港科ETF"
+    "name": "港股通科技ETF东财"
   },
   {
     "code": "sh520550",
-    "name": "红利恒生"
+    "name": "XD港股红利低波ETF招商"
   },
   {
     "code": "sh520560",
-    "name": "香港30"
+    "name": "香港大盘30ETF华宝"
   },
   {
     "code": "sh520570",
-    "name": "科技恒指"
+    "name": "恒生科技ETF南方"
   },
   {
     "code": "sh520580",
-    "name": "新兴亚洲"
+    "name": "新兴亚洲ETF招商"
   },
   {
     "code": "sh520590",
-    "name": "恒科"
+    "name": "恒生科技ETF鹏华"
   },
   {
     "code": "sh520600",
-    "name": "汽车港股"
+    "name": "港股通汽车ETF广发"
   },
   {
     "code": "sh520610",
-    "name": "港红利指"
+    "name": "港股红利低波ETF银华"
   },
   {
     "code": "sh520620",
-    "name": "港股消费"
+    "name": "恒生消费ETF嘉实"
   },
   {
     "code": "sh520630",
-    "name": "互联港股"
+    "name": "港股通互联网ETF广发"
   },
   {
     "code": "sh520650",
-    "name": "互联网HK"
+    "name": "港股通互联网ETF南方"
   },
   {
     "code": "sh520660",
-    "name": "港红利CS"
+    "name": "港股通央企红利ETF南方"
   },
   {
     "code": "sh520670",
-    "name": "港科基金"
+    "name": "港股通科技ETF嘉实"
   },
   {
     "code": "sh520680",
-    "name": "港股通车"
+    "name": "港股通汽车ETF南方"
   },
   {
     "code": "sh520690",
-    "name": "恒生港药"
+    "name": "港股创新药ETF博时"
   },
   {
     "code": "sh520700",
-    "name": "创新药WJ"
+    "name": "港股通创新药ETF万家"
   },
   {
     "code": "sh520710",
-    "name": "信息港股"
+    "name": "港股通信息技术ETF广发"
   },
   {
     "code": "sh520720",
-    "name": "香港汽车"
+    "name": "港股汽车ETF国泰"
   },
   {
     "code": "sh520730",
-    "name": "汽车WJ"
+    "name": "港股通汽车ETF万家"
   },
   {
     "code": "sh520740",
-    "name": "互联香港"
+    "name": "港股通互联网ETF华安"
   },
   {
     "code": "sh520750",
-    "name": "HK信息"
+    "name": "港股通信息ETF华富"
   },
   {
     "code": "sh520760",
-    "name": "港股生物"
+    "name": "恒生生物科技ETF摩根"
   },
   {
     "code": "sh520770",
-    "name": "港股恒指"
+    "name": "恒指港股通ETF建信"
   },
   {
     "code": "sh520780",
-    "name": "港股车50"
+    "name": "港股通汽车ETF华宝"
   },
   {
     "code": "sh520790",
-    "name": "港互联网"
+    "name": "港股通互联网ETF兴业"
   },
   {
     "code": "sh520810",
-    "name": "港高股息"
+    "name": "港股通红利ETF易方达"
   },
   {
     "code": "sh520820",
-    "name": "恒指通"
+    "name": "恒指港股通ETF汇添富"
   },
   {
     "code": "sh520830",
-    "name": "沙特ETF"
+    "name": "沙特ETF华泰柏瑞"
   },
   {
     "code": "sh520840",
-    "name": "港科技"
+    "name": "港股通恒生科技ETF华安"
   },
   {
     "code": "sh520850",
-    "name": "港医疗"
+    "name": "港股通医疗ETF易方达"
   },
   {
     "code": "sh520860",
-    "name": "港股通科"
+    "name": "港股通科技ETF富国"
   },
   {
     "code": "sh520870",
-    "name": "巴西ETF"
+    "name": "巴西ETF易方达"
   },
   {
     "code": "sh520880",
-    "name": "港创新药"
+    "name": "港股通创新药ETF华宝"
   },
   {
     "code": "sh520890",
-    "name": "港红利"
+    "name": "港股通红利低波ETF华泰柏瑞"
   },
   {
     "code": "sh520900",
-    "name": "红利香港"
+    "name": "XD港股通红利ETF广发"
   },
   {
     "code": "sh520910",
-    "name": "HK互联"
+    "name": "港股通互联网ETF华夏"
   },
   {
     "code": "sh520920",
-    "name": "恒生科TH"
+    "name": "恒生科技ETF天弘"
   },
   {
     "code": "sh520930",
-    "name": "恒生生科"
+    "name": "恒生生物科技ETF国泰"
   },
   {
     "code": "sh520940",
-    "name": "恒指基金"
+    "name": "港股通恒生ETF华安"
   },
   {
     "code": "sh520950",
-    "name": "港股50"
+    "name": "港股通50ETF摩根"
   },
   {
     "code": "sh520960",
-    "name": "恒指港通"
+    "name": "恒指港股通ETF嘉实"
   },
   {
     "code": "sh520970",
-    "name": "港股通药"
+    "name": "港股通创新药ETF嘉实"
   },
   {
     "code": "sh520980",
-    "name": "港科技30"
+    "name": "港股通科技ETF汇添富"
   },
   {
     "code": "sh520990",
-    "name": "国新红利"
+    "name": "港股央企红利ETF景顺"
   },
   {
     "code": "sh526000",
-    "name": "港股信息"
+    "name": "港股通信息技术ETF华夏"
   },
   {
     "code": "sh526010",
-    "name": "香港医疗"
+    "name": "港股通医疗ETF汇添富"
   },
   {
     "code": "sh526030",
-    "name": "港信息基"
+    "name": "港股通信息技术ETF汇添富"
   },
   {
     "code": "sh526050",
-    "name": "香港信息"
+    "name": "港股通信息技术ETF招商"
   },
   {
     "code": "sh526060",
-    "name": "港股技术"
+    "name": "港股通信息技术ETF华泰柏瑞"
   },
   {
     "code": "sh526070",
-    "name": "恒生博时"
+    "name": "恒指港股通ETF博时"
   },
   {
     "code": "sh526090",
-    "name": "内地金融"
+    "name": "港股通金融ETF富国"
   },
   {
     "code": "sh530000",
-    "name": "50ETF基"
+    "name": "上证50ETF天弘"
   },
   {
     "code": "sh530050",
-    "name": "SH50ETF"
+    "name": "上证50ETF东财"
   },
   {
     "code": "sh530060",
-    "name": "上证综E"
+    "name": "上证指数ETF易方达"
   },
   {
     "code": "sh530080",
-    "name": "180指基"
+    "name": "上证180ETF天弘"
   },
   {
     "code": "sh530100",
-    "name": "上证580"
+    "name": "上证580ETF易方达"
   },
   {
     "code": "sh530180",
-    "name": "上证180"
+    "name": "上证180ETF易方达"
   },
   {
     "code": "sh530280",
-    "name": "180ETF指"
+    "name": "上证180ETF平安"
   },
   {
     "code": "sh530300",
-    "name": "180指数"
+    "name": "上证180ETF华泰柏瑞"
   },
   {
     "code": "sh530380",
-    "name": "上证380"
+    "name": "上证380ETF易方达"
   },
   {
     "code": "sh530530",
-    "name": "580ETF"
+    "name": "上证580ETF华夏"
   },
   {
     "code": "sh530580",
-    "name": "180基金"
+    "name": "上证180ETF南方"
   },
   {
     "code": "sh530680",
-    "name": "180E"
+    "name": "上证180ETF兴业"
   },
   {
     "code": "sh530800",
-    "name": "上180ETF"
+    "name": "上证180ETF银华"
   },
   {
     "code": "sh530880",
-    "name": "上证红利"
+    "name": "红利国企ETF银河"
   },
   {
     "code": "sh551000",
-    "name": "科创债"
+    "name": "科创债ETF博时"
   },
   {
     "code": "sh551030",
-    "name": "科创债券"
+    "name": "科创债ETF鹏华"
   },
   {
     "code": "sh551060",
-    "name": "科创债沪"
+    "name": "科创债ETF中银"
   },
   {
     "code": "sh551300",
-    "name": "科创债摩"
+    "name": "科创债ETF摩根"
   },
   {
     "code": "sh551500",
-    "name": "科创债易"
+    "name": "XD科创债ETF易方达"
   },
   {
     "code": "sh551510",
-    "name": "科债AAA"
+    "name": "科创债ETF华泰柏瑞"
   },
   {
     "code": "sh551520",
-    "name": "科创债汇"
+    "name": "科创债ETF汇添富"
   },
   {
     "code": "sh551550",
-    "name": "科创AAA"
+    "name": "科创债ETF华夏"
   },
   {
     "code": "sh551560",
-    "name": "科创债兴"
+    "name": "科创债ETF兴业"
   },
   {
     "code": "sh551580",
-    "name": "科创债TK"
+    "name": "科创债ETF泰康"
   },
   {
     "code": "sh551800",
-    "name": "国泰科债"
+    "name": "科创债ETF国泰"
   },
   {
     "code": "sh551900",
-    "name": "科创债指"
+    "name": "科创债ETF招商"
   },
   {
     "code": "sh560010",
-    "name": "1000基金"
+    "name": "中证1000ETF广发"
   },
   {
     "code": "sh560020",
-    "name": "红利添富"
+    "name": "红利ETF汇添富"
   },
   {
     "code": "sh560030",
-    "name": "800价值"
+    "name": "800价值ETF汇添富"
   },
   {
     "code": "sh560050",
-    "name": "MSCIA50"
+    "name": "中国A50ETF汇添富"
   },
   {
     "code": "sh560060",
-    "name": "碳中和基"
+    "name": "碳中和ETF汇添富"
   },
   {
     "code": "sh560070",
-    "name": "央企分红"
+    "name": "央企红利ETF汇添富"
   },
   {
     "code": "sh560080",
-    "name": "中药ETF"
+    "name": "中药ETF汇添富"
   },
   {
     "code": "sh560090",
-    "name": "证券指数"
+    "name": "证券ETF汇添富"
   },
   {
     "code": "sh560100",
-    "name": "增强ETF"
+    "name": "中证500增强ETF南方"
   },
   {
     "code": "sh560110",
-    "name": "ZZ1000"
+    "name": "中证1000ETF汇添富"
   },
   {
     "code": "sh560120",
-    "name": "500现金"
+    "name": "中证500现金流ETF华夏"
   },
   {
     "code": "sh560130",
-    "name": "食品基金"
+    "name": "食品ETF鹏华"
   },
   {
     "code": "sh560150",
-    "name": "红利TK"
+    "name": "红利低波ETF泰康"
   },
   {
     "code": "sh560160",
-    "name": "食品E"
+    "name": "食品ETF易方达"
   },
   {
     "code": "sh560170",
-    "name": "央企科技"
+    "name": "央企科技ETF南方"
   },
   {
     "code": "sh560180",
-    "name": "ESG300"
+    "name": "沪深300ESGETF南方"
   },
   {
     "code": "sh560190",
-    "name": "公用事业"
+    "name": "公用事业ETF鹏华"
   },
   {
     "code": "sh560210",
-    "name": "景顺农牧"
+    "name": "农牧渔ETF景顺"
   },
   {
     "code": "sh560220",
-    "name": "2000基金"
+    "name": "中证2000ETF广发"
   },
   {
     "code": "sh560230",
-    "name": "光伏富国"
+    "name": "光伏ETF富国"
   },
   {
     "code": "sh560250",
-    "name": "红利质量"
+    "name": "红利质量ETF富国"
   },
   {
     "code": "sh560260",
-    "name": "医疗50"
+    "name": "医疗ETF广发"
   },
   {
     "code": "sh560270",
-    "name": "电力指数"
+    "name": "电力ETF工银"
   },
   {
     "code": "sh560280",
-    "name": "工程机械"
+    "name": "工程机械ETF广发"
   },
   {
     "code": "sh560290",
-    "name": "景顺有色"
+    "name": "有色ETF景顺"
   },
   {
     "code": "sh560300",
-    "name": "电信50"
+    "name": "电信ETF汇添富"
   },
   {
     "code": "sh560310",
-    "name": "光伏博时"
+    "name": "光伏ETF博时"
   },
   {
     "code": "sh560320",
-    "name": "食品富国"
+    "name": "食品ETF富国"
   },
   {
     "code": "sh560330",
-    "name": "300价值E"
+    "name": "沪深300价值ETF申万菱信"
   },
   {
     "code": "sh560350",
-    "name": "A50指数"
+    "name": "中证A50ETF摩根"
   },
   {
     "code": "sh560360",
-    "name": "软件指数"
+    "name": "软件ETF万家"
   },
   {
     "code": "sh560370",
-    "name": "全指红利"
+    "name": "红利质量ETF易方达"
   },
   {
     "code": "sh560380",
-    "name": "A100"
+    "name": "A100ETF南方"
   },
   {
     "code": "sh560390",
-    "name": "电网E"
+    "name": "电网设备ETF易方达"
   },
   {
     "code": "sh560400",
-    "name": "证券华泰"
+    "name": "证券ETF华泰柏瑞"
   },
   {
     "code": "sh560410",
-    "name": "电池鹏华"
+    "name": "电池ETF鹏华"
   },
   {
     "code": "sh560420",
-    "name": "食品Q"
+    "name": "食品ETF前海开源"
   },
   {
     "code": "sh560450",
-    "name": "电力TH"
+    "name": "电力ETF天弘"
   },
   {
     "code": "sh560460",
-    "name": "电力平安"
+    "name": "电力ETF平安"
   },
   {
     "code": "sh560470",
-    "name": "有色E"
+    "name": "有色ETF易方达"
   },
   {
     "code": "sh560480",
-    "name": "中证电力"
+    "name": "电力ETF招商"
   },
   {
     "code": "sh560490",
-    "name": "华泰有色"
+    "name": "工业有色ETF华泰柏瑞"
   },
   {
     "code": "sh560500",
-    "name": "500质量"
+    "name": "500质量成长ETF鹏扬"
   },
   {
     "code": "sh560510",
-    "name": "中证A500"
+    "name": "中证A500ETF泰康"
   },
   {
     "code": "sh560520",
-    "name": "红利大成"
+    "name": "红利低波100ETF大成"
   },
   {
     "code": "sh560530",
-    "name": "A500ETF"
+    "name": "中证A500ETF摩根"
   },
   {
     "code": "sh560550",
-    "name": "碳中和"
+    "name": "碳中和ETF广发"
   },
   {
     "code": "sh560560",
-    "name": "碳中和TK"
+    "name": "碳中和ETF泰康"
   },
   {
     "code": "sh560570",
-    "name": "A500低波"
+    "name": "A500红利ETF国联安"
   },
   {
     "code": "sh560580",
-    "name": "电力指基"
+    "name": "电力ETF南方"
   },
   {
     "code": "sh560590",
-    "name": "1000鹏华"
+    "name": "中证1000增强ETF鹏华"
   },
   {
     "code": "sh560610",
-    "name": "A500指数"
+    "name": "A500ETF招商"
   },
   {
     "code": "sh560620",
-    "name": "公用WJ"
+    "name": "公用事业ETF万家"
   },
   {
     "code": "sh560630",
-    "name": "机器人WJ"
+    "name": "机器人ETF万家"
   },
   {
     "code": "sh560660",
-    "name": "云50ETF"
+    "name": "云计算50ETF新华"
   },
   {
     "code": "sh560670",
-    "name": "中证银行"
+    "name": "银行ETF华泰柏瑞"
   },
   {
     "code": "sh560680",
-    "name": "龙头消费"
+    "name": "消费ETF广发"
   },
   {
     "code": "sh560690",
-    "name": "电信主题"
+    "name": "电信ETF鹏华"
   },
   {
     "code": "sh560700",
-    "name": "央红利50"
+    "name": "央企红利ETF广发"
   },
   {
     "code": "sh560710",
-    "name": "船舶ETF"
+    "name": "船舶ETF富国"
   },
   {
     "code": "sh560720",
-    "name": "工银红利"
+    "name": "红利低波100ETF工银"
   },
   {
     "code": "sh560730",
-    "name": "红利GTHT"
+    "name": "红利低波ETF国泰海通"
   },
   {
     "code": "sh560750",
-    "name": "A500申万"
+    "name": "A500ETF申万菱信"
   },
   {
     "code": "sh560770",
-    "name": "机器人ZS"
+    "name": "机器人ETF招商"
   },
   {
     "code": "sh560780",
-    "name": "半导设备"
+    "name": "半导体设备ETF广发"
   },
   {
     "code": "sh560790",
-    "name": "软件服务"
+    "name": "软件ETF鹏华"
   },
   {
     "code": "sh560800",
-    "name": "数字ETF"
+    "name": "数字经济ETF鹏扬"
   },
   {
     "code": "sh560810",
-    "name": "央企ESG"
+    "name": "央企ESGETF融通"
   },
   {
     "code": "sh560820",
-    "name": "A50新华"
+    "name": "中证A50ETF新华"
   },
   {
     "code": "sh560830",
-    "name": "电指数"
+    "name": "电力ETF华夏"
   },
   {
     "code": "sh560850",
-    "name": "信创50"
+    "name": "信创ETF汇添富"
   },
   {
     "code": "sh560860",
-    "name": "工业有色"
+    "name": "工业有色ETF万家"
   },
   {
     "code": "sh560870",
-    "name": "中银有色"
+    "name": "工业有色ETF中银"
   },
   {
     "code": "sh560880",
-    "name": "家电基金"
+    "name": "家电ETF广发"
   },
   {
     "code": "sh560900",
-    "name": "创新药企"
+    "name": "创新药ETF摩根"
   },
   {
     "code": "sh560910",
-    "name": "中证电池"
+    "name": "电池ETF华泰柏瑞"
   },
   {
     "code": "sh560920",
-    "name": "招商机械"
+    "name": "工程机械ETF招商"
   },
   {
     "code": "sh560930",
-    "name": "电力E"
+    "name": "电力ETF易方达"
   },
   {
     "code": "sh560950",
-    "name": "500增"
+    "name": "中证500增强ETF汇添富"
   },
   {
     "code": "sh560970",
-    "name": "有色金属"
+    "name": "工业有色ETF平安"
   },
   {
     "code": "sh560980",
-    "name": "光伏龙头"
+    "name": "光伏龙头ETF广发"
   },
   {
     "code": "sh560990",
-    "name": "科技先锋"
+    "name": "科技先锋ETF中金"
   },
   {
     "code": "sh561000",
-    "name": "300指增"
+    "name": "沪深300增强ETF华安"
   },
   {
     "code": "sh561010",
-    "name": "软件开发"
+    "name": "软件ETF华安"
   },
   {
     "code": "sh561020",
-    "name": "食品招商"
+    "name": "食品ETF招商"
   },
   {
     "code": "sh561030",
-    "name": "机械华泰"
+    "name": "工程机械ETF华泰柏瑞"
   },
   {
     "code": "sh561050",
-    "name": "稀金属E"
+    "name": "稀有金属ETF易方达"
   },
   {
     "code": "sh561060",
-    "name": "红利国企"
+    "name": "国企红利ETF华安"
   },
   {
     "code": "sh561070",
-    "name": "机械工程"
+    "name": "工程机械ETF工银"
   },
   {
     "code": "sh561080",
-    "name": "现金自由"
+    "name": "全指现金流ETF华安"
   },
   {
     "code": "sh561090",
-    "name": "A500增"
+    "name": "A500增强ETF华安"
   },
   {
     "code": "sh561100",
-    "name": "电子龙头"
+    "name": "消费电子ETF富国"
   },
   {
     "code": "sh561120",
-    "name": "家电ETF"
+    "name": "家电ETF富国"
   },
   {
     "code": "sh561130",
-    "name": "国货ETF"
+    "name": "国货ETF富国"
   },
   {
     "code": "sh561160",
-    "name": "锂电池"
+    "name": "电池ETF富国"
   },
   {
     "code": "sh561170",
-    "name": "绿电50"
+    "name": "绿色电力ETF富国"
   },
   {
     "code": "sh561180",
-    "name": "A100ETF"
+    "name": "A100ETF富国"
   },
   {
     "code": "sh561190",
-    "name": "双碳ETF"
+    "name": "碳中和ETF富国"
   },
   {
     "code": "sh561200",
-    "name": "A100基金"
+    "name": "中证A100ETF工银"
   },
   {
     "code": "sh561220",
-    "name": "国企数字"
+    "name": "数字经济ETF工银"
   },
   {
     "code": "sh561230",
-    "name": "A50"
+    "name": "中证A50ETF工银"
   },
   {
     "code": "sh561250",
-    "name": "稀金属PH"
+    "name": "稀有金属ETF鹏华"
   },
   {
     "code": "sh561260",
-    "name": "能源ETF"
+    "name": "能源ETF工银"
   },
   {
     "code": "sh561280",
-    "name": "增强1000"
+    "name": "中证1000增强ETF工银"
   },
   {
     "code": "sh561300",
-    "name": "300增ETF"
+    "name": "沪深300增强ETF国泰"
   },
   {
     "code": "sh561310",
-    "name": "消电ETF"
+    "name": "消电ETF国泰"
   },
   {
     "code": "sh561320",
-    "name": "交运ETF"
+    "name": "交运ETF国泰"
   },
   {
     "code": "sh561330",
-    "name": "矿业ETF"
+    "name": "矿业ETF国泰"
   },
   {
     "code": "sh561350",
-    "name": "国泰500"
+    "name": "中证500ETF国泰"
   },
   {
     "code": "sh561360",
-    "name": "石油ETF"
+    "name": "石油ETF国泰"
   },
   {
     "code": "sh561370",
-    "name": "2000ETF"
+    "name": "中证2000ETF国泰"
   },
   {
     "code": "sh561380",
-    "name": "电网ETF"
+    "name": "电网设备ETF国泰"
   },
   {
     "code": "sh561390",
-    "name": "稀金属PA"
+    "name": "稀有金属ETF平安"
   },
   {
     "code": "sh561400",
-    "name": "鑫元养殖"
+    "name": "畜牧养殖ETF鑫元"
   },
   {
     "code": "sh561410",
-    "name": "光伏工银"
+    "name": "光伏ETF工银"
   },
   {
     "code": "sh561420",
-    "name": "300现金"
+    "name": "300现金流ETF汇添富"
   },
   {
     "code": "sh561430",
-    "name": "全指质量"
+    "name": "红利质量ETF博时"
   },
   {
     "code": "sh561450",
-    "name": "华泰红利"
+    "name": "红利低波50ETF华泰柏瑞"
   },
   {
     "code": "sh561460",
-    "name": "AITH"
+    "name": "人工智能ETF天弘"
   },
   {
     "code": "sh561470",
-    "name": "畜牧TH"
+    "name": "畜牧养殖ETF天弘"
   },
   {
     "code": "sh561490",
-    "name": "红利财通"
+    "name": "红利质量ETF财通"
   },
   {
     "code": "sh561500",
-    "name": "漂亮50"
+    "name": "漂亮50ETF华泰柏瑞"
   },
   {
     "code": "sh561510",
-    "name": "中医药"
+    "name": "中药ETF华泰柏瑞"
   },
   {
     "code": "sh561530",
-    "name": "银华银行"
+    "name": "银行ETF银华"
   },
   {
     "code": "sh561550",
-    "name": "500指增"
+    "name": "中证500增强ETF华泰柏瑞"
   },
   {
     "code": "sh561560",
-    "name": "电力ETF"
+    "name": "电力ETF华泰柏瑞"
   },
   {
     "code": "sh561570",
-    "name": "油气基金"
+    "name": "油气ETF华泰柏瑞"
   },
   {
     "code": "sh561580",
-    "name": "央企红利"
+    "name": "XD央企红利ETF华泰柏瑞"
   },
   {
     "code": "sh561590",
-    "name": "1000增强"
+    "name": "中证1000增强ETF华泰柏瑞"
   },
   {
     "code": "sh561600",
-    "name": "消费电子"
+    "name": "消费电子ETF平安"
   },
   {
     "code": "sh561610",
-    "name": "鑫元绿电"
+    "name": "绿色电力ETF鑫元"
   },
   {
     "code": "sh561620",
-    "name": "华泰化工"
+    "name": "化工ETF华泰柏瑞"
   },
   {
     "code": "sh561630",
-    "name": "华泰质量"
+    "name": "红利质量ETF华泰柏瑞"
   },
   {
     "code": "sh561650",
-    "name": "质量添富"
+    "name": "红利质量ETF汇添富"
   },
   {
     "code": "sh561660",
-    "name": "通航基金"
+    "name": "通用航空ETF平安"
   },
   {
     "code": "sh561680",
-    "name": "A500红低"
+    "name": "A500红利低波ETF平安"
   },
   {
     "code": "sh561690",
-    "name": "质量300"
+    "name": "300质量ETF农银"
   },
   {
     "code": "sh561700",
-    "name": "电力基金"
+    "name": "电力ETF博时"
   },
   {
     "code": "sh561730",
-    "name": "中证A股"
+    "name": "A股ETF华夏"
   },
   {
     "code": "sh561750",
-    "name": "A50博时"
+    "name": "A50ETF博时"
   },
   {
     "code": "sh561760",
-    "name": "油气博时"
+    "name": "油气ETF博时"
   },
   {
     "code": "sh561770",
-    "name": "指基A100"
+    "name": "A100ETF博时"
   },
   {
     "code": "sh561780",
-    "name": "1000指增"
+    "name": "1000增强ETF博时"
   },
   {
     "code": "sh561790",
-    "name": "现代能源"
+    "name": "央企能源ETF博时"
   },
   {
     "code": "sh561800",
-    "name": "稀金属"
+    "name": "稀有金属ETF华富"
   },
   {
     "code": "sh561810",
-    "name": "华泰医疗"
+    "name": "医疗器械ETF华泰柏瑞"
   },
   {
     "code": "sh561830",
-    "name": "有色GTHT"
+    "name": "有色ETF国泰海通"
   },
   {
     "code": "sh561870",
-    "name": "现金流指"
+    "name": "现金流全指ETF华富"
   },
   {
     "code": "sh561880",
-    "name": "A100指数"
+    "name": "A100ETF华富"
   },
   {
     "code": "sh561890",
-    "name": "A股E"
+    "name": "A股ETF易方达"
   },
   {
     "code": "sh561900",
-    "name": "沪深ESG"
+    "name": "沪深300ESGETF招商"
   },
   {
     "code": "sh561910",
-    "name": "电池ETF"
+    "name": "电池ETF招商"
   },
   {
     "code": "sh561920",
-    "name": "疫苗龙头"
+    "name": "疫苗ETF招商"
   },
   {
     "code": "sh561930",
-    "name": "招商300"
+    "name": "沪深300ETF招商"
   },
   {
     "code": "sh561950",
-    "name": "500增强A"
+    "name": "中证500增强ETF招商"
   },
   {
     "code": "sh561960",
-    "name": "央企回报"
+    "name": "央企回报ETF招商"
   },
   {
     "code": "sh561970",
-    "name": "金属博时"
+    "name": "稀有金属ETF博时"
   },
   {
     "code": "sh561980",
-    "name": "芯片设备"
+    "name": "半导体设备ETF招商"
   },
   {
     "code": "sh561990",
-    "name": "300增强"
+    "name": "沪深300增强ETF招商"
   },
   {
     "code": "sh562000",
-    "name": "中证A100"
+    "name": "A100ETF华宝"
   },
   {
     "code": "sh562010",
-    "name": "绿色能源"
+    "name": "绿色能源ETF华宝"
   },
   {
     "code": "sh562030",
-    "name": "信创基金"
+    "name": "信创ETF华宝"
   },
   {
     "code": "sh562050",
-    "name": "药ETF"
+    "name": "药ETF华宝"
   },
   {
     "code": "sh562060",
-    "name": "标普红利"
+    "name": "标普A股红利ETF华宝"
   },
   {
     "code": "sh562070",
-    "name": "300ETF增"
+    "name": "沪深300指增ETF华宝"
   },
   {
     "code": "sh562080",
-    "name": "自由现金"
+    "name": "300现金流ETF华宝"
   },
   {
     "code": "sh562110",
-    "name": "东证云50"
+    "name": "云计算50ETF东方红"
   },
   {
     "code": "sh562150",
-    "name": "红利PH"
+    "name": "红利质量ETF鹏华"
   },
   {
     "code": "sh562170",
-    "name": "300现金E"
+    "name": "沪深300现金流ETF易方达"
   },
   {
     "code": "sh562180",
-    "name": "红低A500"
+    "name": "A500红利低波ETF招商"
   },
   {
     "code": "sh562200",
-    "name": "嘉实质量"
+    "name": "红利质量ETF嘉实"
   },
   {
     "code": "sh562300",
-    "name": "低碳ETF"
+    "name": "碳中和ETF银华"
   },
   {
     "code": "sh562310",
-    "name": "300成长"
+    "name": "沪深300成长ETF银华"
   },
   {
     "code": "sh562320",
-    "name": "300价值A"
+    "name": "沪深300价值ETF银华"
   },
   {
     "code": "sh562330",
-    "name": "500价值"
+    "name": "中证500价值ETF银华"
   },
   {
     "code": "sh562340",
-    "name": "500成长"
+    "name": "中证500成长ETF银华"
   },
   {
     "code": "sh562350",
-    "name": "电力"
+    "name": "电力ETF银华"
   },
   {
     "code": "sh562360",
-    "name": "机器人YH"
+    "name": "机器人ETF银华"
   },
   {
     "code": "sh562380",
-    "name": "科技引领"
+    "name": "央企科技ETF银华"
   },
   {
     "code": "sh562390",
-    "name": "中药"
+    "name": "中药ETF银华"
   },
   {
     "code": "sh562400",
-    "name": "金科WJ"
+    "name": "金融科技ETF万家"
   },
   {
     "code": "sh562420",
-    "name": "卫星平安"
+    "name": "卫星ETF平安"
   },
   {
     "code": "sh562450",
-    "name": "矿业博时"
+    "name": "有色矿业ETF博时"
   },
   {
     "code": "sh562500",
-    "name": "机器人"
+    "name": "机器人ETF华夏"
   },
   {
     "code": "sh562510",
-    "name": "旅游ETF"
+    "name": "旅游ETF华夏"
   },
   {
     "code": "sh562520",
-    "name": "1000成长"
+    "name": "中证1000成长ETF华夏"
   },
   {
     "code": "sh562530",
-    "name": "1000价值"
+    "name": "中证1000价值ETF华夏"
   },
   {
     "code": "sh562550",
-    "name": "绿电ETF"
+    "name": "绿电ETF华夏"
   },
   {
     "code": "sh562560",
-    "name": "信息技术"
+    "name": "信息技术ETF华夏"
   },
   {
     "code": "sh562570",
-    "name": "信创ETF"
+    "name": "信创ETF华夏"
   },
   {
     "code": "sh562580",
-    "name": "可选消费"
+    "name": "可选消费ETF华夏"
   },
   {
     "code": "sh562590",
-    "name": "半导材料"
+    "name": "半导体设备ETF华夏"
   },
   {
     "code": "sh562600",
-    "name": "医疗器械"
+    "name": "医疗器械ETF华夏"
   },
   {
     "code": "sh562660",
-    "name": "ZZ2000"
+    "name": "中证2000ETF华夏"
   },
   {
     "code": "sh562700",
-    "name": "汽车零件"
+    "name": "汽车零部件ETF华夏"
   },
   {
     "code": "sh562800",
-    "name": "稀有金属"
+    "name": "稀有金属ETF嘉实"
   },
   {
     "code": "sh562810",
-    "name": "上证增强"
+    "name": "上证指数增强ETF嘉实"
   },
   {
     "code": "sh562820",
-    "name": "集成电路"
+    "name": "集成电路ETF嘉实"
   },
   {
     "code": "sh562850",
-    "name": "央企能源"
+    "name": "央企能源ETF嘉实"
   },
   {
     "code": "sh562860",
-    "name": "疫苗ETF"
+    "name": "疫苗ETF嘉实"
   },
   {
     "code": "sh562870",
-    "name": "证券全指"
+    "name": "证券ETF嘉实"
   },
   {
     "code": "sh562880",
-    "name": "电池基金"
+    "name": "电池ETF嘉实"
   },
   {
     "code": "sh562890",
-    "name": "A50中证"
+    "name": "A50ETF嘉实"
   },
   {
     "code": "sh562900",
-    "name": "现代农业"
+    "name": "农业ETF易方达"
   },
   {
     "code": "sh562910",
-    "name": "高端制造"
+    "name": "高端制造ETF易方达"
   },
   {
     "code": "sh562920",
-    "name": "信息安全"
+    "name": "信息安全ETF易方达"
   },
   {
     "code": "sh562930",
-    "name": "软件30"
+    "name": "软件ETF易方达"
   },
   {
     "code": "sh562950",
-    "name": "消电50"
+    "name": "消费电子ETF易方达"
   },
   {
     "code": "sh562960",
-    "name": "绿色电力"
+    "name": "绿色电力ETF易方达"
   },
   {
     "code": "sh562970",
-    "name": "光伏E"
+    "name": "光伏ETF易方达"
   },
   {
     "code": "sh562990",
-    "name": "碳中和E"
+    "name": "碳中和ETF易方达"
   },
   {
     "code": "sh563000",
-    "name": "中国A50"
+    "name": "中国A50ETF易方达"
   },
   {
     "code": "sh563010",
-    "name": "电信ETF"
+    "name": "电信ETF易方达"
   },
   {
     "code": "sh563020",
-    "name": "低波红利"
+    "name": "红利低波ETF易方达"
   },
   {
     "code": "sh563030",
-    "name": "增强500"
+    "name": "中证500增强ETF易方达"
   },
   {
     "code": "sh563050",
-    "name": "科技央企"
+    "name": "央企科技ETF易方达"
   },
   {
     "code": "sh563060",
-    "name": "央企50"
+    "name": "央企50ETF易方达"
   },
   {
     "code": "sh563080",
-    "name": "中证A50E"
+    "name": "中证A50ETF易方达"
   },
   {
     "code": "sh563090",
-    "name": "上50增强"
+    "name": "上证50增强ETF易方达"
   },
   {
     "code": "sh563150",
-    "name": "油气资源"
+    "name": "油气ETF银华"
   },
   {
     "code": "sh563180",
-    "name": "高股息"
+    "name": "高股息ETF银华"
   },
   {
     "code": "sh563200",
-    "name": "2000指数"
+    "name": "中证2000ETF富国"
   },
   {
     "code": "sh563210",
-    "name": "专精特新"
+    "name": "专精特新ETF富国"
   },
   {
     "code": "sh563220",
-    "name": "A500富国"
+    "name": "A500ETF富国"
   },
   {
     "code": "sh563230",
-    "name": "卫星ETF"
+    "name": "卫星ETF富国"
   },
   {
     "code": "sh563280",
-    "name": "A50增强"
+    "name": "A50增强ETF富国"
   },
   {
     "code": "sh563300",
-    "name": "中证2000"
+    "name": "中证2000ETF华泰柏瑞"
   },
   {
     "code": "sh563320",
-    "name": "通用航空"
+    "name": "通用航空ETF华泰柏瑞"
   },
   {
     "code": "sh563330",
-    "name": "A股ETF"
+    "name": "A股ETF华泰柏瑞"
   },
   {
     "code": "sh563350",
-    "name": "中证A50"
+    "name": "A50ETF华泰柏瑞"
   },
   {
     "code": "sh563360",
-    "name": "A500基金"
+    "name": "A500ETF华泰柏瑞"
   },
   {
     "code": "sh563380",
-    "name": "航空航天"
+    "name": "航空航天ETF华泰柏瑞"
   },
   {
     "code": "sh563390",
-    "name": "现金基金"
+    "name": "现金流ETF华泰柏瑞"
   },
   {
     "code": "sh563500",
-    "name": "A500华宝"
+    "name": "XDA500ETF华宝"
   },
   {
     "code": "sh563510",
-    "name": "A500红利"
+    "name": "A500红利低波ETF易方达"
   },
   {
     "code": "sh563520",
-    "name": "300永赢"
+    "name": "沪深300ETF永赢"
   },
   {
     "code": "sh563530",
-    "name": "卫星E"
+    "name": "卫星ETF易方达"
   },
   {
     "code": "sh563550",
-    "name": "增强A500"
+    "name": "A500增强ETF摩根"
   },
   {
     "code": "sh563560",
-    "name": "科技成长"
+    "name": "科技成长ETF兴业"
   },
   {
     "code": "sh563570",
-    "name": "金融科"
+    "name": "金融科技ETF兴业"
   },
   {
     "code": "sh563580",
-    "name": "现金800"
+    "name": "自由现金流800ETF万家"
   },
   {
     "code": "sh563590",
-    "name": "红利A500"
+    "name": "A500红利低波动ETF国寿"
   },
   {
     "code": "sh563600",
-    "name": "A500增强"
+    "name": "A500增强ETF易方达"
   },
   {
     "code": "sh563620",
-    "name": "现金流全"
+    "name": "全指现金流ETF兴业"
   },
   {
     "code": "sh563630",
-    "name": "A500指增"
+    "name": "A500增强ETF国联安"
   },
   {
     "code": "sh563650",
-    "name": "A500中证"
+    "name": "中证A500ETF兴业"
   },
   {
     "code": "sh563660",
-    "name": "A500银河"
+    "name": "A500ETF银河"
   },
   {
     "code": "sh563670",
-    "name": "金科基金"
+    "name": "金融科技ETF鹏华"
   },
   {
     "code": "sh563680",
-    "name": "现金流TF"
+    "name": "800现金流ETF汇添富"
   },
   {
     "code": "sh563690",
-    "name": "红利永赢"
+    "name": "红利低波ETF永赢"
   },
   {
     "code": "sh563700",
-    "name": "红利价值"
+    "name": "红利价值ETF易方达"
   },
   {
     "code": "sh563750",
-    "name": "500添富"
+    "name": "中证500ETF汇添富"
   },
   {
     "code": "sh563760",
-    "name": "中银现金"
+    "name": "现金流ETF中银"
   },
   {
     "code": "sh563770",
-    "name": "全指现金"
+    "name": "现金流ETF招商"
   },
   {
     "code": "sh563780",
-    "name": "现金指数"
+    "name": "现金流ETF方正富邦"
   },
   {
     "code": "sh563790",
-    "name": "卫星产业"
+    "name": "卫星ETF鹏华"
   },
   {
     "code": "sh563800",
-    "name": "A500龙头"
+    "name": "A500ETF广发"
   },
   {
     "code": "sh563830",
-    "name": "现金流基"
+    "name": "自由现金流ETF博时"
   },
   {
     "code": "sh563850",
-    "name": "食品广发"
+    "name": "食品ETF广发"
   },
   {
     "code": "sh563860",
-    "name": "A500海富"
+    "name": "中证A500ETF海富通"
   },
   {
     "code": "sh563870",
-    "name": "航空通用"
+    "name": "通用航空ETF鹏华"
   },
   {
     "code": "sh563880",
-    "name": "A500添富"
+    "name": "A500ETF汇添富"
   },
   {
     "code": "sh563890",
-    "name": "红利国有"
+    "name": "国企红利ETF创金合信"
   },
   {
     "code": "sh563900",
-    "name": "现金流"
+    "name": "300自由现金流ETF摩根"
   },
   {
     "code": "sh563930",
-    "name": "上指增强"
+    "name": "上证增强ETF招商"
   },
   {
     "code": "sh563960",
-    "name": "300质量"
+    "name": "300质量ETF兴全"
   },
   {
     "code": "sh563980",
-    "name": "800红利"
+    "name": "800红利低波ETF鑫元"
   },
   {
     "code": "sh563990",
-    "name": "800现金"
+    "name": "800现金流ETF富国"
   },
   {
     "code": "sh588000",
-    "name": "科创50"
+    "name": "科创50ETF华夏"
   },
   {
     "code": "sh588010",
-    "name": "科创材料"
+    "name": "科创新材料ETF博时"
   },
   {
     "code": "sh588020",
-    "name": "科创50E"
+    "name": "科创成长ETF易方达"
   },
   {
     "code": "sh588030",
-    "name": "科创指基"
+    "name": "科创100ETF博时"
   },
   {
     "code": "sh588040",
-    "name": "科创板指"
+    "name": "科创50ETF鹏华"
   },
   {
     "code": "sh588050",
-    "name": "科创ETF"
+    "name": "科创50ETF工银"
   },
   {
     "code": "sh588060",
-    "name": "上证科创"
+    "name": "科创50ETF广发"
   },
   {
     "code": "sh588070",
-    "name": "科创万家"
+    "name": "科创成长ETF万家"
   },
   {
     "code": "sh588080",
-    "name": "科创板50"
+    "name": "科创50ETF易方达"
   },
   {
     "code": "sh588090",
-    "name": "科创板"
+    "name": "科创50ETF华泰柏瑞"
   },
   {
     "code": "sh588100",
-    "name": "科创信息"
+    "name": "科创信息ETF嘉实"
   },
   {
     "code": "sh588110",
-    "name": "科创成长"
+    "name": "科创成长ETF广发"
   },
   {
     "code": "sh588120",
-    "name": "科100ETF"
+    "name": "科创100ETF国泰"
   },
   {
     "code": "sh588130",
-    "name": "科创药"
+    "name": "科创医药ETF华夏"
   },
   {
     "code": "sh588140",
-    "name": "科200GF"
+    "name": "科创200ETF广发"
   },
   {
     "code": "sh588150",
-    "name": "科创龙头"
+    "name": "科创50ETF南方"
   },
   {
     "code": "sh588160",
-    "name": "科创新材"
+    "name": "科创新材料ETF南方"
   },
   {
     "code": "sh588170",
-    "name": "科创半导"
+    "name": "科创半导体ETF华夏"
   },
   {
     "code": "sh588180",
-    "name": "科创50基"
+    "name": "科创50ETF国联安"
   },
   {
     "code": "sh588190",
-    "name": "科创100"
+    "name": "科创100ETF银华"
   },
   {
     "code": "sh588200",
-    "name": "科创芯片"
+    "name": "科创芯片ETF嘉实"
   },
   {
     "code": "sh588210",
-    "name": "科创100E"
+    "name": "科创100ETF易方达"
   },
   {
     "code": "sh588220",
-    "name": "科创100F"
+    "name": "科创100ETF鹏华"
   },
   {
     "code": "sh588230",
-    "name": "科创200"
+    "name": "科创200ETF华泰柏瑞"
   },
   {
     "code": "sh588240",
-    "name": "科200"
+    "name": "科创200ETF鹏华"
   },
   {
     "code": "sh588250",
-    "name": "KC医药"
+    "name": "科创医药ETF鹏华"
   },
   {
     "code": "sh588260",
-    "name": "科创技术"
+    "name": "科创信息ETF华安"
   },
   {
     "code": "sh588270",
-    "name": "科创200F"
+    "name": "科创200ETF易方达"
   },
   {
     "code": "sh588280",
-    "name": "科创五零"
+    "name": "科创50ETF华安"
   },
   {
     "code": "sh588290",
-    "name": "芯片科创"
+    "name": "科创芯片ETF华安"
   },
   {
     "code": "sh588300",
-    "name": "双创ETF"
+    "name": "科创创业50ETF招商"
   },
   {
     "code": "sh588310",
-    "name": "双创基金"
+    "name": "科创创业ETF方正富邦"
   },
   {
     "code": "sh588320",
-    "name": "双创增强"
+    "name": "双创50增强ETF广发"
   },
   {
     "code": "sh588330",
-    "name": "双创龙头"
+    "name": "双创50ETF华宝"
   },
   {
     "code": "sh588350",
-    "name": "双创"
+    "name": "科创创业50ETF鹏扬"
   },
   {
     "code": "sh588360",
-    "name": "创创ETF"
+    "name": "科创创业ETF国泰"
   },
   {
     "code": "sh588370",
-    "name": "科创策略"
+    "name": "科创50增强ETF南方"
   },
   {
     "code": "sh588380",
-    "name": "创50ETF"
+    "name": "科创创业ETF富国"
   },
   {
     "code": "sh588390",
-    "name": "科创创业"
+    "name": "科创创业ETF博时"
   },
   {
     "code": "sh588400",
-    "name": "双创50"
+    "name": "科创创业ETF嘉实"
   },
   {
     "code": "sh588410",
-    "name": "双创AI"
+    "name": "科创创业人工智能ETF鹏华"
   },
   {
     "code": "sh588420",
-    "name": "AI双创"
+    "name": "科创创业人工智能ETF摩根"
   },
   {
     "code": "sh588430",
-    "name": "科创创AI"
+    "name": "科创创业人工智能ETF工银"
   },
   {
     "code": "sh588450",
-    "name": "科创50增"
+    "name": "科创50增强ETF招商"
   },
   {
     "code": "sh588460",
-    "name": "科创增强"
+    "name": "科创50增强ETF鹏华"
   },
   {
     "code": "sh588470",
-    "name": "双创智能"
+    "name": "科创创业人工智能ETF华安"
   },
   {
     "code": "sh588480",
-    "name": "AI50双创"
+    "name": "科创创业人工智能ETF中金"
   },
   {
     "code": "sh588500",
-    "name": "科创100Z"
+    "name": "科创100增强ETF易方达"
   },
   {
     "code": "sh588510",
-    "name": "智能双创"
+    "name": "科创创业人工智能ETF华夏"
   },
   {
     "code": "sh588520",
-    "name": "科创增"
+    "name": "科创增强ETF永赢"
   },
   {
     "code": "sh588530",
-    "name": "AIBOCI"
+    "name": "科创创业人工智能ETF中银证券"
   },
   {
     "code": "sh588550",
-    "name": "科创增指"
+    "name": "科创综指增强ETF易方达"
   },
   {
     "code": "sh588660",
-    "name": "双创五零"
+    "name": "科创创业50ETF兴银"
   },
   {
     "code": "sh588670",
-    "name": "科综增强"
+    "name": "科创综指增强ETF嘉实"
   },
   {
     "code": "sh588680",
-    "name": "科100增"
+    "name": "科创100增强ETF广发"
   },
   {
     "code": "sh588690",
-    "name": "科综指增"
+    "name": "科创增强ETF银华"
   },
   {
     "code": "sh588700",
-    "name": "科创生物"
+    "name": "科创医药ETF嘉实"
   },
   {
     "code": "sh588710",
-    "name": "科半导体"
+    "name": "科创半导体设备ETF华泰柏瑞"
   },
   {
     "code": "sh588720",
-    "name": "中银科创"
+    "name": "科创50ETF中银"
   },
   {
     "code": "sh588730",
-    "name": "科创AI"
+    "name": "科创人工智能ETF易方达"
   },
   {
     "code": "sh588750",
-    "name": "科创芯50"
+    "name": "科创芯片ETF汇添富"
   },
   {
     "code": "sh588760",
-    "name": "AI科创"
+    "name": "科创人工智能ETF广发"
   },
   {
     "code": "sh588770",
-    "name": "信息科创"
+    "name": "科创信息ETF摩根"
   },
   {
     "code": "sh588780",
-    "name": "芯片设计"
+    "name": "科创芯片设计ETF国联安"
   },
   {
     "code": "sh588790",
-    "name": "科创智能"
+    "name": "科创AIETF博时"
   },
   {
     "code": "sh588800",
-    "name": "科创100C"
+    "name": "科创100ETF华夏"
   },
   {
     "code": "sh588810",
-    "name": "科创板芯"
+    "name": "科创芯片ETF富国"
   },
   {
     "code": "sh588820",
-    "name": "科创200E"
+    "name": "科创200ETF华夏"
   },
   {
     "code": "sh588830",
-    "name": "科创新能"
+    "name": "科创新能源ETF鹏华"
   },
   {
     "code": "sh588840",
-    "name": "50科创"
+    "name": "科创50ETF万家"
   },
   {
     "code": "sh588850",
-    "name": "科创机械"
+    "name": "科创机械ETF嘉实"
   },
   {
     "code": "sh588860",
-    "name": "科创医药"
+    "name": "科创医药ETF工银"
   },
   {
     "code": "sh588870",
-    "name": "科创50指"
+    "name": "科创50ETF汇添富"
   },
   {
     "code": "sh588880",
-    "name": "科创指数"
+    "name": "科创100ETF华泰柏瑞"
   },
   {
     "code": "sh588890",
-    "name": "科创芯"
+    "name": "科创芯片ETF南方"
   },
   {
     "code": "sh588900",
-    "name": "科创100S"
+    "name": "科创100ETF南方"
   },
   {
     "code": "sh588910",
-    "name": "科创价值"
+    "name": "科创价值ETF建信"
   },
   {
     "code": "sh588920",
-    "name": "KC芯片"
+    "name": "科创芯片ETF鹏华"
   },
   {
     "code": "sh588930",
-    "name": "科创板AI"
+    "name": "科创人工智能ETF银华"
   },
   {
     "code": "sh588940",
-    "name": "科创富国"
+    "name": "科创50ETF富国"
   },
   {
     "code": "sh588950",
-    "name": "景顺科创"
+    "name": "科创50ETF景顺"
   },
   {
     "code": "sh588960",
-    "name": "新能科创"
+    "name": "科创新能源ETF富国"
   },
   {
     "code": "sh588980",
-    "name": "科创广发"
+    "name": "科创100ETF广发"
   },
   {
     "code": "sh588990",
-    "name": "科芯片"
+    "name": "科创芯片ETF博时"
   },
   {
     "code": "sh589000",
-    "name": "科创综指"
+    "name": "科创综指ETF华夏"
   },
   {
     "code": "sh589010",
-    "name": "科创AI指"
+    "name": "科创人工智能ETF华夏"
   },
   {
     "code": "sh589020",
-    "name": "KC半导体"
+    "name": "科创半导体设备ETF鹏华"
   },
   {
     "code": "sh589030",
-    "name": "科芯设计"
+    "name": "科创芯片设计ETF易方达"
   },
   {
     "code": "sh589050",
-    "name": "科创E"
+    "name": "科创综指ETF兴业"
   },
   {
     "code": "sh589060",
-    "name": "科综东财"
+    "name": "科创综指ETF东财"
   },
   {
     "code": "sh589070",
-    "name": "科芯TH"
+    "name": "科创芯片设计ETF天弘"
   },
   {
     "code": "sh589080",
-    "name": "科创综E"
+    "name": "科创综指ETF汇添富"
   },
   {
     "code": "sh589090",
-    "name": "KCAI"
+    "name": "科创AIETF鹏华"
   },
   {
     "code": "sh589100",
-    "name": "国泰芯片"
+    "name": "科创芯片ETF国泰"
   },
   {
     "code": "sh589110",
-    "name": "科AI国泰"
+    "name": "科创人工智能ETF国泰"
   },
   {
     "code": "sh589120",
-    "name": "创新药基"
+    "name": "科创创新药ETF汇添富"
   },
   {
     "code": "sh589130",
-    "name": "科创芯易"
+    "name": "科创芯片ETF易方达"
   },
   {
     "code": "sh589150",
-    "name": "科创平安"
+    "name": "科创50ETF平安"
   },
   {
     "code": "sh589160",
-    "name": "科芯片GF"
+    "name": "科创芯片ETF广发"
   },
   {
     "code": "sh589170",
-    "name": "芯设计KC"
+    "name": "科创芯片设计ETF鹏华"
   },
   {
     "code": "sh589180",
-    "name": "科创材基"
+    "name": "科创新材料ETF汇添富"
   },
   {
     "code": "sh589190",
-    "name": "科创芯基"
+    "name": "科创芯片ETF华宝"
   },
   {
     "code": "sh589200",
-    "name": "科200E"
+    "name": "科创200ETF工银"
   },
   {
     "code": "sh589210",
-    "name": "芯设计GF"
+    "name": "科创芯片设计ETF广发"
   },
   {
     "code": "sh589220",
-    "name": "科200GT"
+    "name": "科创200ETF国泰"
   },
   {
     "code": "sh589230",
-    "name": "AI科创CS"
+    "name": "科创人工智能ETF南方"
   },
   {
     "code": "sh589250",
-    "name": "芯设计PY"
+    "name": "科创芯片设计ETF浦银"
   },
   {
     "code": "sh589260",
-    "name": "科创芯设"
+    "name": "科创芯片设计ETF国泰"
   },
   {
     "code": "sh589270",
-    "name": "科创100Q"
+    "name": "科创100ETF前海开源"
   },
   {
     "code": "sh589280",
-    "name": "科综增指"
+    "name": "科创增强ETF华宝"
   },
   {
     "code": "sh589290",
-    "name": "芯片主题"
+    "name": "科创芯片设计ETF汇添富"
   },
   {
     "code": "sh589300",
-    "name": "科综嘉实"
+    "name": "科创综指ETF嘉实"
   },
   {
     "code": "sh589310",
-    "name": "科创人工"
+    "name": "科创人工智能ETF鑫元"
   },
   {
     "code": "sh589320",
-    "name": "科200JS"
+    "name": "科创200ETF嘉实"
   },
   {
     "code": "sh589330",
-    "name": "科200DC"
+    "name": "科创200ETF东财"
   },
   {
     "code": "sh589350",
-    "name": "科芯片指"
+    "name": "科创芯片设计ETF银华"
   },
   {
     "code": "sh589360",
-    "name": "科创50GT"
+    "name": "科创50ETF国泰"
   },
   {
     "code": "sh589380",
-    "name": "AI科创指"
+    "name": "科创人工智能ETF富国"
   },
   {
     "code": "sh589390",
-    "name": "芯设计"
+    "name": "科创芯片设计ETF招商"
   },
   {
     "code": "sh589400",
-    "name": "芯设计FG"
+    "name": "科创芯片设计ETF富国"
   },
   {
     "code": "sh589410",
-    "name": "科创AIJS"
+    "name": "科创人工智能ETF嘉实"
   },
   {
     "code": "sh589420",
-    "name": "芯设计MW"
+    "name": "科创芯片设计ETF永赢"
   },
   {
     "code": "sh589430",
-    "name": "科芯片设"
+    "name": "科创芯片设计ETF华宝"
   },
   {
     "code": "sh589460",
-    "name": "科200HB"
+    "name": "科创200ETF华宝"
   },
   {
     "code": "sh589480",
-    "name": "科芯设JS"
+    "name": "科创芯片设计ETF嘉实"
   },
   {
     "code": "sh589490",
-    "name": "科创华夏"
+    "name": "科创成长ETF华夏"
   },
   {
     "code": "sh589500",
-    "name": "科综工银"
+    "name": "科创综指ETF工银"
   },
   {
     "code": "sh589510",
-    "name": "科新材料"
+    "name": "科创新材料ETF易方达"
   },
   {
     "code": "sh589520",
-    "name": "AI科创板"
+    "name": "科创人工智能ETF华宝"
   },
   {
     "code": "sh589550",
-    "name": "KC价值"
+    "name": "科创价值ETF华夏"
   },
   {
     "code": "sh589560",
-    "name": "科创AITF"
+    "name": "科创人工智能ETF汇添富"
   },
   {
     "code": "sh589580",
-    "name": "科综价格"
+    "name": "科创综指ETF兴银"
   },
   {
     "code": "sh589600",
-    "name": "富国科综"
+    "name": "科创综指ETF富国"
   },
   {
     "code": "sh589630",
-    "name": "科综国泰"
+    "name": "科创综指ETF国泰"
   },
   {
     "code": "sh589660",
-    "name": "综指科创"
+    "name": "科创综指ETF南方"
   },
   {
     "code": "sh589680",
-    "name": "科创综Z"
+    "name": "科创综指ETF鹏华"
   },
   {
     "code": "sh589700",
-    "name": "成长科创"
+    "name": "科创成长ETF南方"
   },
   {
     "code": "sh589720",
-    "name": "科创新药"
+    "name": "科创创新药ETF国泰"
   },
   {
     "code": "sh589770",
-    "name": "科创全指"
+    "name": "科创综指ETF招商"
   },
   {
     "code": "sh589780",
-    "name": "科200FG"
+    "name": "科创200ETF富国"
   },
   {
     "code": "sh589800",
-    "name": "科创综合"
+    "name": "科创综指ETF易方达"
   },
   {
     "code": "sh589820",
-    "name": "科200F"
+    "name": "科创200ETF建信"
   },
   {
     "code": "sh589850",
-    "name": "科创东财"
+    "name": "科创50ETF东财"
   },
   {
     "code": "sh589860",
-    "name": "天弘科综"
+    "name": "科创综指ETF天弘"
   },
   {
     "code": "sh589880",
-    "name": "科创综"
+    "name": "科创综指ETF建信"
   },
   {
     "code": "sh589890",
-    "name": "景顺科综"
+    "name": "科创综指ETF景顺"
   },
   {
     "code": "sh589900",
-    "name": "博时科综"
+    "name": "科创综指ETF博时"
   },
   {
     "code": "sh589950",
-    "name": "科100FG"
+    "name": "科创100ETF富国"
   },
   {
     "code": "sh589960",
-    "name": "科创新源"
+    "name": "科创新能源ETF易方达"
   },
   {
     "code": "sh589980",
-    "name": "科基100"
+    "name": "科创100ETF汇添富"
   },
   {
     "code": "sh589990",
-    "name": "科创板综"
+    "name": "科创综指ETF华泰柏瑞"
   },
   {
     "code": "sz158000",
