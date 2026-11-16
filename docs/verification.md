@@ -77,6 +77,7 @@
 | 12.64 | 涨跌语义三档切换（ADR-0009）：服务端档位 + 双层翻向 + 设置组 + ▲▼（实施计划独立评审 2 轮通过后执行；487/487） |
 | 12.65 | 目验反馈第一轮（2026-11-16）：方向符号全撤（决定 6 撤销）/ 设置组 polish / 降级句收 tooltip / hk 指数分时大小写修复 |
 | 12.66 | v0.3.11 发版（§12.64/§12.65 涨跌语义 + 目验反馈 攒批收口；8 笔提交 b816aba→70de1c2） |
+| 12.67 | v0.3.12 发版（美股分时雪球腿 + 自管链熔断/量纲/diag + binance 加密备源；盘中实录驱动的多源韧性轮） |
 
 ## 12.1 核心逻辑（自动化，全部通过）
 
@@ -1120,3 +1121,10 @@ P6（退避期含陈旧缓存时主源缓存优先于备源新鲜度）维持既
 - **发版链执行与偏差**：refresh-pools dry-run 未跑成——沙箱出口对 szse.cn 不可达（fetch failed ×2；qq/em 均通，系站点侧对本出口限制）；0.3.10 刚刷 6 天、data/README 节奏为季度例行+异常触发，data/ 无变更预期，跳过 `--apply` 如实记录。bump→build（版本戳探针 `grep -c 0.3.11 lib/client.js`）→全量 489/489→`scripts/ci-parity.sh` OK（fail 0）→轻量 tag→push→release-monitor 两阶段判定 RELEASE_LIVE=yes。机读事实（run id/发布时间戳/npm 三键）按纪律不手抄，可查：`gh run list --workflow=publish.yml --limit 3`、`npm view dsh-stock-kanban version dist-tags`、monitor 日志 /tmp/rel-0-3-11.log（会话临时区）。
 - **升级记录**：本机在役副本 = 目验期热部署同源字节（0.3.11 内容已先行在役），CLI/面板升级到 0.3.11 为幂等收口；registry 兼容句无腐烂（核对属 DSH 升级动作，非本轮）。
 - **未验证（不冒充已验证）**：承 §12.64/65 各项——实拍债、真宿主 rev 端到端、备份实操、hk 指数分时开盘活体确认；另 0.3.11 tarball 的 data/*.json 与在役副本一致性未逐字节比对（同仓同 tag，风险极低）。
+
+## 12.67 v0.3.12 发版（盘中实录驱动的多源韧性轮）
+
+- **内容**：美股分时雪球腿（EM 全域封锁 + Yahoo 429 双灭实录，fbe8caf）→ 腾讯美股分时单点定谳注释（ddab960）→ 自管链 provider 熔断 + EM trends2 补 f56 量纲 + 各腿 diag（7e18120）→ binance 加密备源终结 OKX 单源（7eb6b50）；决策正文单一权威＝GLOSSARY「行情链」两词条（e20d596/b10cfd6）。提交链 fbe8caf→71f56ef 共 8 笔。
+- **发版链执行与偏差**：refresh-pools dry-run 未跑成——沙箱出口对 szse.cn 不可达（与 §12.66 同款站点侧限制）；0.3.11（前一日）刚刷、data/ 无变更预期，跳过 `--apply` 如实记录。lockfile 腾讯镜像检查 0。bump（package.json + lock 根两处）→build（版本戳探针 `grep -cF 0.3.12 lib/client.js` =1）→全量 506/506→`scripts/ci-parity.sh` OK @71f56ef→轻量 tag→push（pre-push 钩子全绿）→release-monitor 两阶段判定 RELEASE_LIVE=yes。机读事实按纪律不手抄，可查：`gh run list --workflow=publish.yml --limit 3`、`npm view dsh-stock-kanban version dist-tags`、monitor 日志 /tmp/rel-0-3-12.log（会话临时区）。
+- **升级记录**：**本机未升级、宿主未重启（主人指令 2026-11-17 盘中）**。在役副本为热部署同源字节：`src/` 已是 0.3.12 内容（ebe→71f56ef 逐字节 cmp 一致，备份 .dsh-research/stock-kanban-hotfix-20261117-us-minute/）但宿主进程仍是重启前的旧模块（雪球链已活、熔断/量纲/diag/binance 未加载），磁盘 package.json 仍 0.3.11——下次 `dshm_upgrade` 到 0.3.12 为幂等收口（含 lib/client.js 对齐），重启后全部生效。
+- **未验证（不冒充已验证）**：EM trends2 f56 对美股是否有值（本机 EM 被封锁，待 EM 可达网络定谳；无值时 v=0 与修正前一致不劣化）；binance 451 地域限制风险（部署地相关，2026-11-06 dsh-stock-view 实录先例，本机当前全通）；熔断指数退避的恢复路径（成功清零逻辑有单测，真实 5 分钟窗口后的自动恢复待宿主重启后自然观察）；雪球 guest 速率限制长期水位（400016 自愈有测试，限流形态未见）。
