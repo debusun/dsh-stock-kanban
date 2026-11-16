@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { directSecid, fetchBatchSnapshots, fetchKline, fetchQuote, resolveUSSecid } from "../src/markets/eastmoney.mjs";
+import { directSecid, fetchBatchSnapshots, fetchKline, fetchMinuteDetail, fetchQuote, resolveUSSecid } from "../src/markets/eastmoney.mjs";
 
 /* EM 多市场化（P0-1/P0-3，2026-11-13）：cn/hk 目录式 secid、美股指数预置、f124 时间戳。 */
 
@@ -94,4 +94,30 @@ test("fetchKline：美股 secid 探测传输失败 → fetch-failed 形态，不
     assert.equal(r.error, "fetch-failed");
     assert.match(r.errorDetail ?? "", /secid-transport/);
   } finally { globalThis.fetch = orig; }
+});
+
+test("fetchMinuteDetail：trends2 量纲列序=时间/价格/量（fields2=f51,f53,f56，2026-11-17 补 v）", async () => {
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async (url) => {
+    assert.ok(String(url).includes("trends2"), "应打 trends2 端点");
+    assert.ok(String(url).includes("fields2=f51,f53,f56"), "应请求 f56 量列");
+    return { ok: true, json: async () => ({ data: {
+      trends: [
+        "2026-11-16 14:30,353.29,12345", // 全列：时间,价格,量
+        "2026-11-16 14:31,353.50",       // 双列旧形态：量缺失退化 v=0，不劣化
+        "2026-11-16 14:32,353.40,678",
+      ],
+      preClose: 356.27,
+    } }) };
+  };
+  try {
+    const r = await fetchMinuteDetail("sh600519"); // directSecid 直映，不走 secid 探测
+    assert.equal(r.error, null);
+    assert.equal(r.prevClose, 356.27);
+    assert.deepEqual(r.points, [
+      { t: Math.round(Date.parse("2026-11-16T14:30:00+08:00") / 1000), p: 353.29, v: 12345 },
+      { t: Math.round(Date.parse("2026-11-16T14:31:00+08:00") / 1000), p: 353.5, v: 0 },
+      { t: Math.round(Date.parse("2026-11-16T14:32:00+08:00") / 1000), p: 353.4, v: 678 },
+    ]);
+  } finally { globalThis.fetch = originalFetch; }
 });

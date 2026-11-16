@@ -178,3 +178,96 @@ test("指数（IXIC）EM 成功时 adjust 覆写 none（EM fqt=1 对指数无操
     globalThis.fetch = orig;
   }
 });
+
+const XQ_OK = [
+  ["stock.xueqiu.com/v5/stock/chart/minute.json", () => ok({ data: { items: [{ current: 166.2, volume: 500, timestamp: T0 * 1000 }], last_close: 164.5 } })],
+  ["https://xueqiu.com/", () => ({ ok: true, status: 200, headers: { getSetCookie: () => ["xq_a_token=zzz; Path=/"] } })],
+];
+const YAHOO_OK = ["query1.finance.yahoo.com/v8/finance/chart/", () => ok({ chart: { error: null, result: [{
+  meta: { chartPreviousClose: 164.5 },
+  timestamp: [T0, T0 + 60],
+  indicators: { quote: [{ close: [166.1, 166.3], volume: [1000, 2000] }] },
+}] } })];
+
+test("熔断：EM 传输失败退避期内换标的不再打 EM；diag 报 chart.eastmoney.fail；跳过不计数", async () => {
+  const orig = globalThis.fetch;
+  resetUsDetailForTests();
+  try {
+    const calls = installFetch([...XQ_OK, YAHOO_OK]);
+    const events = [];
+    const r1 = await fetchMinuteDetail("AAPL", { note: (row) => events.push(row) });
+    assert.equal(r1.error, null);
+    const emBefore = calls.filter((u) => u.includes("eastmoney.com")).length;
+    assert.ok(emBefore > 0, "首刷应真实尝试 EM");
+    assert.ok(events.some((e) => e.ev === "chart.eastmoney.fail" && e.failures === 1 && e.backoffMs === 30000), "传输失败发 diag，30s 起步");
+    const r2 = await fetchMinuteDetail("NVDA", { note: (row) => events.push(row) });
+    assert.equal(r2.error, null);
+    assert.equal(calls.filter((u) => u.includes("eastmoney.com")).length, emBefore, "退避期内不得再打 EM");
+    assert.ok(!events.some((e) => e.ev === "chart.eastmoney.fail" && e.failures > 1), "退避期跳过不计数（防自增殖）");
+  } finally {
+    globalThis.fetch = orig;
+  }
+});
+
+test("熔断只认传输失败：EM 应答但无数据（not-found）不计数不退避", async () => {
+  const orig = globalThis.fetch;
+  resetUsDetailForTests();
+  try {
+    const calls = installFetch([
+      ["push2.eastmoney.com", () => ok({ data: null })], // secid 探测：应答但无 f57
+      ...XQ_OK,
+    ]);
+    const events = [];
+    const r = await fetchMinuteDetail("AAPL", { note: (row) => events.push(row) });
+    assert.equal(r.error, null); // EM not-found → 雪球顶上
+    assert.ok(!events.some((e) => e.ev === "chart.eastmoney.fail"), "应答无数据不是传输失败，不发 fail 不计数");
+    await fetchMinuteDetail("NVDA", { note: () => {} });
+    assert.ok(calls.filter((u) => u.includes("push2.eastmoney.com")).length >= 6, "无退避：换标的仍正常探测 EM（3 交易所×两标的）");
+  } finally {
+    globalThis.fetch = orig;
+  }
+});
+
+test("熔断：雪球传输失败退避期内不再打雪球（Yahoo 顶上）；diag 报 chart.xueqiu.fail", async () => {
+  const orig = globalThis.fetch;
+  resetUsDetailForTests();
+  try {
+    const calls = installFetch([
+      ["stock.xueqiu.com/v5/stock/chart/minute.json", () => { throw new Error("xq down"); }],
+      ["https://xueqiu.com/", () => ({ ok: true, status: 200, headers: { getSetCookie: () => ["xq_a_token=zzz; Path=/"] } })],
+      YAHOO_OK,
+    ]);
+    const events = [];
+    const r1 = await fetchMinuteDetail("AAPL", { note: (row) => events.push(row) });
+    assert.equal(r1.error, null, "雪球挂 → Yahoo 顶上");
+    assert.ok(events.some((e) => e.ev === "chart.xueqiu.fail"), "雪球传输失败应发 diag");
+    const xqBefore = calls.filter((u) => u.includes("xueqiu.com")).length;
+    const r2 = await fetchMinuteDetail("NVDA", { note: () => {} });
+    assert.equal(r2.error, null);
+    assert.equal(calls.filter((u) => u.includes("xueqiu.com")).length, xqBefore, "退避期内不得再打雪球");
+  } finally {
+    globalThis.fetch = orig;
+  }
+});
+
+test("三腿全灭：diag 齐收 chart.{eastmoney,xueqiu,yahoo}.fail，errorDetail 末源优先", async () => {
+  const orig = globalThis.fetch;
+  resetUsDetailForTests();
+  try {
+    installFetch([
+      ["query1.finance.yahoo.com", () => ({ ok: false, status: 429, json: async () => ({}) })],
+    ]);
+    // 用未被前面用例写入 SECID_CACHE 负缓存的 ticker（该缓存属 eastmoney 模块态，
+    // resetUsDetailForTests 清不到）——已缓存 null 的 ticker 在 EM 腿直接 not-found，不发传输 fail
+    const events = [];
+    const r = await fetchMinuteDetail("TSLA", { note: (row) => events.push(row) });
+    assert.equal(r.error, "fetch-failed");
+    assert.equal(r.errorDetail, "HTTP 429", "末源（Yahoo）detail 优先");
+    for (const ev of ["chart.eastmoney.fail", "chart.xueqiu.fail", "chart.yahoo.fail"]) {
+      assert.ok(events.some((e) => e.ev === ev), "应含 " + ev);
+    }
+    assert.equal(events.find((e) => e.ev === "chart.yahoo.fail").backoffMs, 120000);
+  } finally {
+    globalThis.fetch = orig;
+  }
+});

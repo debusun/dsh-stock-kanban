@@ -375,7 +375,7 @@ async function klineRoute(req, res) {
   let packed;
   if (symbol.market === "us") {
     const adapter = await adapterFor(symbol.market);
-    packed = { result: await adapter.fetchKline(symbol.code, period), source: "us-detail" }; // us 自管链（ADR-0007）
+    packed = { result: await adapter.fetchKline(symbol.code, period, { note }), source: "us-detail" }; // us 自管链（ADR-0007；note → 各腿 diag）
   } else {
     packed = await chartResult("kline", symbol, period); // cn/hk/crypto 查链表（ADR-0007）
   }
@@ -400,7 +400,7 @@ async function minuteRoute(req, res) {
   let packed;
   if (symbol.market === "us") {
     const adapter = await adapterFor(symbol.market);
-    packed = { result: await adapter.fetchMinuteDetail(symbol.code), source: "us-detail" }; // us 自管链（ADR-0007）
+    packed = { result: await adapter.fetchMinuteDetail(symbol.code, { note }), source: "us-detail" }; // us 自管链（ADR-0007；note → 各腿 diag）
   } else {
     packed = await chartResult("minute", symbol); // cn/hk/crypto 查链表（ADR-0007）
   }

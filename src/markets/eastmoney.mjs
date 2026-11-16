@@ -299,7 +299,7 @@ export async function fetchMinuteDetail(code) {
   }
   if (!secid) return { date: null, prevClose: null, points: [], error: "not-found" };
   const url = EM_HIS + "/api/qt/stock/trends2/get?secid=" + encodeURIComponent(secid)
-    + "&fields1=f1,f2,f3,f4,f5,f6,f7,f8&fields2=f51,f53&iscr=0&ndays=1";
+    + "&fields1=f1,f2,f3,f4,f5,f6,f7,f8&fields2=f51,f53,f56&iscr=0&ndays=1";
   let j;
   try {
     j = await emJson(url);
@@ -315,7 +315,11 @@ export async function fetchMinuteDetail(code) {
     if (c.length < 2) continue;
     const hm = c[0].trim();
     const p = num(c[1]);
-    const v = num(c[4]) ?? 0;
+    // 量纲（2026-11-17）：fields2=f51,f53,f56 → 列序 时间/价格/成交量；客户端均价线按 v 自算、
+    // 量柱按 v 画，v 恒 0 时两者退化（旧 fields2=f51,f53 的隐患，修正此处列序 c[4]→c[2]）。
+    // 注意：f56 对美股是否有值未在装机构网内验证（本机 EM 被封），待 EM 可达网络定谳；
+    // 美股 f56 无值时 v=0 退化形态与修正前一致，不劣化。
+    const v = num(c[2]) ?? 0;
     if (p == null || p <= 0) continue;
     const t = Math.round(Date.parse(hm.replace(" ", "T") + ":00+08:00") / 1000);
     if (!Number.isFinite(t) || t <= 0) continue;
