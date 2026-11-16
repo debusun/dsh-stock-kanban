@@ -103,3 +103,65 @@ test("设置组 · zh/en 文案切换实时跟随（骨架静态文案重套 t()
     s.restore();
   }
 });
+
+test("根变量翻转（ADR-0009 T8）：mount 后 host 内联 --skc-up/--skc-down 随档位（green-up 翻向、native 同默认）", async () => {
+  const h = createDomHarness();
+  h.setViewport(h.window, 1024, 768);
+  const prev = {
+    document: globalThis.document,
+    window: globalThis.window,
+    localStorage: globalThis.localStorage,
+    fetch: globalThis.fetch,
+  };
+  Object.assign(globalThis, { document: h.document, window: h.window, localStorage: h.localStorage });
+  h.window.setInterval = () => 1; // 轮询定时器桩（不依赖真实时钟）
+  h.window.clearInterval = () => {};
+  const mod = await import("../client/main.mjs");
+  const stateFor = (mode) => ({ rev: 1, settings: { privacyMode: false, trendColorMode: mode }, symbols: [], driverKind: null });
+  const mountWith = async (mode) => {
+    globalThis.fetch = async (url) => {
+      const u = String(url);
+      if (u.includes("/stock-kanban/state")) return { ok: true, json: async () => stateFor(mode) };
+      if (u.includes("/stock-kanban/quotes")) return { ok: true, json: async () => ({ rows: {}, providers: [] }) };
+      if (u.includes("dsh-quota-watch/overview")) return { ok: true, json: async () => ({}) };
+      throw new TypeError(`unexpected fetch: ${u}`);
+    };
+    return mod.mountKanban({ doc: h.document, win: h.window, storage: h.localStorage });
+  };
+  const flush = () => new Promise((r) => setTimeout(r, 0));
+  const disposables = []; // mountKanban 返回值 = dispose 函数本体（非对象方法）
+  try {
+    const dispose1 = await mountWith("green-up");
+    disposables.push(dispose1);
+    let host = h.document.querySelector("[data-dsh-stock-kanban-float]");
+    assert.ok(host, "host 在位");
+    await flush();
+    assert.equal(host.style.getPropertyValue("--skc-up"), "#2bb596", "green-up：--skc-up 翻绿");
+    assert.equal(host.style.getPropertyValue("--skc-down"), "#e5484d", "green-up：--skc-down 翻红");
+    dispose1();
+
+    const dispose2 = await mountWith("native");
+    disposables.push(dispose2);
+    host = h.document.querySelector("[data-dsh-stock-kanban-float]");
+    await flush();
+    assert.equal(host.style.getPropertyValue("--skc-up"), "#e5484d", "native：保持默认对（分支在类名/直取层）");
+    assert.equal(host.style.getPropertyValue("--skc-down"), "#2bb596", "native：保持默认对");
+    dispose2();
+
+    const dispose3 = await mountWith("red-up");
+    disposables.push(dispose3);
+    host = h.document.querySelector("[data-dsh-stock-kanban-float]");
+    await flush();
+    assert.equal(host.style.getPropertyValue("--skc-up"), "#e5484d", "red-up：默认对");
+    assert.equal(host.style.getPropertyValue("--skc-down"), "#2bb596", "red-up：默认对");
+    dispose3();
+  } finally {
+    // 失败中断也必须清掉 mount 内的全局轮询定时器（store 轮询用全局 setInterval，stub 不到）——否则测试进程不退出；
+    // 循环自身异常吞掉，避免掩码真实断言失败
+    for (const d of disposables) {
+      try { d?.(); } catch { /* 清理不抛 */ }
+    }
+    Object.assign(globalThis, { document: prev.document, window: prev.window, localStorage: prev.localStorage, fetch: prev.fetch });
+    h.cleanup();
+  }
+});

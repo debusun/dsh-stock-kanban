@@ -14,6 +14,8 @@ import { createAdd } from "./add.mjs";
 import { createBackup } from "./backup.mjs";
 import { createQuotaEmbed } from "./quota-embed.mjs";
 import { mirrorGuestFloatPosition } from "./float-prefs.mjs";
+import { trendModeVars } from "./colors.mjs";
+import { normalizeTrendColorMode } from "../src/model.mjs";
 import { FLOAT_STYLE_TEXT } from "./styles.mjs";
 import { createDiagReporter } from "./diag.mjs";
 import { VERSION_LABEL } from "./version.mjs";
@@ -106,10 +108,19 @@ export function mountKanban({ doc, win, storage }) {
 
   let wasOpen = false;
   let prevQuoteError; // errorGlobal 轻路径参照（渲染切片广播 Task 4：按 quoteMetaError 分片门控）
+  let prevTrendMode = null; // 涨跌语义翻向缓存（写前比对，quotes tick 零冗余写）
   const renderAll = (snapshot) => {
     capsule.update(snapshot);
     quotaEmbed.update(snapshot);
     panel.update(snapshot);
+    // 涨跌语义（ADR-0009 T8）：red-up/green-up 档翻向由 host 内联自定义属性承载
+    // （custom property 优先级高于 shadow 内 :host 规则，评审轮2 已核）；native 档保持
+    // 默认对——同屏分支在类名层（trendClass/trendSideClass）与 SVG 直取层（trendDirVar）。
+    const trendMode = normalizeTrendColorMode(snapshot?.business?.settings?.trendColorMode);
+    if (trendMode !== prevTrendMode) {
+      for (const [k, v] of Object.entries(trendModeVars(trendMode))) host.style.setProperty(k, v);
+      prevTrendMode = trendMode;
+    }
     // quotes-only tick 不重写全局错误条（undefined = 全量时照写：回放/语言切换路径）
     const quoteError = snapshot?.quoteMeta?.error ?? null;
     if (snapshot?.changed === undefined || quoteError !== prevQuoteError) {

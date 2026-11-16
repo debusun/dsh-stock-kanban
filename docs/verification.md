@@ -74,6 +74,7 @@
 | 12.61 | v0.3.10 发版（§12.59 数据口径 + §12.60 名称覆写 攒批收口） |
 | 12.62 | 验证记录体制改革：判例法定位成文 + 机读事实禁手抄 + 发布后单笔 bookkeeping + 归档线（钢人裁决四条全落） |
 | 12.63 | retro 落地：夹具 ASCII 守卫 + searchRoute 接线守卫 + AGENTS 两处措辞（S3/S4 不纳入） |
+| 12.64 | 涨跌语义三档切换（ADR-0009）：服务端档位 + 双层翻向 + 设置组 + ▲▼（实施计划独立评审 2 轮通过后执行；487/487） |
 
 ## 12.1 核心逻辑（自动化，全部通过）
 
@@ -1092,3 +1093,11 @@ P6（退避期含陈旧缓存时主源缓存优先于备源新鲜度）维持既
 - **S5**：AGENTS chrome-cft 检查给出抗自匹配命令 `pgrep -f '[c]hrome-cft'`（`pgrep -f` 裸写法匹配自身命令行误报实录）。
 - **不纳入（主人裁决）**：S3 深交所 RST 知识沉淀 data/README（§12.61 已录，下次触碰刷新流程时顺带）；S4 workspace AGENTS `ops_load_sdk` 限定词（跨机共享文件，单验）。
 - **未验证（不冒充已验证）**：GUI 搜索未复验——升级后实页搜 518850 应显示「黄金ETF华夏」、行情链挂时应显示池名（主人点验即闭环）；覆写与面板快照共享 TTL 的实际命中率未在真宿主测量。
+
+## 12.64 涨跌语义三档切换（ADR-0009；实施计划 docs/plans/2026-11-16-trend-color-semantics-implementation-plan.md，独立评审 2 轮 5 项全闭环后执行）
+
+- **范围与决策指针**：服务端 settings 增 `trendColorMode`（red-up=默认现状 / green-up / native，非法 fail-closed 回默认）；语义纯函数层 client/colors.mjs 单点物理色权威 + fmt.mjs 三参 `trendClass/trendVarRef/trendDirVar/fmtTrendPct/trendSideClass`；CSS 物理对变量 + native 市场分支类 + B/S side 覆盖（创建+update 双写）；SVG 图表全着色改 style 属性 var 引用（UP/DOWN 常量与 rgba 字面量退役，默认档视觉恒等）；DOM 消费点穿参 + ▲▼ 仅涨跌幅（Q11）；设置对话框「涨跌配色」radio 三行（每行内嵌真实预览，行3 同涨不同色沪红/美绿）；main.mjs host 内联变量翻向（写前比对缓存、tick 零冗余写）。决策正文单一权威：docs/adr/0009-trend-color-semantics.md（推翻 2026-11-15 P1-3）；术语 GLOSSARY「涨跌语义」「原生语义」；设计契约 ui-redesign §8.18 + A1/A2/B5/C3/D2 条款修订。
+- **TDD 判例**：逐任务先红后绿；既有钉段唯二预期破裂面（defaultGlobal settings 形状 deepEqual、hero pct 文本 `+0.30%`→`▲+0.30%`）随新规格更新——皆 Q6/ADR-0009 已批准的规格变更，非回归。
+- **全量**：`npm test` **487/487**（原 458 → +29：语义矩阵、设置组交互、挂载翻向、服务端往返、失败 toast 冒泡等）。
+- **产物**：`npm run build` 重建后 `grep -cF 'trendColorMode' lib/client.js` 计数 2（ASCII 结构标记判据——对象键+成员访问，minify 免疫；`trendClass` 函数名被 minify 计 0 不可判据，探针实证；中文转义为「反斜杠+u+四位大写 hex」，小写定串计 0）。产物随实现提交；pre-push 新鲜度闸待发版链触发（本任务不含发版）。
+- **未验证（不冒充已验证）**：① **cdp-shot 实拍全程未做**——本会话沙箱环境 headless chrome 启动即崩（`/dev/shm` 共享内存 EPERM → crashpad Trace/breakpoint trap core dumped，CDP 9223 不可达；`--down` 清场复核 chrome=0），默认档三轮截图/指纹/哨兵均未取证——**渲染层改动未实拍**是本轮最大未验证债，主人环境可跑：`bash ~/workspace/.tools/bsk/start-headless-chrome.sh`（后台）→ `node scripts/cdp-shot.mjs`；② green-up / native 档浏览器实拍未做（cdp-shot 无切档能力，即便环境可用也只走默认档）——主人点验路径：设置 → 涨跌配色切档观察全插件即时换向，**green-up 档详情 hero「红=跌」观感优先看**（评审建议 1）；③ 真宿主 settings POST → rev 广播 → 全量重渲染+图表重画端到端未活体测量（jsdom 挂载测试 + rev→structural 链路代码证据在案：store.mjs:83 → panel.mjs:459-462 → detail.update → buildChartBox）；④ 备份导出→导入往返仅模型层单测钉（buildExportPayload→parseImportPayload round-trip），未做浏览器备份文件实操。

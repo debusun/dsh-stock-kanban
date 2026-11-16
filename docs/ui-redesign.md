@@ -9,8 +9,8 @@
 
 | # | 功能 | 实现要点 |
 |---|---|---|
-| A1 | 展示自选标的 | 名称 + 现价 + 涨跌幅（红涨绿跌、tabular-nums） |
-| A2 | 触价标记 | 买入触发红 `B`、卖出触发绿 `S`（拉丁字母，B26） |
+| A1 | 展示自选标的 | 名称 + 现价 + 涨跌幅（涨跌语义三档：默认红涨绿跌、设置可切换，▲▼ 方向符号，ADR-0009；tabular-nums） |
+| A2 | 触价标记 | 买恒取涨色、卖恒取跌色，随涨跌语义档换向；native 档按标的所在市场取色（拉丁字母，B26；ADR-0009） |
 | A3 | 行情过期诚实降级 | stale/no-data → 显示「行情旧」，title 说明，不伪装实时 |
 | A4 | 自由拖动 + 位置记忆 | grab/slop(6/10)/rAF 管线；落盘 `dsh-stock-kanban:float-position`；视口钳位（safe-area + Windows 标题栏带） |
 | A5 | quota-watch 合并胶囊（CEP v1） | 股票段｜分隔线｜额度段（G/C 百分比、>80 琥珀 >95 危险、待处理兑换小点）；整枚同拖、位置双键互认；点额度段唤起 qw 面板 |
@@ -26,7 +26,7 @@
 | B2 | 锚定弹出几何 | 股票段矩形水平推出优先（右→左）→ 两侧放不下垂直回退（下→上翻）→ 钳位；≤480px 底部 sheet |
 | B3 | 列表常驻 | 详情是覆盖层；返回保市场 Tab/筛选/滚动 |
 | B4 | footer 动作区 | 胶囊标的 picker（select）+ 隐私/添加/设置/刷新/关闭 图标钮 + quota 合并开关（仅能力在线渲染）+ hint（延迟提示、隐私态） |
-| B5 | 对话框层 | 添加、设置（备份）覆盖在面板内渲染 |
+| B5 | 对话框层 | 添加、设置（涨跌配色 radio 组 + 备份导入导出）覆盖在面板内渲染（ADR-0009） |
 | B6 | toast | 3.8s 自动消失；全局行情错误条另列 |
 
 ### C. 列表视图（list.mjs）
@@ -35,7 +35,7 @@
 |---|---|---|
 | C1 | 四市场 Tab | A股/港股/美股/加密货币 固定分组 + 计数徽章 |
 | C2 | 只看持仓 | checkbox 筛选；持仓行加 ★ |
-| C3 | 行内容 | 名称+代码（去 sh/sz/bj/hk 前缀）· 现价 · 涨跌幅 |
+| C3 | 行内容 | 名称+代码（去 sh/sz/bj/hk 前缀）· 现价 · 涨跌幅（▲▼ 方向符号，ADR-0009） |
 | C4 | 持仓模式 | 只看持仓时行尾显示盈亏金额/比例（隐私态 `••••` 遮挡） |
 | C5 | 目标价徽章 | 未触发时显示 B/S 触发徽章或 休/旧/无 状态徽章（带 title 说明） |
 | C6 | 空态 | 「暂无自选，点＋添加」/「该市场暂无持仓」 |
@@ -45,7 +45,7 @@
 | # | 功能 | 实现要点 |
 |---|---|---|
 | D1 | 头部 | 返回、名称、代码·市场·ETF·报价币、删除（confirm） |
-| D2 | 行情头 | 大字价格 + 涨跌幅；**行情时间与拉取时间分开标注**；过期徽章 |
+| D2 | 行情头 | 大字价格 + 涨跌幅（▲▼ 方向符号，ADR-0009）；**行情时间与拉取时间分开标注**；过期徽章 |
 | D3 | 图表 | 分时/日K/周K/月K；SVG 自绘无 CDN；分时含均价线+昨收虚线+量柱；K线含 MA5/10/20/60+量柱；MA 图例 chip 显隐；复权标注（前复权/不复权，如实） |
 | D4 | 持仓编辑 | 数量（股/币语境）+ 平均成本 → 市值/浮动盈亏/比例；存/清持仓 |
 | D5 | 目标价编辑 | 买目标（≤触发B）/卖目标（≥触发S）；阈值重叠显式确认 |
@@ -571,3 +571,7 @@ P3（产品，需主人决定）
 #### 8.17.8 主人反馈迭代八：删除确认条与头排零间距贴合修复（2026-11-15 当日，v0.3.8）
 
 主人实拍反馈：删除确认条上缘与头排删除钮边框「小重合」。CDP 探针量测裁决：**非真重叠，系零间距贴合**——`.skc-confirm` 无 margin，条顶边与头排底边（`align-items:stretch` 下删除钮 stretch 至 38px）同线（实测 gap=0.0），两条 hairline 边框叠读成重合。修复：confirmStrip 助手加 `page` 修饰位（两个 remove 创建点共用），`.skc-confirm--page{margin:10px 0 0}`——上缘 10px 呼吸（仓内既有 10px 节奏档）；下邻报价行自带 `margin-top:10px`，条上下 10/10 对称；表单内联条（清除持仓/目标价/阈值重叠）不带修饰、不受扰。测试：r6 两处原位加钉（整幅条含 `skc-confirm--page` / 表单内联条不含）；impeccable layout 机械扫描零发现；前后探针对照 gap 0→10px（实拍 `/tmp/skc-strip-probe/`）。
+
+### 8.18 第 14 轮：涨跌语义三档切换（2026-11-16，ADR-0009）
+
+主人提出涨跌配色可切换需求，grilling 十一题逐项拍板 + 独立评审代理两轮对审后立 **ADR-0009**（正式推翻 2026-11-15 P1-3「全局红涨不做 per-market」）：三档 `trendColorMode`（red-up 红涨绿跌=默认现状 / green-up 红跌绿涨 / native 原生语义——A股红涨绿跌，港/美/币绿涨红跌，指数随所属市场），存服务端 settings 随 DSH 实例走，备份导入导出携带；默认档升级零感知。机制两层：red-up/green-up 由 main.mjs 把 `trendModeVars(mode)` 写 host 内联 `--skc-up/--skc-down`（custom property 优先级高于 shadow 内 :host 规则，写前比对缓存、tick 零冗余写）；native 档走 `trendClass(v, market, mode)` 市场分支类（`skc-up-cn/…/skc-up-g`）+ B/S side 类双写（创建+update 路径）+ SVG `trendDirVar` 直取物理 var。SVG 图表着色全部改 style 属性 var 引用（AXIS_TEXT_STYLE 先例），UP/DOWN 常量与 rgba 字面量退役，量柱改 color-mix 等价配方——默认档视觉恒等。物理色对单点权威 `client/colors.mjs`（styles.mjs 插值 + main.mjs 复用）；`--skc-danger` 同 hex 陷阱全程规避。设置对话框新增「涨跌配色」组：竖排 radio 三行 + 每行内嵌真实预览（`fmtTrendPct` 真渲染；行3「同涨不同色」沪红/美绿），写入走 `store.setTrendColorMode`（mutate 管道：rev 冲突自动刷新、失败复用 toast.op-failed）；无乐观更新，aria 以快照为准。方向符号 ▲▼ 仅加在涨跌幅字段（胶囊/列表行/hero，Q11 拍板），平盘不加、价格/涨跌额/盈亏幅不加——颜色+符号双编码（色弱冗余）。实现纪律：TDD 红→绿逐任务（model/routes/store → colors/fmt → styles → charts → 消费点 → panel → main）；`tests/client-colorsem.test.mjs`（语义矩阵）与 `tests/client-settings-colorsem.test.mjs`（radio 交互+挂载翻向）新建，model/routes/store/dom/hero/round3 原位扩展；既有钉段唯二预期破裂面（settings 形状 deepEqual、hero pct 文本）随新规格更新。**未提交**：本轮改动留在工作区（发版链不在本任务范围）。
