@@ -107,6 +107,27 @@ test("分时：东方财富不通时回落 Yahoo 1 分钟；昨收取 meta.chart
   }
 });
 
+test("分时：EM 与 Yahoo 之间插入雪球腿（雪球可用时不打 Yahoo，2026-11-17 链形）", async () => {
+  const orig = globalThis.fetch;
+  resetUsDetailForTests();
+  try {
+    const calls = installFetch([
+      ["stock.xueqiu.com/v5/stock/chart/minute.json", () => ({ ok: true, status: 200, json: async () => ({ data: { items: [{ current: 166.2, volume: 500, timestamp: T0 * 1000 }], last_close: 164.5 } }) })],
+      ["https://xueqiu.com/", () => ({ ok: true, status: 200, headers: { getSetCookie: () => ["xq_a_token=zzz; Path=/"] } })],
+      ["query1.finance.yahoo.com", () => { throw new Error("yahoo should not be called"); }],
+    ]);
+    const r = await fetchMinuteDetail("NVDA");
+    assert.equal(r.error, null);
+    assert.equal(r.date, "2026-11-12");
+    assert.equal(r.prevClose, 164.5);
+    assert.deepEqual(r.points, [{ t: T0, p: 166.2, v: 500 }]);
+    assert.ok(!calls.some((u) => u.includes("query1.finance.yahoo.com")), "雪球成功时 Yahoo 不得被请求");
+    assert.ok(calls.some((u) => u.startsWith("https://xueqiu.com/")), "应先做雪球 guest 引导");
+  } finally {
+    globalThis.fetch = orig;
+  }
+});
+
 test("Yahoo 429 后进入退避：退避期内不再请求 Yahoo", async () => {
   const orig = globalThis.fetch;
   resetUsDetailForTests();

@@ -2,7 +2,12 @@
  * 美股详情图表（分时 / K 线）多源链（2026-11-13）。
  *
  *   K 线：东方财富 push2his（前复权 qfq，主源）-> 腾讯美股 K 线（备源，未复权，标 none；指数同样回落）
- *   分时：东方财富 trends2（主源）-> Yahoo chart 1 分钟（备源，昨收取 meta.chartPreviousClose；带 429 退避）
+ *   分时：东方财富 trends2（主源）-> 雪球 minute.json（备源 #2，2026-11-17；guest cookie 引导见 xueqiu.mjs）
+ *        -> Yahoo chart 1 分钟（备源 #3，昨收取 meta.chartPreviousClose；带 429 退避）
+ *
+ * 2026-11-17 补链缘由：EM 对机房 IP 整体封锁（push2 502、push2his 空回应，见 eastmoney.mjs 头注）
+ * 且 Yahoo 对本机 IP 持续 429（实测 fc.yahoo.com cookie 引导无效，属 IP 级限速非缺 cookie），
+ * 美股分时两源齐灭、整块 fetch-failed——雪球实测可用（盘中 170 根 1 分钟序列，指数同形态）插入链中。
  *
  * 为什么要备源：2026-11-13 东方财富 push2/push2his 在本机整体不通（push2his 连接后空回应，push2 返回 502），
  * 详情图表此前只有这一条路径，整块报 fetch-failed。
@@ -21,6 +26,7 @@
  * 缓存：成功结果 K 线 5 分钟、分时 30 秒，失败不缓存。无常驻定时器，全部惰性触发。
  */
 import * as eastmoney from "./eastmoney.mjs";
+import { fetchMinuteDetail as xueqiuMinute, resetXueqiuForTests } from "./xueqiu.mjs";
 import { indexOfCode } from "../identity.mjs";
 
 const TIMEOUT_MS = 10000;
@@ -43,11 +49,12 @@ const suffixByTicker = new Map();
 const cache = new Map();
 let yahooBackoffUntil = 0;
 
-/** 测试用：清空后缀记忆、缓存与退避状态 */
+/** 测试用：清空后缀记忆、缓存与退避状态（含雪球引导 cookie） */
 export function resetUsDetailForTests() {
   suffixByTicker.clear();
   cache.clear();
   yahooBackoffUntil = 0;
+  resetXueqiuForTests();
 }
 
 function tickerOf(code) {
@@ -193,15 +200,17 @@ export async function fetchKline(code, period = "day") {
   return { candles: [], adjust: null, error, errorDetail: em.errorDetail ?? null };
 }
 
-/** 分时：东方财富（trends2）-> Yahoo 1 分钟（带退避） */
+/** 分时：东方财富（trends2）-> 雪球（guest 引导，2026-11-17）-> Yahoo 1 分钟（带退避） */
 export async function fetchMinuteDetail(code) {
   const key = "min:" + code;
   const hit = cached(key, CACHE_TTL.minute);
   if (hit) return hit;
   const em = await eastmoney.fetchMinuteDetail(code);
   if (em.points?.length) return remember(key, em);
+  const xq = await xueqiuMinute(code);
+  if (xq.points?.length) return remember(key, xq);
   const yh = await yahooMinute(code);
   if (yh.points.length) return remember(key, yh);
   const error = em.error === "fetch-failed" || yh.error === "fetch-failed" ? "fetch-failed" : (yh.error ?? em.error ?? "no-data");
-  return { date: null, prevClose: null, points: [], error, errorDetail: yh.errorDetail ?? em.errorDetail ?? null };
+  return { date: null, prevClose: null, points: [], error, errorDetail: yh.errorDetail ?? xq.errorDetail ?? em.errorDetail ?? null };
 }
