@@ -218,8 +218,7 @@ export const FLOAT_STYLE_TEXT = `
 .skc-period{font-size:12px}
 /* K 线指标行（MA 图例 + 复权标注）另起一行：不挤占周期分段的宽度，分时模式下隐藏 */
 .skc-period-meta{display:flex;align-items:center;flex-wrap:wrap;gap:6px 8px;margin:0 0 8px;min-height:20px} /* min-height = MA chip 高：图例行四档周期常驻等高，切周期卡片零位移（第 12 轮 2026-11-10） */
-.skc-adjust,.skc-meta-note{color:var(--skc-text-2);font-size:12px;line-height:16px;font-variant-numeric:tabular-nums}
-.skc-source-note{color:var(--skc-text-2);font-size:11px;line-height:16px;opacity:.72;white-space:nowrap} /* §12.48 数据源脚注：弱化小字，与 badge 同行 */
+.skc-adjust,.skc-meta-note{color:var(--skc-text-2);font-size:12px;line-height:16px;font-variant-numeric:tabular-nums} /* §12.48：降级说明已收进 quote-line tooltip（2026-11-16 目验），source-note 行内小字退役 */
 .skc-chartbox{border:1px solid var(--skc-hairline);border-radius:8px;padding:6px;min-height:140px;display:flex;align-items:center;justify-content:center;background:color-mix(in srgb,var(--skc-surface-deep) 45%,transparent)}
 .skc-chart{display:block;max-width:100%;height:auto}
 .skc-chart-empty{color:var(--skc-text-2);padding:20px;text-align:center;height:100%;display:flex;align-items:center;justify-content:center}
@@ -311,19 +310,20 @@ export const FLOAT_STYLE_TEXT = `
 .skc-setting-version{opacity:.65;font-variant-numeric:tabular-nums}
 /* 涨跌配色组（ADR-0009 三档 radio）：竖排三行、每行内嵌真实预览；选中态 accent，涨跌色只属于预览演示。
    与备份区的分隔复用 .skc-settings-body > * + * 既有 hairline（不设 divider 元素） */
+.skc-colorsem-wrap{display:flex;flex-direction:column;gap:4px}
 .skc-colorsem-title{font-size:11px;line-height:16px;color:var(--skc-text-2);letter-spacing:.02em}
-.skc-colorsem{display:flex;flex-direction:column;gap:2px}
-.skc-colorsem-row{display:flex;align-items:center;gap:10px;min-height:44px;padding:6px 8px;border-radius:9px;border:1px solid transparent;background:transparent;color:var(--skc-text);cursor:pointer;font:inherit;text-align:left;width:100%;transition:background .12s var(--skc-ease)}
+.skc-colorsem{display:flex;flex-direction:column}
+.skc-colorsem-row{display:flex;align-items:center;gap:8px;min-height:44px;padding:6px 9px;border-radius:9px;border:1px solid transparent;background:transparent;color:var(--skc-text);cursor:pointer;font:inherit;text-align:left;width:100%;transition:background .12s var(--skc-ease)}
 .skc-colorsem-row:hover{background:var(--skc-hover)}
 .skc-colorsem-row:active{background:var(--skc-pressed)}
 .skc-colorsem-row:focus-visible{outline:2px solid var(--dsw-alias-brand-primary,#5b8def);outline-offset:2px}
-.skc-colorsem-row::before{content:"";flex:none;width:14px;height:14px;border-radius:999px;border:1.5px solid var(--skc-hairline-strong);transition:border-color .12s var(--skc-ease), box-shadow .12s var(--skc-ease)}
-.skc-colorsem-row[aria-checked="true"]::before{border-color:var(--skc-accent);background:var(--skc-accent);box-shadow:inset 0 0 0 2.5px var(--skc-surface)}
+.skc-colorsem-row::before{content:"";flex:none;width:12px;height:12px;border-radius:999px;border:1.5px solid var(--skc-hairline-strong);transition:border-color .12s var(--skc-ease), box-shadow .12s var(--skc-ease)}
+.skc-colorsem-row[aria-checked="true"]::before{border-color:var(--skc-accent);background:var(--skc-accent);box-shadow:inset 0 0 0 2px var(--skc-surface)}
 .skc-colorsem-row[aria-checked="true"] .skc-colorsem-label{font-weight:600}
-.skc-colorsem-main{display:flex;flex-direction:column;gap:1px;min-width:0;flex:1 1 auto}
+.skc-colorsem-main{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1 1 auto}
 .skc-colorsem-label{font-size:13px;line-height:18px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .skc-colorsem-sub{font-size:11px;line-height:16px;color:var(--skc-text-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.skc-colorsem-preview{display:flex;align-items:center;gap:6px;flex:none;font-size:12px;line-height:16px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.skc-colorsem-preview{display:flex;align-items:center;gap:5px;flex:none;font-size:12px;line-height:16px;font-variant-numeric:tabular-nums;white-space:nowrap}
 .skc-colorsem-tag{font-size:11px;line-height:16px;color:var(--skc-text-3);padding:0 5px;border-radius:999px;background:var(--skc-hover)}
 .skc-csp-red{color:var(--skc-red)}
 .skc-csp-green{color:var(--skc-green)}

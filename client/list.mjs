@@ -4,7 +4,7 @@
  * 位置：常驻层（面板 body 内）；update(snapshot) 增量重绘行区。
  */
 
-import { fmtPrice, fmtPct, fmtAmount, fmtTrendPct, trendClass, trendSideClass, MASK } from "./fmt.mjs";
+import { fmtPrice, fmtPct, fmtAmount, trendClass, trendSideClass, MASK } from "./fmt.mjs";
 import { t } from "./i18n.mjs";
 import { iconEl } from "./icons.mjs";
 import { targetBadgeKind } from "../src/sessions.mjs";
@@ -334,7 +334,7 @@ export function createList({ store }) {
       trendClass(pct, s.market, mode),
       price != null ? fmtPrice(price) : q ? (q.status === "error" ? t("list.quote-failed") : "—") : "…",
     );
-    appendText(priceCol, `skc-pct ${trendClass(pct, s.market, mode)}`, fmtTrendPct(pct)); // ▲▼ 仅涨跌幅（ADR-0009 Q11）
+    appendText(priceCol, `skc-pct ${trendClass(pct, s.market, mode)}`, fmtPct(pct));
 
     let tailCol;
     if (ui.holdingsOnly && hasPos) {
@@ -385,7 +385,7 @@ export function createList({ store }) {
       priceSpan.className = trendClass(pct, s.market, mode);
     }
     if (pctSpan) {
-      pctSpan.textContent = fmtTrendPct(pct);
+      pctSpan.textContent = fmtPct(pct);
       pctSpan.className = `skc-pct ${trendClass(pct, s.market, mode)}`;
     }
     const hasPos = s.quantity != null && s.quantity > 0;

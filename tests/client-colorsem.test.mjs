@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { TREND_RED, TREND_GREEN, trendModeVars } from "../client/colors.mjs";
-import { trendClass, trendVarRef, trendDirVar, fmtTrendPct, trendSideClass, fmtPct } from "../client/fmt.mjs";
+import { trendClass, trendVarRef, trendDirVar, trendSideClass, fmtPct } from "../client/fmt.mjs";
 
 /* 涨跌语义纯函数矩阵（ADR-0009，实施计划 T3）——3 modes × 4 markets × 方向/平盘/无数据 */
 
@@ -58,15 +58,6 @@ test("trendDirVar：布尔方向入口与 trendVarRef 等价（评审 P2）", ()
       assert.equal(trendDirVar(false, m, mode), trendVarRef(-1, m, mode));
     }
   }
-});
-
-test("fmtTrendPct：▲▼ 仅方向前缀，平盘/无数据不加（Q11）", () => {
-  assert.equal(fmtTrendPct(2.35), "▲+2.35%");
-  assert.equal(fmtTrendPct(-1.8), "▼-1.80%");
-  assert.equal(fmtTrendPct(0), "0.00%");
-  assert.equal(fmtTrendPct(null), "—");
-  assert.equal(fmtTrendPct(NaN), "—");
-  assert.equal(fmtPct(2.35), "+2.35%"); // fmtPct 本体不动（持仓盈亏幅豁免符号）
 });
 
 test("trendSideClass：native 分支 side 追加类；非 native 恒空", () => {

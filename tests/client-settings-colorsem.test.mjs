@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { createDomHarness } from "./helpers/dom-harness.mjs";
 import { createPanel } from "../client/panel.mjs";
 import { getLang, setLang, t } from "../client/i18n.mjs";
-import { fmtTrendPct } from "../client/fmt.mjs";
+import { fmtPct } from "../client/fmt.mjs";
 
 /* 设置对话框「涨跌配色」组（ADR-0009，实施计划 T7）——radio 三行 + 真实预览 + 快照驱动 aria */
 
@@ -64,7 +64,7 @@ test("设置组 · 涨跌配色 radio 三行 + aria + 预览 + 点击写档（AD
     // 预览：行1 涨红/跌绿；行3 同涨不同色（沪红/美绿）+ 市场小标签
     const p1 = [...rows[0].querySelectorAll(".skc-csp-red,.skc-csp-green")];
     assert.deepEqual(p1.map((x) => x.className), ["skc-csp-red", "skc-csp-green"], "行1 预览=涨红/跌绿");
-    assert.equal(p1[0].textContent, fmtTrendPct(2.35), "预览=真实渲染（▲+2.35%）");
+    assert.equal(p1[0].textContent, fmtPct(2.35), "预览=真实渲染（+2.35%）");
     const p3 = [...rows[2].querySelectorAll(".skc-csp-red,.skc-csp-green")];
     assert.deepEqual(p3.map((x) => x.className), ["skc-csp-red", "skc-csp-green"], "行3 同涨不同色：沪红/美绿");
     const tags = [...rows[2].querySelectorAll(".skc-colorsem-tag")];

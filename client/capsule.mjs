@@ -8,7 +8,7 @@
  * 手势期间才绑 doc 级 move/up/cancel（rest 态零 document 监听）。
  */
 
-import { fmtPrice, fmtPct, fmtTrendPct, trendClass, trendSideClass } from "./fmt.mjs";
+import { fmtPrice, fmtPct, trendClass, trendSideClass } from "./fmt.mjs";
 import { t } from "./i18n.mjs";
 import { targetBadgeKind } from "../src/sessions.mjs";
 import {
@@ -432,7 +432,7 @@ export function createCapsule({ doc, win, storage, shadow, store, onTogglePanel,
     priceEl.textContent =
       price != null ? fmtPrice(price) : paused && quote ? (closedNow ? t("capsule.closed") : t("capsule.stale")) : "—";
     priceEl.className = `skc-capsule-price ${trendClass(pct, symbol?.market, trendMode)}`;
-    pctEl.textContent = fmtTrendPct(pct);
+    pctEl.textContent = fmtPct(pct);
     pctEl.className = `skc-capsule-pct ${trendClass(pct, symbol?.market, trendMode)}`;
     if (paused && (symbol?.buyTarget != null || symbol?.sellTarget != null)) {
       el.title = t("capsule.tip.stale");

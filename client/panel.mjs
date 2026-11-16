@@ -10,7 +10,7 @@
 
 import { t } from "./i18n.mjs";
 import { iconEl } from "./icons.mjs";
-import { fmtTrendPct } from "./fmt.mjs";
+import { fmtPct } from "./fmt.mjs";
 import { MARGIN, titlebarTopInset } from "./float-prefs.mjs";
 import { parseInset } from "./drag.mjs";
 import { MARKETS } from "../src/identity.mjs";
@@ -300,10 +300,11 @@ export function createPanel({ doc, win, store, views }) {
   settingsClose.addEventListener("click", () => store.setShowSettings(false));
   settingsHead.append(settingsTitle, settingsSpacer, settingsClose);
 
-  /* 涨跌配色组（ADR-0009 T7）：竖排 radio 三行、每行内嵌真实预览（fmtTrendPct 真渲染，恒真色对不随当前档位翻；
+  /* 涨跌配色组（ADR-0009 T7）：竖排 radio 三行、每行内嵌真实预览（fmtPct 真渲染，恒真色对不随当前档位翻；
      行3「同涨不同色」沪红/美绿）。写入走 store.setTrendColorMode（mutate 包装：rev 冲突自动刷新、
      失败自动复用 toast.op-failed——评审建议 2）；与备份区之间由 .skc-settings-body > * + * 既有 hairline 分隔 */
   const colorsemWrap = doc.createElement("div");
+  colorsemWrap.className = "skc-colorsem-wrap";
   const colorsemTitle = doc.createElement("div");
   colorsemTitle.className = "skc-colorsem-title";
   const colorsemGroup = doc.createElement("div");
@@ -317,7 +318,7 @@ export function createPanel({ doc, win, store, views }) {
   const cspSpan = (cls, v) => {
     const sp = doc.createElement("span");
     sp.className = cls;
-    sp.textContent = fmtTrendPct(v);
+    sp.textContent = fmtPct(v);
     return sp;
   };
   const tagSpan = (key) => {

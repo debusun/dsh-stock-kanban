@@ -80,13 +80,6 @@ export function trendDirVar(up, market = null, mode = "red-up") {
   return trendVarRef(up ? 1 : -1, market, mode);
 }
 
-/** 涨跌幅专用：▲/▼ 方向前缀 + fmtPct（颜色+符号双编码，色弱冗余）。平盘/无数据不加符号。持仓盈亏幅仍走 fmtPct（豁免符号）。 */
-export function fmtTrendPct(v) {
-  if (v == null || !Number.isFinite(v)) return fmtPct(v);
-  const glyph = v > 0 ? "▲" : v < 0 ? "▼" : "";
-  return `${glyph}${fmtPct(v)}`;
-}
-
 /** B/S 标记/徽章的 native 档 side 追加类；非 native 恒 ""（全局变量翻向已覆盖） */
 export function trendSideClass(market = null, mode = "red-up") {
   return mode === "native" ? (market === "cn" ? "skc-side-cn" : "skc-side-g") : "";

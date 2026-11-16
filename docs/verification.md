@@ -75,6 +75,7 @@
 | 12.62 | 验证记录体制改革：判例法定位成文 + 机读事实禁手抄 + 发布后单笔 bookkeeping + 归档线（钢人裁决四条全落） |
 | 12.63 | retro 落地：夹具 ASCII 守卫 + searchRoute 接线守卫 + AGENTS 两处措辞（S3/S4 不纳入） |
 | 12.64 | 涨跌语义三档切换（ADR-0009）：服务端档位 + 双层翻向 + 设置组 + ▲▼（实施计划独立评审 2 轮通过后执行；487/487） |
+| 12.65 | 目验反馈第一轮（2026-11-16）：方向符号全撤（决定 6 撤销）/ 设置组 polish / 降级句收 tooltip / hk 指数分时大小写修复 |
 
 ## 12.1 核心逻辑（自动化，全部通过）
 
@@ -1102,3 +1103,12 @@ P6（退避期含陈旧缓存时主源缓存优先于备源新鲜度）维持既
 - **全量**：`npm test` 实施收口时点 **487/487**（原 458 → +29：语义矩阵、设置组交互、挂载翻向、服务端往返、失败 toast 冒泡等）；产出评审修复后全量 **488/488**（+1 round3 回归钉「native side 类在 tick 重建后保持」，84d95f0）。
 - **产物**：`npm run build` 重建后 `grep -cF 'trendColorMode' lib/client.js` 计数 2（ASCII 结构标记判据——对象键+成员访问，minify 免疫；`trendClass` 函数名被 minify 计 0 不可判据，探针实证；中文转义为「反斜杠+u+四位大写 hex」，小写定串计 0）。产物随实现提交；pre-push 新鲜度闸待发版链触发（本任务不含发版）。
 - **未验证（不冒充已验证）**：① **cdp-shot 实拍全程未做**——本会话沙箱环境 headless chrome 启动即崩（`/dev/shm` 共享内存 EPERM → crashpad Trace/breakpoint trap core dumped，CDP 9223 不可达；`--down` 清场复核 chrome=0），默认档三轮截图/指纹/哨兵均未取证——**渲染层改动未实拍**是本轮最大未验证债，主人环境可跑：`bash ~/workspace/.tools/bsk/start-headless-chrome.sh`（后台）→ `node scripts/cdp-shot.mjs`；② green-up / native 档浏览器实拍未做（cdp-shot 无切档能力，即便环境可用也只走默认档）——主人点验路径：设置 → 涨跌配色切档观察全插件即时换向，**green-up 档详情 hero「红=跌」观感优先看**（评审建议 1）；③ 真宿主 settings POST → rev 广播 → 全量重渲染+图表重画端到端未活体测量（jsdom 挂载测试 + rev→structural 链路代码证据在案：store.mjs:83 → panel.mjs:459-462 → detail.update → buildChartBox）；④ 备份导出→导入往返仅模型层单测钉（buildExportPayload→parseImportPayload round-trip），未做浏览器备份文件实操。
+
+## 12.65 目验反馈第一轮：方向符号全撤 · 设置组 polish · 降级句收 tooltip · hk 指数分时修复（ADR-0009 决定 6 撤销）
+
+- **Q1 去符号**：主人目验判 ▲▼「臃肿且丑」拍板全撤（ADR-0009 决定 6 撤销，修订节入档）——`fmtTrendPct` 退役，胶囊/列表/详情/设置预览回 `fmtPct` 纯颜色编码；round3/hero/settings/colorsem 断言随新规格更新。
+- **Q2 设置组 polish**：`skc-colorsem-wrap` 节奏 + radio 点 12px + 行 gap/padding 收紧；44px 命中与 aria 不动（dom 钉段仍绿）。
+- **Q3 降级句**：`detailSourceText` 串从行内 `.skc-source-note`（退役）收进 quote-line tooltip `\n` 追加段；非降级态 title 无追加段——hero 新用例双态钉（降级 title 含 provider、正常 title 单段）。
+- **Q4 hk 指数分时**：根因 `fetchMinuteDetail` toLowerCase → `hkhstech` 上游回空壳（curl 双向取证：大写全量分时 / 小写 `["  0"]`）→ no-data 被休市空态遮掩（detail.mjs:405 closedMinute 分支先于 error，§12.37 设计内）；修复 = 代码原样透传（存量小写零回归）；回归钉 providers-tencent「代码大小写保真」（URL 断言 + 真实响应形态夹具）。
+- **全量**：`npm test` 全绿（计数见下方补记）；产物重建 `trendColorMode` 探针计 2。
+- **未验证（不冒充已验证）**：浏览器实拍仍受沙箱 chrome 崩溃限制（同 §12.64 ①），本轮四项均以单测+代码证据交付、**主人目验即闭环**；hk 指数分时开盘时段的真实拉取待交易日活体确认（2026-11-17 09:30 后 hkHSTECH 详情分时应出图）。

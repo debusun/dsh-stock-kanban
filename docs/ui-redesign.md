@@ -9,7 +9,7 @@
 
 | # | 功能 | 实现要点 |
 |---|---|---|
-| A1 | 展示自选标的 | 名称 + 现价 + 涨跌幅（涨跌语义三档：默认红涨绿跌、设置可切换，▲▼ 方向符号，ADR-0009；tabular-nums） |
+| A1 | 展示自选标的 | 名称 + 现价 + 涨跌幅（涨跌语义三档：默认红涨绿跌、设置可切换，ADR-0009；2026-11-16 目验撤方向符号；tabular-nums） |
 | A2 | 触价标记 | 买恒取涨色、卖恒取跌色，随涨跌语义档换向；native 档按标的所在市场取色（拉丁字母，B26；ADR-0009） |
 | A3 | 行情过期诚实降级 | stale/no-data → 显示「行情旧」，title 说明，不伪装实时 |
 | A4 | 自由拖动 + 位置记忆 | grab/slop(6/10)/rAF 管线；落盘 `dsh-stock-kanban:float-position`；视口钳位（safe-area + Windows 标题栏带） |
@@ -35,7 +35,7 @@
 |---|---|---|
 | C1 | 四市场 Tab | A股/港股/美股/加密货币 固定分组 + 计数徽章 |
 | C2 | 只看持仓 | checkbox 筛选；持仓行加 ★ |
-| C3 | 行内容 | 名称+代码（去 sh/sz/bj/hk 前缀）· 现价 · 涨跌幅（▲▼ 方向符号，ADR-0009） |
+| C3 | 行内容 | 名称+代码（去 sh/sz/bj/hk 前缀）· 现价 · 涨跌幅（ADR-0009；2026-11-16 目验撤方向符号） |
 | C4 | 持仓模式 | 只看持仓时行尾显示盈亏金额/比例（隐私态 `••••` 遮挡） |
 | C5 | 目标价徽章 | 未触发时显示 B/S 触发徽章或 休/旧/无 状态徽章（带 title 说明） |
 | C6 | 空态 | 「暂无自选，点＋添加」/「该市场暂无持仓」 |
@@ -45,7 +45,7 @@
 | # | 功能 | 实现要点 |
 |---|---|---|
 | D1 | 头部 | 返回、名称、代码·市场·ETF·报价币、删除（confirm） |
-| D2 | 行情头 | 大字价格 + 涨跌幅（▲▼ 方向符号，ADR-0009）；**行情时间与拉取时间分开标注**；过期徽章 |
+| D2 | 行情头 | 大字价格 + 涨跌幅（ADR-0009 三档；2026-11-16 目验撤方向符号、降级说明收 tooltip）；**行情时间与拉取时间分开标注**；过期徽章 |
 | D3 | 图表 | 分时/日K/周K/月K；SVG 自绘无 CDN；分时含均价线+昨收虚线+量柱；K线含 MA5/10/20/60+量柱；MA 图例 chip 显隐；复权标注（前复权/不复权，如实） |
 | D4 | 持仓编辑 | 数量（股/币语境）+ 平均成本 → 市值/浮动盈亏/比例；存/清持仓 |
 | D5 | 目标价编辑 | 买目标（≤触发B）/卖目标（≥触发S）；阈值重叠显式确认 |
@@ -575,3 +575,12 @@ P3（产品，需主人决定）
 ### 8.18 第 14 轮：涨跌语义三档切换（2026-11-16，ADR-0009）
 
 主人提出涨跌配色可切换需求，grilling 十一题逐项拍板 + 独立评审代理两轮对审后立 **ADR-0009**（正式推翻 2026-11-15 P1-3「全局红涨不做 per-market」）：三档 `trendColorMode`（red-up 红涨绿跌=默认现状 / green-up 红跌绿涨 / native 原生语义——A股红涨绿跌，港/美/币绿涨红跌，指数随所属市场），存服务端 settings 随 DSH 实例走，备份导入导出携带；默认档升级零感知。机制两层：red-up/green-up 由 main.mjs 把 `trendModeVars(mode)` 写 host 内联 `--skc-up/--skc-down`（custom property 优先级高于 shadow 内 :host 规则，写前比对缓存、tick 零冗余写）；native 档走 `trendClass(v, market, mode)` 市场分支类（`skc-up-cn/…/skc-up-g`）+ B/S side 类（capsule 由 update 路径逐帧重写 className；list 全量重建与 tick 徽标列重建两路径均穿 mode，产出评审 P1 勘误）+ SVG `trendDirVar` 直取物理 var。SVG 图表着色全部改 style 属性 var 引用（AXIS_TEXT_STYLE 先例），UP/DOWN 常量与 rgba 字面量退役，量柱改 color-mix 等价配方——默认档视觉恒等。物理色对单点权威 `client/colors.mjs`（styles.mjs 插值 + main.mjs 复用）；`--skc-danger` 同 hex 陷阱全程规避。设置对话框新增「涨跌配色」组：竖排 radio 三行 + 每行内嵌真实预览（`fmtTrendPct` 真渲染；行3「同涨不同色」沪红/美绿），写入走 `store.setTrendColorMode`（mutate 管道：rev 冲突自动刷新、失败复用 toast.op-failed）；无乐观更新，aria 以快照为准。方向符号 ▲▼ 仅加在涨跌幅字段（胶囊/列表行/hero，Q11 拍板），平盘不加、价格/涨跌额/盈亏幅不加——颜色+符号双编码（色弱冗余）。实现纪律：TDD 红→绿逐任务（model/routes/store → colors/fmt → styles → charts → 消费点 → panel → main）；`tests/client-colorsem.test.mjs`（语义矩阵）与 `tests/client-settings-colorsem.test.mjs`（radio 交互+挂载翻向）新建，model/routes/store/dom/hero/round3 原位扩展；既有钉段唯二预期破裂面（settings 形状 deepEqual、hero pct 文本）随新规格更新。**已提交**：b816aba（T1–T7 checkpoint）+ da02357（T8–T10）；产出独立评审（impl-reviewer）副本亲跑 487/487、产物重建 diff 空、红灯复演 4/4、冻结面零触及，开题 P1 tick 徽标列 mode 漏穿（修复 + round3 回归钉）/P2 本节与 §12.64 文档失真（本轮勘误）/P3 tag 药丸底（已补）/P4 副标备注（保留），评审修复随本笔 fix 提交入库；未 push（发版链不在本任务范围）。
+
+### 8.19 第 15 轮：目验反馈第一轮——去符号 · 设置组 polish · 降级句收纳 · hk 指数分时修复（2026-11-16）
+
+热部署上线后主人四图目验，四项反馈一轮落齐：
+
+1. **方向符号全撤（Q1，ADR-0009 决定 6 撤销）**：▲▼ 上线后主人目验判「UI 臃肿且丑」，拍板一切位置撤除（胶囊/列表/详情/设置页预览）——`fmtTrendPct` 退役，四处涨跌幅回 `fmtPct` 纯颜色编码，测试断言随新规格更新（round3/hero/settings/colorsem）。色弱冗余诉求如实入档 ADR 修订节：主人显式权衡视觉密度 > 无障碍冗余，非疏漏。
+2. **设置组 polish（Q2，impeccable Operate 精修）**：新增 `skc-colorsem-wrap`（标题-行组 4px 节奏）；radio 点 14→12px、选中内环 2.5→2px；行 gap 10→8、padding 8→9px；main 行距 1→2px；预览 gap 6→5px。44px 命中区与 aria 语义不动。
+3. **降级句收纳（Q3）**：数据源降级串（「腾讯美股（级来自东方财富）」）内联渲染把「时间 · 数据源」挤到次排——收进 quote-line tooltip（`\n` 追加段），行内小字 `.skc-source-note` 退役；非降级态 title 无追加段。诚实降级不丢面，悬停可得。
+4. **hk 指数分时修复（Q4）**：恒生科技指数（hkHSTECH）分时恒空而 K 线正常——根因 `tencent.fetchMinuteDetail` 对 code `toLowerCase()`，minute 端点按请求原样解析：小写请求得空壳（`data:["  0"]`）→ 0 点 no-data，休市时段 UI 以「休市中」遮掩真实 no-data。修复：代码原样透传（cn/hk 存量本小写零回归）；curl 双向取证（大写全量分时 / 小写空壳）；回归钉 providers-tencent 大小写保真用例。

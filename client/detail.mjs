@@ -9,7 +9,7 @@
  */
 
 import { api } from "./api.mjs";
-import { fmtPrice, fmtPct, fmtAmount, fmtChange, fmtTrendPct, priceDigits, maskIf, trendClass, parsePositiveInput, fmtClock, fmtClockSec } from "./fmt.mjs";
+import { fmtPrice, fmtPct, fmtAmount, fmtChange, priceDigits, maskIf, trendClass, parsePositiveInput, fmtClock, fmtClockSec } from "./fmt.mjs";
 import { buildMinuteChart, buildCandleChart, buildMaLegend } from "./charts.mjs";
 import { iconEl } from "./icons.mjs";
 import { t, tErr, getLang, detailSourceText } from "./i18n.mjs";
@@ -688,7 +688,7 @@ export function createDetail({ store, win, resizeThrottleMs = 150 }) {
       skeleton.quote.chg.textContent = fmtChange(chg, price != null ? priceDigits(price) : 2); // 涨跌额不加方向符号（Q11）
       skeleton.quote.chg.className = `skc-quote-chg ${trendClass(pct, symbol.market, trendMode)}`;
     }
-    skeleton.quote.pct.textContent = fmtTrendPct(pct); // ▲▼ 仅涨跌幅（ADR-0009 Q11）
+    skeleton.quote.pct.textContent = fmtPct(pct);
     skeleton.quote.pct.className = `skc-quote-pct ${trendClass(pct, symbol.market, trendMode)}`;
     const qTime = q?.quoteTime ?? null;
     const fTime = q?.fetchedAt ?? null;
@@ -699,9 +699,12 @@ export function createDetail({ store, win, resizeThrottleMs = 150 }) {
     const provider = q?.status === "ok" && q?.source ? t(`provider.${q.source}`) : null;
     const meta = skeleton.quote.meta;
     meta.replaceChildren(document.createTextNode(provider ? t("detail.freshness", { t: fresh, s: provider }) : fresh));
-    skeleton.quoteLine.title = qTime != null
+    // §12.48 数据源脚注（2026-11-16 目验反馈）：降级说明收进 tooltip——行内只留「时间 · 数据源」，
+    // 降级串换行挤掉时间的观感问题根除；诊断信息悬停仍可得（诚实降级不丢面）
+    const srcNote = detailSourceText(q);
+    skeleton.quoteLine.title = (qTime != null
       ? t("detail.quote-tip", { q: fmtClock(qTime), f: fTime != null ? fmtClockSec(fTime) : "—" })
-      : "";
+      : "") + (srcNote ? `\n${srcNote}` : "");
     // 状态徽章迁头部蓝框位（迭代四）：meta 行不再挂徽章
     if (badgeKind) {
       const text = badgeKind === "closed" ? t("detail.closed") : badgeKind === "stale" ? t("detail.stale") : t("detail.no-data");
@@ -711,9 +714,6 @@ export function createDetail({ store, win, resizeThrottleMs = 150 }) {
     } else {
       skeleton.headBadge.hidden = true;
     }
-    // §12.48 数据源脚注：改「仅降级态出现」（detailSourceText 正常态返回 null）；error/缺 source/正常态隐藏
-    const srcNote = detailSourceText(q);
-    if (srcNote) meta.append(textSpan("skc-source-note", srcNote));
   };
 
   const paintPeriodTabs = () => {
