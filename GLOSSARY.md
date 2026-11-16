@@ -96,6 +96,10 @@ _Avoid_: 行情验证
 美股详情分时的供数顺序：东方财富 trends2 → 雪球 minute.json → Yahoo chart 1 分钟（2026-11-17 定案，替换原 EM → Yahoo 双腿）。雪球腿以 guest 引导供全量 1 分钟序列（指数 .DJI/.IXIC/.INX 同形态）；动机是 2026-11-16 实录 EM 对机房 IP 整体封锁（SECID_TRANSPORT）且 Yahoo 持续 429 时分时两腿齐灭，插入中间活源保链。K 线链维持 EM → 腾讯不动。
 _Avoid_: 备用源堆叠、单源分时
 
+**加密链（Crypto Chain）**:
+加密货币快照/K线/分时的供数顺序：OKX → Binance（2026-11-17 定案，终结 OKX 单源）。binance 公共 REST 零鉴权：快照 >2 标的走 symbols 参数一次批量、坏码整批 400 时退化逐标的、5xx 整批抛错触发提供方退避；口径对齐 OKX（快照 prevClose＝24h 滚动开盘、分时＝5m×288 滚动窗、K线 adjust none）。binance 可用性与部署地强相关（2026-11-06 曾实测 451），与 OKX 封禁域不对称——备源价值所在；日线切分差异（OKX UTC+8 / binance UTC）为已知备源形态。
+_Avoid_: 单源加密行情
+
 ## 涨跌配色
 
 **涨跌语义（Color Semantics）**:
