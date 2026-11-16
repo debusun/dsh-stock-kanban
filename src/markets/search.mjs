@@ -18,6 +18,10 @@
  *   - cn 混合搜索（ADR-0006）：池优先凑满 30 条不打上游；smartbox 补充 GP-A 正股（拼音缩写、刷新间隙的新上市）。
  *   - 校验链 = 行情链（ADR-0007）：resolveDirect 以单码形态过 chain.runChain，与快照/详情同 gate
  *     （共享 TTL 缓存与提供方退避）；errorKind 映射 quote-unavailable（transport）/ symbol-not-found（no-data）。
+ *   - 名称覆写（ADR-0008）：池来源行过行情链快照覆写名称——搜索名 ≡ 添加后面板名，池的静态性不再
+ *     泄漏到展示（改名/XD 日戳/简称口径漂移不等发版）；行情链不可用保留池名（fail-open 不标错）。
+ *     新上市按全码/名称搜索经「池<30 补问 smartbox」可达（§12.39）；前缀泛查被池命中淹没的补全
+ *     需 smartbox 同分前置（UX 取舍），ADR-0008 记录后暂缓。
  */
 
 import { readFile } from "node:fs/promises";
@@ -219,10 +223,35 @@ async function searchCrypto(needle) {
 /* ------------------------------------------------ 主入口 */
 
 /**
+ * ADR-0008 名称覆写：池快照行（source === "pool"）以行情链快照名覆盖——搜索名与添加后面板名
+ * 同源同值（腾讯行情链，ADR-0007 同 gate：TTL 缓存/在途合并/退避与面板快照共享）。
+ * 池随版本分发的静态性由此与展示解耦：改名、XD/XR/DR 日戳、简称口径漂移不再等发版。
+ * catalog/smartbox 行不参与（名称本就地新鲜）。行情链不可用 → 保留池名（fail-open）：
+ * 覆写是展示增强，失败回落池名 = 既有行为，不新增错误标记。
+ */
+async function overlayPoolNames(market, rows, chain) {
+  if (!chain) return rows;
+  const targets = rows.filter((r) => r.source === "pool");
+  if (!targets.length) return rows;
+  let cells;
+  try {
+    cells = await chain.runChain(market, "snap", targets.map((r) => r.code), (p, codes) => p.fetch(codes), { validate: (v) => v && v.price > 0 });
+  } catch {
+    return rows; // 全链退避/传输失败：池名兜底，静默降级
+  }
+  return rows.map((r) => {
+    if (r.source !== "pool") return r;
+    const cell = cells.get(r.code);
+    const name = cell?.ok ? cell.value?.name : null;
+    return name ? { ...r, name } : r;
+  });
+}
+
+/**
  * 按市场搜索。
  * @returns Promise<{rows: Array, error: string|null}>  error 非空表示该市场某个搜索源不可用（rows 可能仍有本地结果）
  */
-export async function search(market, query) {
+export async function search(market, query, { chain } = {}) {
   const needle = String(query ?? "").trim().slice(0, 40);
   if (!needle) return { rows: [], error: null };
   const lower = needle.toLowerCase();
@@ -321,7 +350,8 @@ export async function search(market, query) {
   } else {
     return { rows: [], error: "unknown-market" };
   }
-  return { rows: rows.slice(0, MAX_ROWS), error };
+  // 先截断再覆写：快照批量只覆盖最终可见行（≤MAX_ROWS 个代码，一次批量请求）
+  return { rows: await overlayPoolNames(market, rows.slice(0, MAX_ROWS), chain), error };
 }
 
 /**

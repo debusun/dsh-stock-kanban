@@ -273,7 +273,7 @@ async function searchRoute(req, res) {
   const needle = q.get("q") ?? "";
   const { search } = await import("./markets/search.mjs");
   try {
-    const result = await search(market, needle);
+    const result = await search(market, needle, { chain: deps.chain }); // ADR-0008：名称覆写走行情链同 gate
     sendJson(res, 200, { rows: result.rows, error: result.error });
   } catch (e) {
     // 搜索源故障：明确报错，绝不给虚构结果

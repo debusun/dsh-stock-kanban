@@ -285,3 +285,93 @@ test("搜索 cn：池子未凑满时 smartbox 补充（拼音查询池内无命�
   }
 });
 
+/* ---- ADR-0008 名称覆写：池快照行以行情链快照名覆盖（搜索名 ≡ 面板名） ---- */
+
+test("ADR-0008 名称覆写：池行名称以行情链快照覆盖（搜索名 ≡ 添加后面板名）", async () => {
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async () => { throw new Error("offline"); };
+  const seen = [];
+  const chain = {
+    runChain: async (market, ns, codes) => {
+      seen.push([market, ns, [...codes]]);
+      return new Map(codes.map((c) => [c, { ok: true, value: { name: "行情名" + c, price: 1 } }]));
+    },
+  };
+  try {
+    const r = await search("cn", "600519", { chain });
+    assert.equal(r.rows[0].id, "cn:sh600519");
+    assert.equal(r.rows[0].name, "行情名sh600519"); // 池名「贵州茅台」被行情名覆盖
+    assert.equal(r.rows[0].source, "pool");
+    assert.deepEqual(seen, [["cn", "snap", ["sh600519"]]], "覆写必须过行情链同一 gate（ADR-0007）");
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+test("ADR-0008 名称覆写：行情链不可用 → 保留池名（fail-open，不阻塞搜索不新增错误）", async () => {
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async () => ({ ok: true, arrayBuffer: async () => Buffer.from('v_hint=""', "utf8") }); // smartbox 静默空结果
+  const chain = { runChain: async () => { throw new Error("transport-dead"); } };
+  try {
+    const r = await search("cn", "600519", { chain });
+    assert.equal(r.rows[0].id, "cn:sh600519");
+    assert.equal(r.rows[0].name, "贵州茅台"); // 池名兜底
+    assert.ok(!r.error);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+test("ADR-0008 名称覆写：catalog 指数行不参与覆写（名称稳定，快照请求只含池代码）", async () => {
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async () => ({ ok: true, arrayBuffer: async () => Buffer.from('v_hint=""', "utf8") });
+  const seen = [];
+  const chain = { runChain: async (_m, _ns, codes) => { seen.push(...codes); return new Map(); } };
+  try {
+    const r = await search("cn", "上证", { chain });
+    const idx = r.rows.find((x) => x.id === "cn:sh000001");
+    assert.ok(idx, "指数目录行应存在");
+    assert.equal(idx.name, "上证指数"); // 目录名不被快照覆盖
+    assert.ok(seen.length > 0, "池行应送快照覆写");
+    assert.ok(!seen.includes("sh000001"), "指数代码不进快照请求");
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+test("ADR-0008 澄清回归：新上市标的按全码可搜（池 0 命中 → 补问 smartbox，§12.39 口径不变）", async () => {
+  const originalFetch = globalThis.fetch;
+  // smartbox 夹具名用 ASCII：UTF-8 中文经 GBK 解码会字节错位吞掉 ~ 分隔符（同 L222 注记纪律）
+  const body = 'v_hint="sz~301999~XINZHIJIANG~xzj~GP-A"';
+  globalThis.fetch = async () => ({ ok: true, arrayBuffer: async () => Buffer.from(body, "utf8") });
+  try {
+    const r = await search("cn", "301999");
+    assert.ok(r.rows.some((x) => x.id === "cn:sz301999" && x.source === "smartbox"), JSON.stringify(r.rows.map((x) => x.id)));
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+test("ADR-0008 场景回归（518850）：池行与 smartbox 行同码去重后仍按行情名展示", async () => {
+  const originalFetch = globalThis.fetch;
+  // 夹具名 ASCII（GBK 通道纪律）；断言的中文名来自行情链桩（JS 注入，不经 GBK 通道）
+  const body = 'v_hint="sh~518850~GOLDETF-HX~hjjj~ETF"';
+  globalThis.fetch = async () => ({ ok: true, arrayBuffer: async () => Buffer.from(body, "utf8") });
+  const seen = [];
+  const chain = {
+    runChain: async (_m, _ns, codes) => {
+      seen.push(...codes);
+      return new Map(codes.map((c) => [c, { ok: true, value: { name: "黄金ETF华夏", price: 8 } }]));
+    },
+  };
+  try {
+    const r = await search("cn", "518850", { chain });
+    const row = r.rows.find((x) => x.id === "cn:sh518850");
+    assert.ok(row, JSON.stringify(r.rows.map((x) => x.id)));
+    assert.equal(row.name, "黄金ETF华夏");
+    assert.ok(seen.includes("sh518850"), "池行应被送快照覆写");
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
