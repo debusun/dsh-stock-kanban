@@ -1003,5 +1003,5 @@ P6（退避期含陈旧缓存时主源缓存优先于备源新鲜度）维持既
 - **发版链**：bump 0.3.9→0.3.10 → build（版本字面量 `grep -cF '"0.3.10"'` lib = 1）→ `chore(release)` aaf0dcd → **ci-parity OK @ aaf0dcdd**（465/465，干净克隆）→ 轻 tag → push main + tag（tag 单次推）→ release-monitor：CI run `43804795155` success（04:34:01Z）→ npm 三键 `latest=0.3.10`（RELEASE_LIVE=yes，published 04:35:21Z）。
 - **tarball 核证**（发布包逐项）：`lib/client.js` 与本地构建**逐字节一致**（cmp）；`src/markets/search.mjs` 含 `overlayPoolNames`（ADR-0008 在包内）；`data/etf_stocks.json` sh518850 =「黄金ETF华夏」（§12.59 在包内，sha256 前缀 fe6b8720b7dfc469）。
 - **本版内容**：池数据全量重刷（ETF 名称口径 948 条改名）+ 搜索名称行情覆写（ADR-0008）+ 文档四件（ADR-0008/数据节奏/GLOSSARY/AGENTS 索引）。
-- **升级与实页**：`dshm_upgrade` 后追记（见下补录）。
+- **升级与实页**：`dshm_upgrade` 0.3.9→0.3.10 完成（2026-11-16 12:37 前后，npm 精确版；含服务端 src/ 变更，需宿主重启生效——重启经主人同意后 `dshm_restart` 执行）。实页点验（搜 518850 应显示「黄金ETF华夏」）待主人重启后复核，结果回填本节。
 - **未验证（不冒充已验证）**：GUI 搜索未复验——升级后实页搜 518850 应显示「黄金ETF华夏」、行情链挂时应显示池名（主人点验即闭环）；覆写与面板快照共享 TTL 的实际命中率未在真宿主测量。
