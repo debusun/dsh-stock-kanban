@@ -114,7 +114,10 @@ export async function fetchBatchSnapshots(codes) {
  * points.t 为 epoch 秒（东八区口径），p 价格，v 成交量。
  */
 export async function fetchMinuteDetail(code) {
-  const apiCode = String(code ?? "").toLowerCase();
+  // 保留原大小写（2026-11-16 hkHSTECH 实录）：minute 端点按请求原样解析，hkHSI/hkHSTECH 指数别名
+  // 含大写字母，lowercase 请求得空壳（data:["  0"]、date:""）→ 0 点 no-data——K线端点大小写不敏感
+  // 故仅分时受影响；cn/hk 存量代码本为小写，原样透传零回归
+  const apiCode = String(code ?? "");
   let lastError = null;
   for (const host of MINUTE_HOSTS) {
     try {

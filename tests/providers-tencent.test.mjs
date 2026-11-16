@@ -149,6 +149,34 @@ test("fetchMinuteDetail：分时点解析 + prevClose 从快照推导", async ()
   }
 });
 
+test("fetchMinuteDetail：代码大小写保真（hkHSTECH 别名，2026-11-16 实录回归钉）", async () => {
+  // 真实响应形态采样（2026-11-16 curl）：大写 hkHSTECH 有全量分时；小写请求得空壳 data:["  0"]
+  const fixture = {
+    code: 0,
+    data: {
+      hkHSTECH: {
+        data: { date: "20261114", data: ["0930 3828.810 60054", "0931 3824.760 181328"] },
+        qt: { hkHSTECH: [] },
+      },
+    },
+  };
+  let requested = "";
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async (url) => {
+    requested = String(url);
+    return { ok: true, json: async () => fixture };
+  };
+  try {
+    const result = await fetchMinuteDetail("hkHSTECH");
+    assert.ok(requested.includes("code=hkHSTECH"), `URL 保留原大小写（实际 ${requested}）`);
+    assert.equal(result.error, null);
+    assert.equal(result.points.length, 2);
+    assert.equal(result.points[0].p, 3828.81);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
 test("parseSmartbox：GBK 解码后的 \\uXXXX 文本 + 类型过滤", () => {
   // 真实 API 字段分隔符为 `~`，行分隔为 `^`（探针实测）；fixture 中 \uXXXX 为字面转义（GBK 响应原文）
   const text = 'v_hint="hk~00700~\\u817e\\u8baf\\u63a7\\u80a1~txkg~GP^us~aapl.oq~\\u82f9\\u679c~pg~GP^jj~007005~\\u57fa\\u91d1C~jj~KJ^sh~510300~\\u6caa\\u6df1300ETF~hs~ETF^sz~159919~\\u6caa\\u6df1300ETF\\u5609\\u5b9e~js~ETF";';
