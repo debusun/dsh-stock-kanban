@@ -436,6 +436,8 @@ async function klineAttemptTable(market) {
   if (market === "crypto") {
     const okx = await import("./markets/okx.mjs");
     table.okx = async (code, period) => okx.fetchKline(code, period);
+    const binance = await import("./markets/binance.mjs"); // 2026-11-17 ③：crypto K线备源
+    table.binance = async (code, period) => binance.fetchKline(code, period);
   }
   return table;
 }
@@ -451,6 +453,8 @@ async function minuteAttemptTable(market) {
   if (market === "crypto") {
     const okx = await import("./markets/okx.mjs");
     table.okx = async (code) => okx.fetchMinuteDetail(code);
+    const binance = await import("./markets/binance.mjs"); // 2026-11-17 ③：crypto 分时备源
+    table.binance = async (code) => binance.fetchMinuteDetail(code);
   }
   return table;
 }

@@ -18,13 +18,14 @@ import { handles as yahooHandles, fetchBatchSnapshots as yahooBatch } from "./ya
 import { handles as tencentUsHandles, fetchBatchSnapshots as tencentUsBatch, quoteTimeOf as tencentUsQuoteTime } from "./tencent-us.mjs";
 import { handles as okxHandles, fetchBatchSnapshots as okxBatch } from "./okx.mjs";
 import { handles as sinaHandles, fetchBatchSnapshots as sinaBatch } from "./sina.mjs";
+import { handles as binanceHandles, fetchBatchSnapshots as binanceBatch } from "./binance.mjs";
 
 /** 快照链序（顺序即优先级） */
 export const CHAINS = {
   cn: ["tencent", "eastmoney", "sina"],
   hk: ["tencent", "eastmoney"],
   us: ["eastmoney", "tencent-us", "yahoo"],
-  crypto: ["okx"],
+  crypto: ["okx", "binance"], // 2026-11-17 ③：crypto 补 binance 备源，终结 OKX 单源（钢人评审）
 };
 
 const BUILT_IN_PROVIDERS = [
@@ -34,6 +35,7 @@ const BUILT_IN_PROVIDERS = [
   { name: "yahoo", handles: yahooHandles, fetch: yahooBatch, quoteTime: null },
   { name: "okx", handles: okxHandles, fetch: okxBatch, quoteTime: null },
   { name: "sina", handles: sinaHandles, fetch: sinaBatch, quoteTime: null }, // quoteTimeMs 已在 parser 内按东八区解析
+  { name: "binance", handles: binanceHandles, fetch: binanceBatch, quoteTime: null }, // quoteTimeMs 在行内（closeTime）
 ];
 
 export function createChain({ now = () => Date.now(), diag, ttlMs = 10 * 1000, backoffBaseMs = 30 * 1000, backoffMaxMs = 5 * 60 * 1000, providers = BUILT_IN_PROVIDERS } = {}) {
