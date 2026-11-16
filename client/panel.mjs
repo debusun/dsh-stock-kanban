@@ -313,7 +313,7 @@ export function createPanel({ doc, win, store, views }) {
   const COLORSEM_OPTIONS = [
     { mode: "red-up", label: "colorsem.mode.redup", sub: "colorsem.sub.redup" },
     { mode: "green-up", label: "colorsem.mode.greenup", sub: "colorsem.sub.greenup" },
-    { mode: "native", label: "colorsem.mode.native", sub: "colorsem.sub.native" },
+    { mode: "native", label: "colorsem.mode.native" }, // 无副标（2026-11-16 目验迭代 3）：三卡等高饱满，原生卡由沪/美双行预览自证
   ];
   const cspSpan = (cls, v) => {
     const sp = doc.createElement("span");
@@ -342,9 +342,12 @@ export function createPanel({ doc, win, store, views }) {
     labelEl.className = "skc-colorsem-label";
     labelEl.dataset.key = opt.label;
     head.append(dot, labelEl);
-    const subEl = doc.createElement("span");
-    subEl.className = "skc-colorsem-sub";
-    subEl.dataset.key = opt.sub;
+    if (opt.sub) {
+      const subEl = doc.createElement("span");
+      subEl.className = "skc-colorsem-sub";
+      subEl.dataset.key = opt.sub;
+      row.append(subEl);
+    }
     const preview = doc.createElement("span");
     preview.className = "skc-colorsem-preview";
     const line = (children) => {
@@ -362,7 +365,7 @@ export function createPanel({ doc, win, store, views }) {
         cspSpan(opt.mode === "red-up" ? "skc-csp-green" : "skc-csp-red", -1.8),
       ]));
     }
-    row.append(head, subEl, preview);
+    row.append(head, preview);
     row.addEventListener("click", () => store.setTrendColorMode(opt.mode));
     colorsemGroup.append(row);
     return { row, opt };
@@ -378,7 +381,8 @@ export function createPanel({ doc, win, store, views }) {
     for (const { row, opt } of colorsemRows) {
       row.setAttribute("aria-checked", opt.mode === mode ? "true" : "false");
       row.querySelector(".skc-colorsem-label").textContent = t(opt.label);
-      row.querySelector(".skc-colorsem-sub").textContent = t(opt.sub);
+      const subEl = row.querySelector(".skc-colorsem-sub");
+      if (subEl) subEl.textContent = t(opt.sub);
     }
     for (const sp of colorsemGroup.querySelectorAll(".skc-colorsem-tag")) sp.textContent = t(sp.dataset.tagKey);
   };

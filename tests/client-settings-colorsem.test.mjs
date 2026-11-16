@@ -59,7 +59,8 @@ test("设置组 · 涨跌配色 radio 三行 + aria + 预览 + 点击写档（AD
     assert.equal(checked.length, 1, "恰好一行选中");
     assert.equal(checked[0].dataset.mode, "red-up", "默认档 red-up 选中");
     assert.equal(rows[0].querySelector(".skc-colorsem-label").textContent, t("colorsem.mode.redup"), "zh 标签取自字典");
-    assert.equal(rows[2].querySelector(".skc-colorsem-sub").textContent, t("colorsem.sub.native"), "副标取自字典");
+    assert.equal(rows[0].querySelector(".skc-colorsem-sub").textContent, t("colorsem.sub.redup"), "zh 副标取自字典");
+    assert.equal(rows[2].querySelector(".skc-colorsem-sub"), null, "原生卡无副标（三卡等高，目验迭代 3）");
 
     // 预览：行1 涨红/跌绿；行3 同涨不同色（沪红/美绿）+ 市场小标签
     const p1 = [...rows[0].querySelectorAll(".skc-csp-red,.skc-csp-green")];
