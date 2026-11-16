@@ -312,12 +312,13 @@ export const FLOAT_STYLE_TEXT = `
    与备份区的分隔复用 .skc-settings-body > * + * 既有 hairline（不设 divider 元素） */
 .skc-colorsem-wrap{display:flex;flex-direction:column;gap:4px}
 .skc-colorsem-title{font-size:11px;line-height:16px;color:var(--skc-text-2);letter-spacing:.02em}
-.skc-colorsem{display:flex;flex-direction:column}
-.skc-colorsem-row{display:flex;align-items:center;gap:8px;min-height:44px;padding:6px 9px;border-radius:9px;border:1px solid transparent;background:transparent;color:var(--skc-text);cursor:pointer;font:inherit;text-align:left;width:100%;transition:background .12s var(--skc-ease)}
-.skc-colorsem-row:hover{background:var(--skc-hover)}
+.skc-colorsem{display:flex;flex-direction:column;gap:5px}
+.skc-colorsem-row{display:flex;align-items:center;gap:9px;min-height:44px;padding:8px 10px;border-radius:9px;border:1px solid var(--skc-hairline);background:color-mix(in srgb,var(--skc-surface-deep) 55%,transparent);color:var(--skc-text);cursor:pointer;font:inherit;text-align:left;width:100%;transition:border-color .12s var(--skc-ease), background .12s var(--skc-ease)}
+.skc-colorsem-row:hover{border-color:var(--skc-hairline-strong)}
 .skc-colorsem-row:active{background:var(--skc-pressed)}
 .skc-colorsem-row:focus-visible{outline:2px solid var(--dsw-alias-brand-primary,#5b8def);outline-offset:2px}
-.skc-colorsem-row::before{content:"";flex:none;width:12px;height:12px;border-radius:999px;border:1.5px solid var(--skc-hairline-strong);transition:border-color .12s var(--skc-ease), box-shadow .12s var(--skc-ease)}
+.skc-colorsem-row::before{content:"";flex:none;width:12px;height:12px;border-radius:999px;border:1.5px solid var(--skc-hairline-strong);background:var(--skc-surface);transition:border-color .12s var(--skc-ease), box-shadow .12s var(--skc-ease)}
+.skc-colorsem-row[aria-checked="true"]{border-color:color-mix(in srgb,var(--skc-accent) 62%,transparent);background:color-mix(in srgb,var(--skc-accent) 9%,transparent)}
 .skc-colorsem-row[aria-checked="true"]::before{border-color:var(--skc-accent);background:var(--skc-accent);box-shadow:inset 0 0 0 2px var(--skc-surface)}
 .skc-colorsem-row[aria-checked="true"] .skc-colorsem-label{font-weight:600}
 .skc-colorsem-main{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1 1 auto}
