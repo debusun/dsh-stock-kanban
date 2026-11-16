@@ -76,6 +76,7 @@
 | 12.63 | retro 落地：夹具 ASCII 守卫 + searchRoute 接线守卫 + AGENTS 两处措辞（S3/S4 不纳入） |
 | 12.64 | 涨跌语义三档切换（ADR-0009）：服务端档位 + 双层翻向 + 设置组 + ▲▼（实施计划独立评审 2 轮通过后执行；487/487） |
 | 12.65 | 目验反馈第一轮（2026-11-16）：方向符号全撤（决定 6 撤销）/ 设置组 polish / 降级句收 tooltip / hk 指数分时大小写修复 |
+| 12.66 | v0.3.11 发版（§12.64/§12.65 涨跌语义 + 目验反馈 攒批收口；8 笔提交 b816aba→70de1c2） |
 
 ## 12.1 核心逻辑（自动化，全部通过）
 
@@ -1112,3 +1113,10 @@ P6（退避期含陈旧缓存时主源缓存优先于备源新鲜度）维持既
 - **Q4 hk 指数分时**：根因 `fetchMinuteDetail` toLowerCase → `hkhstech` 上游回空壳（curl 双向取证：大写全量分时 / 小写 `["  0"]`）→ no-data 被休市空态遮掩（detail.mjs:405 closedMinute 分支先于 error，§12.37 设计内）；修复 = 代码原样透传（存量小写零回归）；回归钉 providers-tencent「代码大小写保真」（URL 断言 + 真实响应形态夹具）。
 - **全量**：`npm test` 全绿（计数见下方补记）；产物重建 `trendColorMode` 探针计 2。
 - **未验证（不冒充已验证）**：浏览器实拍仍受沙箱 chrome 崩溃限制（同 §12.64 ①），本轮四项均以单测+代码证据交付、**主人目验即闭环**；hk 指数分时开盘时段的真实拉取待交易日活体确认（2026-11-17 09:30 后 hkHSTECH 详情分时应出图）。
+
+## 12.66 v0.3.11 发版（§12.64/§12.65 攒批收口）
+
+- **内容**：ADR-0009 全量（三档语义 + 设置卡片组 + 服务端档位）+ 决定 6 撤销（去符号）+ 目验反馈轮（设置组卡片化/hk 指数分时修复/降级句收 tooltip）；提交链 b816aba→70de1c2 共 8 笔（含独立评审修复轮 84d95f0）。
+- **发版链执行与偏差**：refresh-pools dry-run 未跑成——沙箱出口对 szse.cn 不可达（fetch failed ×2；qq/em 均通，系站点侧对本出口限制）；0.3.10 刚刷 6 天、data/README 节奏为季度例行+异常触发，data/ 无变更预期，跳过 `--apply` 如实记录。bump→build（版本戳探针 `grep -c 0.3.11 lib/client.js`）→全量 489/489→`scripts/ci-parity.sh` OK（fail 0）→轻量 tag→push→release-monitor 两阶段判定 RELEASE_LIVE=yes。机读事实（run id/发布时间戳/npm 三键）按纪律不手抄，可查：`gh run list --workflow=publish.yml --limit 3`、`npm view dsh-stock-kanban version dist-tags`、monitor 日志 /tmp/rel-0-3-11.log（会话临时区）。
+- **升级记录**：本机在役副本 = 目验期热部署同源字节（0.3.11 内容已先行在役），CLI/面板升级到 0.3.11 为幂等收口；registry 兼容句无腐烂（核对属 DSH 升级动作，非本轮）。
+- **未验证（不冒充已验证）**：承 §12.64/65 各项——实拍债、真宿主 rev 端到端、备份实操、hk 指数分时开盘活体确认；另 0.3.11 tarball 的 data/*.json 与在役副本一致性未逐字节比对（同仓同 tag，风险极低）。
