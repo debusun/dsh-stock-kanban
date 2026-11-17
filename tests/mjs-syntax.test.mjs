@@ -33,3 +33,21 @@ test("styles.mjs 模板串守卫：FLOAT_STYLE_TEXT 为纯 CSS 模板串，body 
   const stray = rest.slice(0, close).match(/`/g);
   assert.equal(stray, null, `模板串内出现反引号 ${stray?.length ?? 0} 处——会提前终结模板串（报错隐晦）；CSS 注释里用「」替代反引号`);
 });
+
+test("正则字面量扫闸：.mjs 内不得出现字面双反斜杠+简写类（文件工具显示转义陷阱，2026-11-17 retro）", () => {
+  // 实录：读文件工具把单反斜杠 d 显示成双反斜杠（显示层转义），照显示抄进 binance.mjs → 日期正则永不匹配
+  // → 全量 no-data 假象，靠测试才揪出。全库惯例是单反斜杠（落闸前 grep 预检零命中）。
+  // 匹配器与换行都用码点构造：源码内不出现字面双反斜杠（自扫描自命中），注释也不用反斜杠字形（同一个坑）。
+  const BS = String.fromCharCode(92); // 单个反斜杠字符
+  const LF = String.fromCharCode(10);
+  const literalDoubleClass = new RegExp(BS + BS + BS + BS + "[dwsb]", "g"); // 匹配源码字节：连续两个反斜杠 + d/w/s/b
+  const files = execSync("git ls-files '*.mjs'", { encoding: "utf8" })
+    .split(LF)
+    .filter(Boolean);
+  const bad = [];
+  for (const f of files) {
+    const hits = readFileSync(f, "utf8").match(literalDoubleClass);
+    if (hits) bad.push(`${f}: ${hits.length} 处（显示转义被照抄？简写类应为单反斜杠）`);
+  }
+  assert.deepEqual(bad, [], `以下 .mjs 含字面双反斜杠简写类（正则永不匹配的静默杀手）：${LF}${bad.join(LF)}`);
+});

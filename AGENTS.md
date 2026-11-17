@@ -5,7 +5,7 @@ DSH 插件（盯盘胶囊 + 面板 + 分时/K 线）。运行时零 npm 依赖�
 ## 每轮生效
 
 - clone 后一次性：`git config core.hooksPath .githooks`（pre-commit 对暂存 `.mjs` 做语法闸；pre-push 跑全套 `npm test` + 产物新鲜度 build+diff `lib/client.js`，红灯不得落进远端历史）。
-- build/test 前：`test -d node_modules`，缺失先 `npm ci`——**`dsh plugin add/remove` 会清掉 workspace 的 node_modules**（2026-10-27、2026-11-10 两次实录）；同时确认无 headless chrome（chrome-cft）进程：`pgrep -f '[c]hrome-cft'`（`[c]` 抗自匹配，空输出即干净）——pre-push 同口径只计测试进程，桌面浏览器 chrome 不拦（2026-11-13 retro；headless 曾把 npm test 22s→700s；2026-11-16 实录 `pgrep -f chrome-cft` 裸写法自匹配误报）。
+- build/test 前：`test -d node_modules`，缺失先 `npm ci`——**`dsh plugin add/remove` 会清掉 workspace 的 node_modules**（2026-10-27、2026-11-10 两次实录）；同时确认无 headless chrome（chrome-cft）进程：`pgrep -f '[c]hrome-cft'`（`[c]` 抗自匹配，空输出即干净）——pre-push 同口径只计测试进程，桌面浏览器 chrome 不拦（2026-11-13 retro；headless 曾把 npm test 22s→700s；2026-11-16 实录 `pgrep -f chrome-cft` 裸写法自匹配误报）。**检查须单独一条命令跑**：嵌入含「chrome-cft」字样的复合脚本会使命令行自匹配（2026-11-17 实录）。
 - 改 `client/` 后必跑 `npm run build`（esbuild 打包 `lib/client.js`；`__APP_VERSION__` 由 package.json 注入，设置页页尾展示，构建脚本自带注入断言）。渲染层改动再跑 `scripts/cdp-shot.mjs`（纪律见其头注：chrome 一律后台起跑、假活 `--down` 重启、重活前进程清零）。
 - 发版链：**先 `node scripts/refresh-pools.mjs`（dry-run）核对 diff——实质变化（新增/真改名/缩量）才 `--apply` + chore(data) 随版带上，纯 XD/XR/DR 日戳漂移或空 diff 跳过**（节奏条款见 `data/README.md`）→ bump → build → `chore(release)` → tag → push → `../01_docs/dsh-intall-know-how/tools/release-monitor.sh <owner/repo> <tag> <npm包> <版本>`（**`../` 自仓库根解析，bash cwd 非仓库根时先 cd**——2026-11-16 实录 workspace 根 cwd 致 exit 127；两阶段轮询，铁律见 know-how 018：窗口内不重推 tag）。
 - 发版约定：tag 用轻量 tag（`git tag vX.Y.Z`，与历史一致）；先提 fix 提交（不含版本号），再提 `chore(release): vX.Y.Z`（package.json + 重建 `lib/client.js`）；验证记录新编号取 `docs/verification.md` 末尾 §12.N+1。**发布后的 bookkeeping（升级记录 + 主人点验回填）合并为一笔 docs commit**，不逐项拆分。发布推送前跑 `scripts/ci-parity.sh`（无宿主布局克隆全量 npm test，防环境依赖守卫漏网——2026-11-14 v0.3.3 CI 红灯实录，RUN 43477989591）。
@@ -13,6 +13,9 @@ DSH 插件（盯盘胶囊 + 面板 + 分时/K 线）。运行时零 npm 依赖�
 
 ## 仓库事实（易踩）
 
+- **热部署用脚本勿手搓**：`node scripts/hot-deploy.mjs <仓库相对路径...> [--dest 装机根] [--dry-run]`——050 纪律编码化（备份+同目录临时+rename 断链+逐字节 cmp 断言+nlink 核验），仓库相对路径＝装机相对路径；宿主重启前不生效（ESM 缓存）。（2026-11-17 retro：手搓 bash 循环曾因 src/ vs src/markets/ 路径写错致 MISMATCH，收尾断言拦下）
+- **分时/图表线上故障先看 diag**：`~/.dsh/stock-kanban/stock-kanban-diag-<UTC日期>.jsonl`（errors 档默认开，文件名按 UTC 日期滚动）——`provider.fail`（快照链）/`route.status`/`chart.{eastmoney,xueqiu,yahoo,tencent}.fail`（自管链各腿，2026-11-17 起），退避计数与 backoffMs 就在事件里。
+- **上游可达性一键矩阵**：`node scripts/probe-upstreams.mjs [--f56]`——EM 双协议/编号镜像域/Yahoo 双域/雪球引导/binance/腾讯逐源结论 + DNS 栈；EM 恢复可达后 `--f56` 一键定谳美股分时量纲（§12.67 未验证项）。
 - **npm 页 README 来自发布 tarball**：改 GitHub README 不改 npm 页，随下次发版生效；渲染面守卫见 `tests/readme-portability.test.mjs`（禁浮动排版，v0.2.1 错位实录）。
 - i18n 为 zh/en 双字典，parity 与键位对齐有守卫测试——新文案两字典同步加。
 - 市场注册条目（dsh-m/registry.json）：兼容句与 `verified` 的核对是 **DSH 升级动作**（know-how 008），不挂在插件发版上；插件发版仅在兼容句已腐烂时顺带修正。`verified` 只记实测 DSH 运行时版本，**严禁混入插件自身版本**（铁律 022；本地守卫 `tests/registry-verified.test.mjs`，dsh-m 侧 validate-registry 已门禁化为硬错误；2026-11-13 0.3.0 发版实录曾误填）。

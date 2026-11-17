@@ -91,13 +91,14 @@ function breakerReset(name) {
   breakerState.delete(name);
 }
 
-/** 测试用：清空后缀记忆、缓存与退避状态（含雪球引导 cookie 与自管链熔断） */
+/** 测试用：清空后缀记忆、缓存与退避状态（含雪球引导 cookie、自管链熔断与 EM secid 缓存） */
 export function resetUsDetailForTests() {
   suffixByTicker.clear();
   cache.clear();
   yahooBackoffUntil = 0;
   breakerState.clear();
   resetXueqiuForTests();
+  eastmoney.resetSecidCacheForTests();
 }
 
 function tickerOf(code) {

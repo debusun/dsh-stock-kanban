@@ -110,3 +110,11 @@
 3. **隔离靠 shadow 不靠插槽**。样式与事件隔离由 open shadow root 承担（`FLOAT_STYLE_TEXT` 全部注入 root 内，页面级 `<style id="stock-kanban-styles">` 注入退役）；DSH 主题令牌定义在 `<body>`，body 直挂子元素照常继承（quota-watch 实证，ADR 0001 同款论证）。
 
 §10 的 stub-react 契约测试随插槽形态一并退役：DOM 级测试（jsdom 29 + 原生 PointerEvent）+ 纯函数 parity 向量接棒，测试面反而更贴真实接缝（拖拽手势、键盘、外点、shadow 结构均为真 DOM 断言）。
+
+## 12. 上游封锁排查 playbook（2026-11-17 美股分时夜诊沉淀）
+
+- **先看 diag 再 curl**：诊断日志（路径与事件清单见 AGENTS「仓库事实」）直接给出哪条链哪一腿在失败——夜诊第一动作 tail 日志就看到 eastmoney `secid-transport` 连环指数退避，方向当场锁死，省掉整轮盲测。
+- **四维探测矩阵**：同一端点按 https/http × IPv4/IPv6 × 主域/编号镜像域（21/23/40.push2his）全试。EM 的封锁是异构形态：push2 双协议 502、push2his 双栈连接后空回应（curl exit 52 / undici UND_ERR_SOCKET）、编号镜像域连 TCP 都建不起来——只测一个 URL 会得出「源挂了」或「源活着」的假结论。现成工具：`node scripts/probe-upstreams.mjs`。
+- **cookie 假阳性教训**：fc.yahoo.com 引导 cookie 后 chart API 拿到过一次 200——孤例 200 不构成 cookie 因果（数分钟后同参数复测 429，真因是 IP 级限速的偶发放行窗口）。任何「加了 X 就成功一次」的结论必须 A/B 复核再采信。
+- **vantage 差异**：宿主进程、Agent 沙箱、web_fetch 桥是三个不同出口——本次三者打 EM 全灭一致，封锁为真；若出现「桥通宿主不通」类分歧，先怀疑出口差异再怀疑源本身。
+- **镜像对照定谳「数据边界 vs 故障」**：同端点对照测 cn/hk 标的——腾讯 minute/query 对 sh600519 回 267 行、对 usAAPL 只回 1 点，一眼定谳「端点活着但不覆盖美股」（数据边界），与「端点被墙」（故障）是两回事，处置路径完全不同（前者找新源、后者等恢复或换出口）。

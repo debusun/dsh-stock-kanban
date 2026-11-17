@@ -257,10 +257,10 @@ test("三腿全灭：diag 齐收 chart.{eastmoney,xueqiu,yahoo}.fail，errorDeta
     installFetch([
       ["query1.finance.yahoo.com", () => ({ ok: false, status: 429, json: async () => ({}) })],
     ]);
-    // 用未被前面用例写入 SECID_CACHE 负缓存的 ticker（该缓存属 eastmoney 模块态，
-    // resetUsDetailForTests 清不到）——已缓存 null 的 ticker 在 EM 腿直接 not-found，不发传输 fail
+    // resetUsDetailForTests 现已挂接 eastmoney.resetSecidCacheForTests（2026-11-17 retro），
+    // 前序用例写下的 secid 负缓存不会再渗入本用例——直接用 AAPL
     const events = [];
-    const r = await fetchMinuteDetail("TSLA", { note: (row) => events.push(row) });
+    const r = await fetchMinuteDetail("AAPL", { note: (row) => events.push(row) });
     assert.equal(r.error, "fetch-failed");
     assert.equal(r.errorDetail, "HTTP 429", "末源（Yahoo）detail 优先");
     for (const ev of ["chart.eastmoney.fail", "chart.xueqiu.fail", "chart.yahoo.fail"]) {

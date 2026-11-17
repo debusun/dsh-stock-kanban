@@ -100,6 +100,11 @@ export function peekUSSecid(ticker) {
   return SECID_CACHE.get(String(ticker ?? "").toUpperCase()) ?? null;
 }
 
+/** 测试用：清空 secid 缓存（模块态跨用例残留防护，2026-11-17 retro；resetUsDetailForTests 挂钩调用） */
+export function resetSecidCacheForTests() {
+  SECID_CACHE.clear();
+}
+
 /** AAPL → secid（"105.AAPL"）；美股指数走预置；确认不存在缓存 null；默认探测失败返回 null，严格模式抛出 SECID_TRANSPORT */
 export async function resolveUSSecid(code, { strict = false } = {}) {
   const ticker = String(code ?? "").replace(/^us/i, "").toUpperCase().split(".")[0];
