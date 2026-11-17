@@ -78,6 +78,7 @@
 | 12.65 | 目验反馈第一轮（2026-11-16）：方向符号全撤（决定 6 撤销）/ 设置组 polish / 降级句收 tooltip / hk 指数分时大小写修复 |
 | 12.66 | v0.3.11 发版（§12.64/§12.65 涨跌语义 + 目验反馈 攒批收口；8 笔提交 b816aba→70de1c2） |
 | 12.67 | v0.3.12 发版（美股分时雪球腿 + 自管链熔断/量纲/diag + binance 加密备源；盘中实录驱动的多源韧性轮） |
+| 12.68 | 目验反馈第二轮（2026-11-17）：设置组三卡行内次序统一——选择框恒卡首行（hot-deploy 在役 + cdp-shot 实拍闭环 §12.64 实拍债） |
 
 ## 12.1 核心逻辑（自动化，全部通过）
 
@@ -1129,3 +1130,11 @@ P6（退避期含陈旧缓存时主源缓存优先于备源新鲜度）维持既
 - **升级记录**：**本机未升级、宿主未重启（主人指令 2026-11-17 盘中）**。在役副本为热部署同源字节：`src/` 已是 0.3.12 内容（ebe→71f56ef 逐字节 cmp 一致，备份 .dsh-research/stock-kanban-hotfix-20261117-us-minute/）但宿主进程仍是重启前的旧模块（雪球链已活、熔断/量纲/diag/binance 未加载），磁盘 package.json 仍 0.3.11——下次 `dshm_upgrade` 到 0.3.12 为幂等收口（含 lib/client.js 对齐），重启后全部生效。
 - **点验回填（2026-11-17 08:19 重启后）**：主人已升级 0.3.12 并重启（ActiveEnterTimestamp 08:19:22 CST，磁盘 package.json=0.3.12）。活体探针全过：us:AAPL 分时首刷 2.8s（EM 探测税+熔断建立）→ 次刷 us:NVDA **0.116s**（熔断跳过 EM，25×）；us:IXIC 指数分时 391 点 0.24s（.IXIC 映射）；crypto K线 180 根/分时 288 点经链 OKX 0.07s（binance 腿在位待 OKX 故障时补位）；diag `chart.eastmoney.fail` 事件按 30s→60s→120s 指数升级真实落盘（④可观测活体确认）。EM 封锁隔夜未解除（push2 502/push2his 空回应），熔断+雪球链正对症。
 - **未验证（不冒充已验证）**：EM trends2 f56 对美股是否有值（本机 EM 被封锁，待 EM 可达网络定谳；无值时 v=0 与修正前一致不劣化）；binance 451 地域限制风险（部署地相关，2026-11-06 dsh-stock-view 实录先例，本机当前全通）；熔断指数退避的恢复路径（成功清零逻辑有单测，真实 5 分钟窗口后的自动恢复待宿主重启后自然观察）；雪球 guest 速率限制长期水位（400016 自愈有测试，限流形态未见）。
+
+## 12.68 目验反馈第二轮：设置组三卡行内次序统一（选择框恒卡首行）
+
+- **反馈与决策**：主人截图圈注（2026-11-17 上午）——红涨绿跌/红跌绿涨两卡的副标（A股惯例/国际惯例）占卡首行、选择框（radio+label）退居次行，与原生卡「标签在顶」不一致；拍板三卡行内次序统一为 **选择框 → 副标（如有）→ 预览**（UI/UX 同构）。设计记录 ui-redesign §8.20。
+- **实现与测试**：`client/panel.mjs` colorsem 行内 append 次序调整（`skc-colorsem-head` 先于 `skc-colorsem-sub` 落卡；CSS 不动——column flex 视觉序即 DOM 序）；`tests/client-settings-colorsem.test.mjs` 新增三卡行内次序 deepEqual 钉，先红（actual=sub→head→preview）后绿。
+- **全量**：`npm test` 全绿（实时计数以命令输出为准，本轮时点 507/507）；`npm run build` 重建 lib/client.js。
+- **在役与实拍**：`scripts/hot-deploy.mjs lib/client.js` 原子部署进装机目录（备份 .dsh-research/stock-kanban-hotdeploy/2026-11-17T02-00-48/）；cdp-shot 四轮全绿（指纹 page=local match、面板挂载、双层哨兵、console errors 0），设置页实拍目验三卡同构——**§12.64 未验证①（渲染层改动未实拍债）就此闭环**（默认档：列表/窄屏 sheet/详情/设置页；本机环境 headless chrome 正常，§12.64 记录的崩溃系当时沙箱会话限制）。
+- **未验证（不冒充已验证）**：green-up / native 档浏览器实拍仍未做（cdp-shot 无切档能力，同 §12.64 ②）；**未发版**——改动在仓 + 本机在役字节先行，npm 页随下次发版链生效（主人浏览器侧刷新页面即可取到新 bundle）。

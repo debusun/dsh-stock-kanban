@@ -584,3 +584,10 @@ P3（产品，需主人决定）
 2. **设置组 polish（Q2，impeccable Operate 精修）**：新增 `skc-colorsem-wrap`（标题-行组 4px 节奏）；radio 点 14→12px、选中内环 2.5→2px；行 gap 10→8、padding 8→9px；main 行距 1→2px；预览 gap 6→5px。44px 命中区与 aria 语义不动。
 3. **降级句收纳（Q3）**：数据源降级串（「腾讯美股（级来自东方财富）」）内联渲染把「时间 · 数据源」挤到次排——收进 quote-line tooltip（`\n` 追加段），行内小字 `.skc-source-note` 退役；非降级态 title 无追加段。诚实降级不丢面，悬停可得。
 4. **hk 指数分时修复（Q4）**：恒生科技指数（hkHSTECH）分时恒空而 K 线正常——根因 `tencent.fetchMinuteDetail` 对 code `toLowerCase()`，minute 端点按请求原样解析：小写请求得空壳（`data:["  0"]`）→ 0 点 no-data，休市时段 UI 以「休市中」遮掩真实 no-data。修复：代码原样透传（cn/hk 存量本小写零回归）；curl 双向取证（大写全量分时 / 小写空壳）；回归钉 providers-tencent 大小写保真用例。
+
+### 8.20 第 16 轮：目验反馈第二轮——设置组三卡行内次序统一（2026-11-17）
+
+主人截图圈注：红涨绿跌/红跌绿涨两卡的副标（A股惯例/国际惯例）占卡首行、选择框（radio+label）退居次行，与原生卡「标签在顶」不一致。拍板三卡行内次序统一为 **选择框 → 副标（如有）→ 预览**（首行恒 radio+label，三卡同构）：
+
+1. **实现（Q1）**：`client/panel.mjs` colorsem 行内 append 次序调整——`skc-colorsem-head` 先于 `skc-colorsem-sub` 落卡（原生卡本就 head 在顶零改动；CSS 不动，column flex 视觉序即 DOM 序）。选中描边/加粗/预览真渲染等既有语义全部不动。
+2. **测试（Q2）**：`tests/client-settings-colorsem.test.mjs` 新增三卡行内次序 deepEqual 钉（head→sub→preview 两卡 + head→preview 原生卡），先红后绿锁定；全量见 verification §12.68。
