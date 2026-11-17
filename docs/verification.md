@@ -79,6 +79,7 @@
 | 12.66 | v0.3.11 发版（§12.64/§12.65 涨跌语义 + 目验反馈 攒批收口；8 笔提交 b816aba→70de1c2） |
 | 12.67 | v0.3.12 发版（美股分时雪球腿 + 自管链熔断/量纲/diag + binance 加密备源；盘中实录驱动的多源韧性轮） |
 | 12.68 | 目验反馈第二轮（2026-11-17）：设置组三卡行内次序统一——选择框恒卡首行（hot-deploy 在役 + cdp-shot 实拍闭环 §12.64 实拍债） |
+| 12.69 | v0.3.13 发版（§12.68 设置组行内次序统一 攒批收口；2 笔提交 f3acc12→fd5bb2b） |
 
 ## 12.1 核心逻辑（自动化，全部通过）
 
@@ -1138,3 +1139,10 @@ P6（退避期含陈旧缓存时主源缓存优先于备源新鲜度）维持既
 - **全量**：`npm test` 全绿（实时计数以命令输出为准，本轮时点 507/507）；`npm run build` 重建 lib/client.js。
 - **在役与实拍**：`scripts/hot-deploy.mjs lib/client.js` 原子部署进装机目录（备份 .dsh-research/stock-kanban-hotdeploy/2026-11-17T02-00-48/）；cdp-shot 四轮全绿（指纹 page=local match、面板挂载、双层哨兵、console errors 0），设置页实拍目验三卡同构——**§12.64 未验证①（渲染层改动未实拍债）就此闭环**（默认档：列表/窄屏 sheet/详情/设置页；本机环境 headless chrome 正常，§12.64 记录的崩溃系当时沙箱会话限制）。
 - **未验证（不冒充已验证）**：green-up / native 档浏览器实拍仍未做（cdp-shot 无切档能力，同 §12.64 ②）；**未发版**——改动在仓 + 本机在役字节先行，npm 页随下次发版链生效（主人浏览器侧刷新页面即可取到新 bundle）。
+
+## 12.69 v0.3.13 发版（§12.68 攒批收口）
+
+- **内容**：§12.68 目验反馈第二轮单笔收口——设置组三卡行内次序统一（选择框恒卡首行）；提交链 f3acc12→fd5bb2b 共 2 笔（ui fix + docs）。
+- **发版链执行与偏差**：refresh-pools dry-run 未跑成——沙箱出口对 szse.cn fetch failed（与 §12.66/§12.67 同款站点侧限制）；0.3.10 刚刷、data/ 无变更预期，跳过 `--apply` 如实记录。bump（package.json + lock 根两处）→build（版本戳探针 `grep -cF 0.3.13 lib/client.js` =1）→全量 507/507→`scripts/ci-parity.sh` OK @fd5bb2b→轻量 tag→push（pre-push 钩子全绿：507/507 + 产物新鲜度）→release-monitor 两阶段判定 RELEASE_LIVE=yes。机读事实按纪律不手抄，可查：`gh run list --workflow=publish.yml --limit 3`、`npm view dsh-stock-kanban version dist-tags`、monitor 日志 /tmp/rel-0-3-13.log（会话临时区）。
+- **升级记录**：本机在役副本 = 目验期热部署同源字节（f3acc12 的 lib/client.js，0.3.12 版本戳；备份 .dsh-research/stock-kanban-hotdeploy/2026-11-17T02-00-48/），与发布版仅版本戳一行之差；装机 package.json 仍 0.3.12——`dshm_upgrade` 到 0.3.13 为幂等收口（重启后服务端 ESM 对齐）。data/ 与 0.3.12 一致（dry-run 跳过）。
+- **未验证（不冒充已验证）**：承 §12.68——green-up / native 档浏览器实拍未做；设置页三卡同构的主人点验待回填。
