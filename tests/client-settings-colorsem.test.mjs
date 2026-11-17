@@ -62,6 +62,11 @@ test("设置组 · 涨跌配色 radio 三行 + aria + 预览 + 点击写档（AD
     assert.equal(rows[0].querySelector(".skc-colorsem-sub").textContent, t("colorsem.sub.redup"), "zh 副标取自字典");
     assert.equal(rows[2].querySelector(".skc-colorsem-sub"), null, "原生卡无副标（三卡等高，目验迭代 3）");
 
+    // 行内次序（2026-11-17 统一目验）：选择框（head=radio+label）恒为卡内首行，副标降为第二行——三卡同构
+    assert.deepEqual([...rows[0].children].map((x) => x.className), ["skc-colorsem-head", "skc-colorsem-sub", "skc-colorsem-preview"], "行1 次序：选择框→副标→预览");
+    assert.deepEqual([...rows[1].children].map((x) => x.className), ["skc-colorsem-head", "skc-colorsem-sub", "skc-colorsem-preview"], "行2 同构");
+    assert.deepEqual([...rows[2].children].map((x) => x.className), ["skc-colorsem-head", "skc-colorsem-preview"], "原生卡：选择框→预览");
+
     // 预览：行1 涨红/跌绿；行3 同涨不同色（沪红/美绿）+ 市场小标签
     const p1 = [...rows[0].querySelectorAll(".skc-csp-red,.skc-csp-green")];
     assert.deepEqual(p1.map((x) => x.className), ["skc-csp-red", "skc-csp-green"], "行1 预览=涨红/跌绿");

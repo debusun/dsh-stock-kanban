@@ -342,6 +342,7 @@ export function createPanel({ doc, win, store, views }) {
     labelEl.className = "skc-colorsem-label";
     labelEl.dataset.key = opt.label;
     head.append(dot, labelEl);
+    row.append(head); // 选择框（radio+label）恒为卡内首行（2026-11-17 统一目验）：与原生卡同构，副标降为第二行
     if (opt.sub) {
       const subEl = doc.createElement("span");
       subEl.className = "skc-colorsem-sub";
@@ -365,7 +366,7 @@ export function createPanel({ doc, win, store, views }) {
         cspSpan(opt.mode === "red-up" ? "skc-csp-green" : "skc-csp-red", -1.8),
       ]));
     }
-    row.append(head, preview);
+    row.append(preview);
     row.addEventListener("click", () => store.setTrendColorMode(opt.mode));
     colorsemGroup.append(row);
     return { row, opt };
