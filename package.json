@@ -40,7 +40,7 @@
     "probe": "node scripts/probe-markets.mjs"
   },
   "peerDependencies": {
-    "@deepseek-ai/cordis": ">=4.1.0"
+    "@deepseek-ai/cordis": ">=4.0.2"
   },
   "devDependencies": {
     "esbuild": "^0.28.2",
@@ -48,7 +48,7 @@
   },
   "dsh": {
     "engines": {
-      "dsh": ">=0.2.2-rc.1"
+      "dsh": ">=0.2.0-rc.1"
     },
     "bundle": {
       "patch": "./cordis.patch.yml"
