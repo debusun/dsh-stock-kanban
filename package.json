@@ -1,6 +1,6 @@
 {
   "name": "dsh-stock-kanban",
-  "version": "0.3.13",
+  "version": "0.3.14",
   "description": "盯盘胶囊：A股/港股/美股/加密货币自选、拖拽排序、持仓盈亏与目标价，分时/K 线与指数看盘；可选集成 quota-watch。",
   "icon": "./icon.svg",
   "type": "module",
