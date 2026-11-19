@@ -1,7 +1,7 @@
 {
   "name": "dsh-stock-kanban",
   "version": "0.3.13",
-  "description": "DSH 轻量多市场盯盘与持仓查看插件：悬浮胶囊 + A股/港股/美股/加密货币分组自选（可拖拽排序）+ 持仓盈亏 + 目标价 + 分时/日周月K。数据存 DSH 实例（跨浏览器共享）；可选与 quota-watch 合并胶囊。",
+  "description": "盯盘胶囊：A股/港股/美股/加密货币自选、拖拽排序、持仓盈亏与目标价，分时/K 线与指数看盘；可选集成 quota-watch。",
   "icon": "./icon.svg",
   "type": "module",
   "main": "./src/host.mjs",
