@@ -6,7 +6,7 @@
 
 DSH 插件：多市场盯盘与持仓查看。悬浮胶囊 + A 股 / 港股 / 美股 / 加密货币分组自选 + 指数看盘（0.3.0 新增）+ 持仓盈亏 + 目标价 + 分时 / 日 / 周 / 月 K 线。
 
-![npm](https://img.shields.io/npm/v/dsh-stock-kanban) [![DSH](https://img.shields.io/badge/DSH-0.2.2--rc.5%20verified-2563eb)](docs/verification.md) ![license](https://img.shields.io/badge/license-MIT-green)
+[![CI](https://img.shields.io/github/actions/workflow/status/iasiv5/dsh-stock-kanban/ci.yml?branch=main&label=CI)](https://github.com/iasiv5/dsh-stock-kanban/actions/workflows/ci.yml) [![npm](https://img.shields.io/npm/v/dsh-stock-kanban?label=npm)](https://www.npmjs.com/package/dsh-stock-kanban) [![License](https://img.shields.io/github/license/iasiv5/dsh-stock-kanban?label=License)](./LICENSE) [![DSH](https://img.shields.io/badge/DSH-0.2.2--rc.5%20verified-2563eb)](docs/verification.md)
 
 ## 悬浮胶囊
 
