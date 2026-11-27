@@ -80,6 +80,8 @@
 | 12.67 | v0.3.12 发版（美股分时雪球腿 + 自管链熔断/量纲/diag + binance 加密备源；盘中实录驱动的多源韧性轮） |
 | 12.68 | 目验反馈第二轮（2026-11-17）：设置组三卡行内次序统一——选择框恒卡首行（hot-deploy 在役 + cdp-shot 实拍闭环 §12.64 实拍债） |
 | 12.69 | v0.3.13 发版（§12.68 设置组行内次序统一 攒批收口；2 笔提交 f3acc12→fd5bb2b） |
+| 12.70 | 从源码安装实录 + DSH 0.2.3-alpha.2 信任围栏故障（requestRejection 已被删除 → 换 admit） |
+| 12.71 | §12.70 续修与闭环：真根因是「守卫在 DSH 准入后又判了一次」（peer 让路；主人点验搜索恢复） |
 
 ## 12.1 核心逻辑（自动化，全部通过）
 
@@ -1158,3 +1160,16 @@ P6（退避期含陈旧缓存时主源缓存优先于备源新鲜度）维持既
 - **运行时实测**（`set_plugin` 重组合后）：连续请求 `/stock-kanban/{health,state,quotes,search}`，诊断日志**不再新增任何 `route.reject`**；返回的 401 来自 DSH 框架层 Cookie 认证（`webServer.register` 的 `auth` 默认 `required`），即插件守卫已放行、由框架正常要求登录。**真登录态下的 GET/POST 业务回包未在本轮取得**（进程 token 只在启动 URL 里，拿到需重启 DSH），故记为未验证项。
 - **未验证（不冒充已验证）**：① 带合法 Cookie 的浏览器端到端（胶囊出现、搜索出结果、添加成功、K 线渲染）未做——需重启 DSH 后重新取登录态；② 修复尚未提交、未发版，npm 页仍为 0.3.14 旧行为；③ 旧版 DSH（0.2.0-rc.1 ~ 0.2.2-rc.1）的 `requestRejection` 回落分支仅由单测覆盖，未在真实旧版 runtime 上跑过。
 - **环境旁记**：`AGENTS.md` 的 npm 缓存路径 `/home/ubuntu/workspace/...` 在本机（用户 `bcy`）不可写（EROFS），本轮改用仓库内 `.npm-cache` 完成 `npm ci`；`dsh plugin add` 如 AGENTS.md 所预警清空了 `node_modules`，已重装。
+
+## 12.71 §12.70 的续修与闭环：真根因是「守卫在 DSH 准入后又判了一次」
+
+- **背景**：§12.70 把 `requestRejection` 换成 `admit` 后，主人重启 DSH（15:54 新进程）复测，搜索仍报「请求未通过信任检查」。§12.70 的修复**不完整**，本条记第二层根因。
+- **症状辨析（关键判据）**：`curl`（无 Cookie）请求路由返回 **401**，主人浏览器（带 Cookie）返回 **403**。两者不是同一道关卡——401 来自 DSH webserver 框架层认证，403 才是插件守卫自己抛的（`route.reject` 全仓仅在 `src/routes.mjs` 一处产生）。即：请求已通过 DSH 准入，随后被插件守卫二次误拒。
+- **真根因**：DSH 自 0.2.2-rc.2 起 `webServer.register` 的 `auth` 默认 `required`，框架自己完成 Host/Origin/凭据全链检查，并把 `admission.peer` 作为**第三个参数**传给 handler（`packages/host/webserver/src/index.ts` 的 `responder.handler(req, res, admission.peer)`）。插件守卫在这之后又用 `ctx.get("connection")` 判一次，而该查询（`strict=true`）拿不到可用实现，于是按 fail-closed 继续 403。**在当前 DSH 版本，插件这层守卫纯属重复且已失效。**
+- **修法**：`src/routes.mjs` 的 `withTrust` 增加第三参 `peer`——`peer !== undefined`（框架已准入）则跳过插件守卫；无 `peer`（旧版 DSH 未准入）才走原守卫逻辑。判据用框架明确传递的「已准入」事实，而非猜测 API 是否存在。
+- **决定性验证**（直接跑生产 `routes.mjs`，非桩）：DSH 已准入（传 `peer`）→ **200 业务直达，守卫调用次数 0**；未准入（不传 `peer`）→ **403，守卫调用 1 次**。`tests/routes.test.mjs` 新增对应用例钉住两条分支。
+- **全量**：`npm test` 514 通过 / 0 失败（§12.70 后新增 1 例）；`npm run build` 后 `lib/client.js` **零 diff**（只动宿主侧）。
+- **运行时观察**：重载后连续观察 60s，诊断日志零新增（停在 55 行），`route.reject` 不再产生。
+- **主人点验（2026-11-27 17:37 回填）**：重启 DSH 后搜索恢复正常——**§12.70 未验证项①（真登录态端到端）就此闭环**。
+- **仍未验证（不冒充已验证）**：① §12.70 的 ②——本次修复未发版，npm 页仍是 0.3.14 旧行为；② §12.70 的 ③——旧版 DSH（0.2.0-rc.1 ~ 0.2.2-rc.1）的 `requestRejection` 回落分支仍只由单测覆盖，未在真实旧版 runtime 跑过。注意本条修复后，旧版路径同样走「无 peer → 守卫生效」，逻辑未被削弱。
+- **分支与发布旁记**：修复与本文均落在 `dev`（自用开发分支），`main` 保持上游镜像备份（仅多一个 `sync-upstream.yml`，见该文件头注的分支分工约定）。发版链未执行。
