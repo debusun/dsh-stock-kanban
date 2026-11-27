@@ -8,3 +8,6 @@ node_modules/
 .env.*
 .credentials.yaml
 .DS_Store
+
+# archify local artifacts
+.archify/
