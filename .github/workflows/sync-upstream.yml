@@ -1,0 +1,156 @@
+# 每天从上游 fork 源（iasiv5/dsh-stock-kanban）同步一次 main。
+#
+# ⚠️ 分支分工（本仓约定，勿破坏）：
+#   - main = 上游镜像备份。**只允许本文件一处偏离**，其余内容必须与上游一致。
+#     dev 的本地功能提交**禁止**合入 main——否则两边改同一批文件，同步必然冲突。
+#   - dev  = 自用开发分支。需要用上游最新代码时，从 main 合入（`git merge main`），
+#     历史里留有合并记录可追溯。
+#
+# 为什么 main 上必须有本文件：GitHub 的 schedule 触发只在**默认分支**生效，
+# 工作流放在其他分支不会自动运行。
+#
+# 为什么这处偏离不会造成同步冲突：Git 按行合并，本文件是「上游从不存在的路径」上的
+# 纯新增，任何次同步都碰不到它。下方的 guard 步骤会在上游万一新增同名文件时直接失败，
+# 把「悄悄被覆盖」变成「显式红灯」。
+#
+# 其他设计取舍：
+# - **merge 而非 reset --hard**：本文件的存在使 main 无法 fast-forward，必须 merge；
+#   merge 同时保证任何本地偏离都不被静默丢弃。
+# - **冲突即失败**，不自动取舍：`-X ours/theirs` 等于悄悄丢代码。
+# - **幂等**：已是上游最新时零提交零推送。
+# - GITHUB_TOKEN 推送的提交不会触发 ci.yml（GitHub 反递归限制）；若需要同步后跑 CI，
+#   改用 PAT 并替换下方 token，此处不默认这样做。
+name: sync-upstream
+
+on:
+  schedule:
+    # 每天 02:17 UTC（= 北京时间 10:17，避开整点拥堵）；GitHub cron 一律 UTC。
+    - cron: '17 2 * * *'
+  workflow_dispatch: # 手动触发（调试 / 补跑）
+
+concurrency:
+  group: sync-upstream-main
+  cancel-in-progress: false
+
+permissions:
+  contents: write # 需要推送同步后的 main
+
+env:
+  UPSTREAM_REPO: iasiv5/dsh-stock-kanban
+  UPSTREAM_BRANCH: main
+  TARGET_BRANCH: main
+  # 本文件自身路径：main 允许的唯一偏离
+  OWN_PATH: .github/workflows/sync-upstream.yml
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout target branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.TARGET_BRANCH }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          # 取全量历史：merge 需要真实祖先关系，浅克隆会让 ancestor 判断出错
+          fetch-depth: 0
+
+      - name: Configure git identity
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Fetch upstream
+        run: |
+          git remote add upstream "https://github.com/${UPSTREAM_REPO}.git"
+          # --no-tags：不把上游 tag 带进本仓（本仓 tag 由发版流程独占）
+          git fetch --no-tags upstream "${UPSTREAM_BRANCH}"
+
+      - name: Guard — upstream must not own this workflow
+        run: |
+          # 上游若新增同名文件，本文件的「纯新增」前提失效，交由人工决策
+          if git cat-file -e "upstream/${UPSTREAM_BRANCH}:${OWN_PATH}" 2>/dev/null; then
+            echo "::error::上游已新增 ${OWN_PATH}，与本地同名。本工作流的无冲突前提失效，请人工决定保留哪一份。"
+            exit 1
+          fi
+          echo "guard ok：上游不含 ${OWN_PATH}"
+
+      - name: Report divergence
+        id: diff
+        run: |
+          UPSTREAM_SHA=$(git rev-parse "upstream/${UPSTREAM_BRANCH}")
+          echo "upstream=${UPSTREAM_SHA} local=$(git rev-parse HEAD)"
+          echo "upstream_sha=${UPSTREAM_SHA}" >> "$GITHUB_OUTPUT"
+
+          if git merge-base --is-ancestor "upstream/${UPSTREAM_BRANCH}" HEAD; then
+            echo "needs_sync=false" >> "$GITHUB_OUTPUT"
+            {
+              echo "### ✅ 已是最新"
+              echo ""
+              echo "本地 \`${TARGET_BRANCH}\` 已包含上游全部提交（\`${UPSTREAM_SHA:0:7}\`），无需同步。"
+            } >> "$GITHUB_STEP_SUMMARY"
+          else
+            COUNT=$(git rev-list --count "HEAD..upstream/${UPSTREAM_BRANCH}")
+            echo "needs_sync=true" >> "$GITHUB_OUTPUT"
+            echo "--- incoming ${COUNT} upstream commit(s) ---"
+            git log --oneline "HEAD..upstream/${UPSTREAM_BRANCH}" | head -50
+            {
+              echo "### ⬇️ 合并上游 ${COUNT} 个提交"
+              echo ""
+              echo '```'
+              git log --oneline "HEAD..upstream/${UPSTREAM_BRANCH}" | head -20
+              echo '```'
+            } >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Verify only intended deviation
+        if: steps.diff.outputs.needs_sync == 'true'
+        run: |
+          # 同步前先自检：main 相对上游的差异应当**只有**本工作流文件。
+          # 出现其他差异说明有人把功能提交合进了 main——那会让后续同步冲突，此处提前报警。
+          EXTRA=$(git diff --name-only "upstream/${UPSTREAM_BRANCH}" HEAD | grep -v "^${OWN_PATH}$" || true)
+          if [ -n "$EXTRA" ]; then
+            echo "::warning::main 相对上游存在 ${OWN_PATH} 之外的差异，镜像语义已偏离："
+            echo "$EXTRA"
+            {
+              echo ""
+              echo "> ⚠️ **main 偏离上游**（除本工作流外的文件）："
+              echo '```'
+              echo "$EXTRA"
+              echo '```'
+              echo "> 若是 dev 的功能提交被合进了 main，后续同步将冲突。"
+            } >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "deviation ok：main 相对上游仅多出 ${OWN_PATH}"
+          fi
+
+      - name: Merge upstream
+        if: steps.diff.outputs.needs_sync == 'true'
+        run: |
+          if git merge --no-edit "upstream/${UPSTREAM_BRANCH}"; then
+            echo "merge ok"
+          else
+            echo "::error::上游合并冲突——自动化未推送任何内容，需人工解决"
+            echo "--- conflicted files ---"
+            git diff --name-only --diff-filter=U || true
+            {
+              echo "### ❌ 合并冲突，未推送"
+              echo ""
+              echo '```'
+              git diff --name-only --diff-filter=U || true
+              echo '```'
+              echo ""
+              echo "本地与上游改到同一批行。处理后手动推送，或修复偏离后重跑本工作流。"
+            } >> "$GITHUB_STEP_SUMMARY"
+            git merge --abort || true
+            exit 1
+          fi
+
+      - name: Push
+        if: steps.diff.outputs.needs_sync == 'true'
+        run: |
+          # merge 可能未产生新提交（上游已被包含）——此时不推送
+          if [ "$(git rev-parse HEAD)" = "${{ github.sha }}" ]; then
+            echo "no new commit after merge — skip push"
+            exit 0
+          fi
+          git push origin "HEAD:${TARGET_BRANCH}"
