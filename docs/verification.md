@@ -1146,3 +1146,15 @@ P6（退避期含陈旧缓存时主源缓存优先于备源新鲜度）维持既
 - **发版链执行与偏差**：refresh-pools dry-run 未跑成——沙箱出口对 szse.cn fetch failed（与 §12.66/§12.67 同款站点侧限制）；0.3.10 刚刷、data/ 无变更预期，跳过 `--apply` 如实记录。bump（package.json + lock 根两处）→build（版本戳探针 `grep -cF 0.3.13 lib/client.js` =1）→全量 507/507→`scripts/ci-parity.sh` OK @fd5bb2b→轻量 tag→push（pre-push 钩子全绿：507/507 + 产物新鲜度）→release-monitor 两阶段判定 RELEASE_LIVE=yes。机读事实按纪律不手抄，可查：`gh run list --workflow=publish.yml --limit 3`、`npm view dsh-stock-kanban version dist-tags`、monitor 日志 /tmp/rel-0-3-13.log（会话临时区）。
 - **升级记录**：本机在役副本 = 目验期热部署同源字节（f3acc12 的 lib/client.js，0.3.12 版本戳；备份 .dsh-research/stock-kanban-hotdeploy/2026-11-17T02-00-48/），与发布版仅版本戳一行之差；装机 package.json 仍 0.3.12——`dshm_upgrade` 到 0.3.13 为幂等收口（重启后服务端 ESM 对齐）。data/ 与 0.3.12 一致（dry-run 跳过）。
 - **未验证（不冒充已验证）**：承 §12.68——green-up / native 档浏览器实拍未做；设置页三卡同构的主人点验待回填。
+
+## 12.70 从源码安装实录 + DSH 0.2.3-alpha.2 信任围栏故障（requestRejection 已被删除）
+
+- **场景**：按主人要求「从源码安装」——`plugin_manager` `install_bundle` 以 `link:` 装当前 checkout 进 web profile。安装、激活、路由挂载、bundle 下发全部成功，但**每个路由一律 403 `{"error":"untrusted"}`**；主人在添加标的对话框看到「搜索暂时不可用：请求未通过信任检查」（`client/i18n.mjs` 的 `err.untrusted`），直接输代码同样不可用。
+- **现场证据**：`~/.dsh/stock-kanban/stock-kanban-diag-2026-11-27.jsonl` 07:11:52–07:12:08 连续 6 条 `{"ev":"route.reject","path":"/stock-kanban/search","status":403}`。`route.reject` 全仓只在 `src/routes.mjs:129` 一处产生 → **是插件自己的守卫拒的，不是 DSH 拒的**。
+- **根因**：DSH 在 **0.2.2-rc.2** 删除 `connection.requestRejection`（`docs/upgrade-guide/v0.2.2-rc.2/connection-page-peer/`：「Use `admit` instead」）。运行时实查 `ctx.connection` 只剩 `admit` / `authentication` / `fetch` / `rpc` / `browserPeer` / `createPeer` / `allowsRemoteAuthorities`。原 `src/access.mjs` 查不到该函数即按 ADR-0005 第 3 条 fail-closed，把全部路由拦死。`engines.dsh: ">=0.2.0-rc.1"` 无上盖 → 安装与激活阶段零报错，故障完整掩盖到运行时。
+- **修复**：守卫式委派改为**按版本择优双入口**（`src/access.mjs`）——`admit` 优先（0.2.2-rc.2 起唯一入口，返回 `{rejection}` / `{peer}` 判别式对象），旧版回落 `requestRejection`；两者都缺席仍 fail-closed 403。为此新增 `trustRequestOf` 把 Node `req` 补成 `ConnectionTrustRequest`（`admit` 的来源栅栏读 `host` 头，需 `headers` + `method` + `url` + `socket`）。ADR-0005 第 1–3 条语义三态与 fail-closed 取向全部保留，不引入本地回落栅栏。
+- **回归钉**：`tests/routes.test.mjs`「官方信任检查」组扩到 12 例（admit 401/403/503 原样、admit 放行业务照常、admit 收完整 trust request、旧 API 回落三态、admit 优先于旧 API、服务缺席 warn-once、无任何 API、两种 API 各自抛错、非数值 rejection 保守 403、读路由不豁免、64KiB 体积上限）。另以生产 `createTrustGuard` + 复刻 `admit` 语义桩跑 9 情形矩阵，全绿（含跨站 403、未验证 401）。
+- **全量**：`npm test` 513 通过 / 0 失败（本轮改动前 507，新增 6 例）；`npm run build` 重建 `lib/client.js` 后 **零 diff**（本次只动宿主侧 `src/`，符合预期）。
+- **运行时实测**（`set_plugin` 重组合后）：连续请求 `/stock-kanban/{health,state,quotes,search}`，诊断日志**不再新增任何 `route.reject`**；返回的 401 来自 DSH 框架层 Cookie 认证（`webServer.register` 的 `auth` 默认 `required`），即插件守卫已放行、由框架正常要求登录。**真登录态下的 GET/POST 业务回包未在本轮取得**（进程 token 只在启动 URL 里，拿到需重启 DSH），故记为未验证项。
+- **未验证（不冒充已验证）**：① 带合法 Cookie 的浏览器端到端（胶囊出现、搜索出结果、添加成功、K 线渲染）未做——需重启 DSH 后重新取登录态；② 修复尚未提交、未发版，npm 页仍为 0.3.14 旧行为；③ 旧版 DSH（0.2.0-rc.1 ~ 0.2.2-rc.1）的 `requestRejection` 回落分支仅由单测覆盖，未在真实旧版 runtime 上跑过。
+- **环境旁记**：`AGENTS.md` 的 npm 缓存路径 `/home/ubuntu/workspace/...` 在本机（用户 `bcy`）不可写（EROFS），本轮改用仓库内 `.npm-cache` 完成 `npm ci`；`dsh plugin add` 如 AGENTS.md 所预警清空了 `node_modules`，已重装。

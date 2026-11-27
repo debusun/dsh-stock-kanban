@@ -80,7 +80,7 @@ sudo systemctl restart deepseek-harness.service
 - 备份文件是 JSON 明文，包含持仓数据，请自行妥善保管。导入为覆盖模式，会替换当前全部数据。
 - 行情请求只携带市场代码，**不发送任何持仓数据**给行情提供方。
 - **诊断日志**（可选）：默认 `errors` 级只记上游失败 / 路由异常 / 写冲突计数，按天 JSONL 存 `~/.dsh/stock-kanban/`（超 1MiB 轮转，同路径+状态两分钟一行）；不含持仓与自选明细。`cordis.patch.yml` 行内可配 `diagLevel: off | errors | full`、`diagDir`、`diagLogMaxBytes`；`GET /stock-kanban/diag?tail=50` 回读。
-- 全部路由经 DSH 官方信任检查（`connection.requestRejection`，检查服务缺席时 fail-closed 403）；写操作路由另做同源校验（Origin / Sec-Fetch-Site），并限制请求体积。
+- 全部路由经 DSH 官方信任检查（守卫式委派：新版本用 `connection.admit`，旧版本回落 `connection.requestRejection`；两个入口都缺席时 fail-closed 403）；写操作路由另做同源校验（Origin / Sec-Fetch-Site），并限制请求体积。
 - 多页面一致：每次变更带版本号（rev）。旧页面用过期数据提交时会收到 409，并提示「数据已被其他页面更新，已刷新，请重试」，不静默覆盖。
 
 ## 行情来源与限制

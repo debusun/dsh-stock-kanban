@@ -122,9 +122,13 @@ export function createRoutes({ store, quotes, chain, logger, trust, diag }) {
       /* 门自身异常不影响响应 */
     }
   };
-  /** 官方信任检查壳 + 状态日志门：rejection 非 undefined → 以该状态码直接拒绝（401/403），读路由不豁免 */
-  const withTrust = (path, handler) => async (req, res) => {
-    const rejection = typeof trust === "function" ? trust(req) : undefined;
+  /**
+   * 官方信任检查壳 + 状态日志门：rejection 非 undefined → 以该状态码直接拒绝（401/403），读路由不豁免。
+   * peer 存在 = DSH 框架层已完成准入（webserver 把 admission.peer 作为第三参传入），此时守卫不再重复判定：
+   * 0.2.2-rc.2 起框架默认 auth='required'，自带 Host/Origin/凭据全链检查，插件的二次守卫只会误拒。
+   */
+  const withTrust = (path, handler) => async (req, res, peer) => {
+    const rejection = peer !== undefined ? undefined : (typeof trust === "function" ? trust(req) : undefined);
     if (rejection !== undefined) {
       note({ ev: "route.reject", path, status: rejection });
       sendJson(res, rejection, { error: "untrusted" });

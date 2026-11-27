@@ -289,16 +289,16 @@ test("路由：reorder 200 重编号 / 422 非排列与非法市场 / ifRev 冲�
   } finally { t.close(); }
 });
 
-/* ---------------- 官方信任检查（connection.requestRejection 守卫式委派，2026-11-12） ---------------- */
+/* ---------------- 官方信任检查（守卫式委派：admit 优先，requestRejection 回落） ---------------- */
 
 /** 挂上指定 connection mock 的信任围栏后启动同一套路由 */
 function trustServer(conn, logger) {
   return startServer({ trust: createTrustGuard({ get: () => conn }, logger) });
 }
 
-test("路由：信任检查拒绝 → 401/403 原样下发（error=untrusted）", async () => {
-  for (const status of [401, 403]) {
-    const t = await trustServer({ requestRejection: () => status });
+test("路由：admit 拒绝 → 401/403/503 原样下发（error=untrusted）", async () => {
+  for (const status of [401, 403, 503]) {
+    const t = await trustServer({ admit: () => ({ rejection: status }) });
     try {
       const res = await t.j("/stock-kanban/state");
       assert.equal(res.status, status);
@@ -307,9 +307,9 @@ test("路由：信任检查拒绝 → 401/403 原样下发（error=untrusted）"
   }
 });
 
-test("路由：信任检查放行 → 业务照常；写路由仍受同源校验", async () => {
+test("路由：admit 放行（{ peer }）→ 业务照常；写路由仍受同源校验", async () => {
   const restore = await mockUpstream();
-  const t = await trustServer({ requestRejection: () => undefined });
+  const t = await trustServer({ admit: () => ({ peer: { id: "p1" } }) });
   try {
     const res = await t.j("/stock-kanban/state");
     assert.equal(res.status, 200);
@@ -318,6 +318,37 @@ test("路由：信任检查放行 → 业务照常；写路由仍受同源校验
     assert.equal(cross.status, 403);
     assert.equal(cross.body.error, "origin-rejected");
   } finally { t.close(); restore(); }
+});
+
+test("路由：admit 收到完整 trust request（headers/method/url）", async () => {
+  const seen = [];
+  const t = await trustServer({ admit: (request) => { seen.push(request); return { peer: {} }; } });
+  try {
+    await t.j("/stock-kanban/health");
+    assert.equal(seen.length, 1);
+    assert.equal(seen[0].method, "GET");
+    assert.equal(typeof seen[0].headers.host, "string");
+    assert.match(seen[0].url, /^http:\/\//);
+    assert.match(seen[0].url, /\/stock-kanban\/health$/);
+  } finally { t.close(); }
+});
+
+test("路由：旧版回落 —— 只有 requestRejection 时仍按其判定（401/403 原样、undefined 放行）", async () => {
+  for (const [status, expected] of [[401, 401], [403, 403], [undefined, 200]]) {
+    const t = await trustServer({ requestRejection: () => status });
+    try {
+      const res = await t.j("/stock-kanban/state");
+      assert.equal(res.status, expected);
+      if (expected !== 200) assert.equal(res.body.error, "untrusted");
+    } finally { t.close(); }
+  }
+});
+
+test("路由：admit 优先于 requestRejection（两者都在时用 admit）", async () => {
+  const t = await trustServer({ admit: () => ({ peer: {} }), requestRejection: () => 403 });
+  try {
+    assert.equal((await t.j("/stock-kanban/state")).status, 200);
+  } finally { t.close(); }
 });
 
 test("路由：connection 服务缺席 → fail-closed 403，warn 只发一次", async () => {
@@ -334,6 +365,24 @@ test("路由：connection 服务缺席 → fail-closed 403，warn 只发一次",
   } finally { t.close(); }
 });
 
+test("路由：connection 无任何信任 API → fail-closed 403", async () => {
+  const t = await trustServer({});
+  try {
+    const res = await t.j("/stock-kanban/state");
+    assert.equal(res.status, 403);
+    assert.equal(res.body.error, "untrusted");
+  } finally { t.close(); }
+});
+
+test("路由：admit 抛错 → fail-closed 403", async () => {
+  const t = await trustServer({ admit: () => { throw new Error("boom"); } });
+  try {
+    const res = await t.j("/stock-kanban/state");
+    assert.equal(res.status, 403);
+    assert.equal(res.body.error, "untrusted");
+  } finally { t.close(); }
+});
+
 test("路由：requestRejection 抛错 → fail-closed 403", async () => {
   const t = await trustServer({ requestRejection: () => { throw new Error("boom"); } });
   try {
@@ -343,8 +392,53 @@ test("路由：requestRejection 抛错 → fail-closed 403", async () => {
   } finally { t.close(); }
 });
 
+test("路由：admit 返回非数值 rejection → 保守 403", async () => {
+  const t = await trustServer({ admit: () => ({ rejection: "weird" }) });
+  try {
+    assert.equal((await t.j("/stock-kanban/state")).status, 403);
+  } finally { t.close(); }
+});
+
+test("路由：DSH 已准入（handler 收到 peer）→ 守卫不再二次判定，业务直达", async () => {
+  // 0.2.2-rc.2 起 webserver 默认 auth='required'，准入后把 admission.peer 作为第三参传给 handler。
+  // 此时插件守卫必须让路，否则会对已认证请求误判（2026-11-27 实录：search 恒 403）。
+  const restore = await mockUpstream();
+  const seen = [];
+  const dir = mkdtempSync(join(tmpdir(), "sk-peer-"));
+  process.env.DSH_STOCK_KANBAN_FILE = join(dir, "data.json");
+  const store = new Store({}, { info() {}, warn() {} });
+  await store.init();
+  await store.addSymbol(SYM);
+  const chain = createChain({});
+  const routes = createRoutes({
+    store,
+    quotes: createQuoteService({ chain }),
+    chain,
+    logger: { info() {}, warn() {} },
+    // 守卫若被调用就会记录并返回 403；正确实现下它根本不该被调用
+    trust: () => { seen.push("called"); return 403; },
+  });
+  const route = routes.find((r) => r.path === "/stock-kanban/state");
+  const res = {
+    statusCode: 0, headers: {}, body: "",
+    setHeader(k, v) { this.headers[k] = v; },
+    writeHead(s, h) { this.statusCode = s; if (h) Object.assign(this.headers, h); },
+    end(b) { this.body = String(b ?? ""); },
+  };
+  // 传 peer = DSH 已准入
+  await route.handler({ method: "GET", url: "/stock-kanban/state", headers: { host: "127.0.0.1:3080" } }, res, { id: "peer-1" });
+  assert.equal(res.statusCode, 200);
+  assert.deepEqual(seen, [], "peer 存在时不得调用插件守卫");
+  // 不传 peer = 老版本 DSH 未准入 → 守卫照常生效
+  const res2 = { statusCode: 0, headers: {}, body: "", setHeader(k, v) { this.headers[k] = v; }, writeHead(s, h) { this.statusCode = s; if (h) Object.assign(this.headers, h); }, end(b) { this.body = String(b ?? ""); } };
+  await route.handler({ method: "GET", url: "/stock-kanban/state", headers: { host: "127.0.0.1:3080" } }, res2);
+  assert.equal(res2.statusCode, 403);
+  assert.equal(seen.length, 1, "无 peer 时守卫必须生效");
+  restore();
+});
+
 test("路由：读路由不豁免（export/health/quotes 同样过信任检查）", async () => {
-  const t = await trustServer({ requestRejection: () => 403 });
+  const t = await trustServer({ admit: () => ({ rejection: 403 }) });
   try {
     assert.equal((await t.j("/stock-kanban/export")).status, 403);
     assert.equal((await t.j("/stock-kanban/health")).status, 403);
@@ -354,7 +448,7 @@ test("路由：读路由不豁免（export/health/quotes 同样过信任检查�
 
 test("路由：非 import 变更默认 64KiB 体积上限（413）", async () => {
   const restore = await mockUpstream();
-  const t = await trustServer({ requestRejection: () => undefined });
+  const t = await trustServer({ admit: () => ({ peer: {} }) });
   try {
     const big = JSON.stringify({ ifRev: t.store.rev, privacyMode: true, pad: "x".repeat(70 * 1024) });
     const res = await t.j("/stock-kanban/settings", { method: "POST", headers: { "content-type": "application/json", origin: t.base, "sec-fetch-site": "same-origin" }, body: big });

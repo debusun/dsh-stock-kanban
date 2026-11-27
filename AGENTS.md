@@ -27,6 +27,7 @@ DSH 插件（盯盘胶囊 + 面板 + 分时/K 线）。运行时零 npm 依赖�
 
 ## 文档索引
 
+- `docs/project-map.md` **项目导览（先读这个）**：两端职责、目录分工、三条主链路、改动菜谱、结构不变量与排错入口（配套架构图/结构树为本地 archify 产物，路径见该文件，不入库）。
 - `docs/ui-redesign.md` 设计契约与分轮变更、`docs/verification.md` 验证记录、`docs/adr/` 架构决策、`docs/interop/capsule-embed-protocol.md` 与 quota-watch 的 CEP 协议、`docs/tech-notes.md` 技术核查。
 - `GLOSSARY.md` 领域术语表（决策定案即时追加）；`docs/plans/` 实施计划归档（writing-plans 产出，随实现入库）。
 - 搜索（添加标的）：入口 `src/markets/search.mjs`（文件头为定案口径），UI `client/add.mjs`，验证 `docs/verification.md` §12.39；名称覆写与池定位 ADR-0008（§12.60）；数据来源 `data/README.md`。
